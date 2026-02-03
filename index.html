@@ -41,8 +41,21 @@
         .toast.error { border-color: #ff4444; color: #ff4444; }
         @keyframes slideIn { to { opacity: 1; transform: translateY(0); } }
 
-        /* IMPROVED AUTH UI */
-        #authOverlay { position: fixed; inset: 0; background: url('background.jpg') no-repeat center center fixed; background-size: cover; z-index: 3000; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        /* FIXED AUTH UI VISIBILITY */
+        #authOverlay { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: url('background.jpg') no-repeat center center fixed; 
+            background-size: cover; 
+            z-index: 3000; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            backdrop-filter: blur(5px); 
+        }
         
         .auth-container {
             width: 380px; background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(20px);
