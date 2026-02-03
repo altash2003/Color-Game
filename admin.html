@@ -1,174 +1,63 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ADMIN DASHBOARD</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <title>ADMIN PANEL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --panel-bg: rgba(20, 22, 28, 0.95); --border: rgba(255, 255, 255, 0.1); --gold: #FFD700; --cyan: #00E5FF; --red: #ff4444; --green: #00C853; --blue: #2979FF; --yellow: #FFEA00; }
-        body { font-family: 'Inter', sans-serif; margin: 0; background: url('background.jpg') center/cover; height: 100vh; display: flex; overflow: hidden; color: #fff; }
-        
-        /* CHAT FONT override */
-        .chat-font { font-family: 'VT323', monospace; font-size: 18px; letter-spacing: 1px; }
-
-        /* LAYOUT */
-        .admin-wrapper { background: var(--panel-bg); width: 100%; height: 100vh; display: flex; }
-        .sidebar { width: 260px; background: rgba(0,0,0,0.3); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; }
-        .main-grid { flex: 1; padding: 20px; display: grid; grid-template-columns: 2fr 1fr; gap: 20px; overflow-y: auto; }
-        
-        /* COMPONENTS */
-        .panel-box { background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; margin-bottom: 20px; }
-        .panel-header { padding: 12px; background: rgba(255,255,255,0.05); font-weight: bold; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; font-size: 12px; letter-spacing: 1px; color: #aaa; text-transform: uppercase; }
-        
-        .btn-small { background: #333; border: 1px solid #555; color: white; padding: 4px 10px; cursor: pointer; font-size: 11px; border-radius: 4px; }
-        .btn-small:hover { background: #555; }
-        
-        /* SUPPORT INBOX */
-        .support-layout { display: flex; height: 400px; }
-        .thread-list { width: 180px; border-right: 1px solid var(--border); overflow-y: auto; }
-        .thread-item { padding: 10px; border-bottom: 1px solid var(--border); cursor: pointer; opacity: 0.7; }
-        .thread-item:hover, .thread-item.active { background: rgba(0,229,255,0.1); opacity: 1; border-left: 3px solid var(--cyan); }
-        .thread-user { font-weight: bold; color: var(--gold); font-size: 14px; }
-        .thread-preview { font-size: 11px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 4px; }
-        
-        .thread-view { flex: 1; display: flex; flex-direction: column; background: #000; }
-        .thread-msgs { flex: 1; overflow-y: auto; padding: 10px; }
-        .thread-input-area { padding: 10px; border-top: 1px solid var(--border); display: flex; gap: 5px; }
-        
-        /* LOGS */
-        .logs-container { height: 300px; overflow-y: auto; font-family: monospace; font-size: 11px; padding: 10px; }
-        .log-entry { border-bottom: 1px solid #222; padding: 4px 0; display: flex; gap: 10px; }
-        .log-time { color: #666; width: 130px; flex-shrink: 0; }
-        .log-actor { color: var(--gold); width: 100px; flex-shrink: 0; font-weight: bold; }
-        .log-action { color: var(--cyan); width: 100px; flex-shrink: 0; }
-        .log-details { color: #ccc; }
-
-        /* PLAYERS LIST */
-        .player-row { display: flex; align-items: center; padding: 6px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }
-        .status-bullet { width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; }
-        .bullet-green { background: var(--green); box-shadow: 0 0 5px var(--green); }
-        .bullet-blue { background: var(--blue); box-shadow: 0 0 5px var(--blue); }
-        .bullet-yellow { background: var(--yellow); }
-        .name-staff { color: var(--red); font-weight: bold; }
-        .name-player { color: var(--yellow); }
-
-        /* INPUTS */
-        input { background: rgba(0,0,0,0.5); border: 1px solid var(--border); color: white; padding: 8px; border-radius: 4px; outline: none; }
-        
-        /* MUSIC */
-        .music-meta { text-align: center; margin-bottom: 10px; }
-        .music-title { font-weight: bold; color: white; }
-        .music-artist { font-size: 11px; color: var(--gold); }
+        body { font-family: 'Rajdhani', sans-serif; background: #111; color: white; display: grid; grid-template-columns: 250px 1fr; height: 100vh; margin: 0; }
+        .sidebar { background: #1a1a1a; padding: 20px; border-right: 1px solid #333; }
+        .main { padding: 20px; display: grid; grid-template-rows: auto 1fr; gap: 20px; }
+        .panel { background: #222; border: 1px solid #333; padding: 20px; border-radius: 8px; }
+        input, button { padding: 8px; background: #333; border: 1px solid #444; color: white; border-radius: 4px; }
+        button { cursor: pointer; font-weight: bold; } button:hover { background: #444; }
+        .row { display: flex; gap: 10px; margin-bottom: 10px; }
+        .chat-box { height: 300px; overflow-y: auto; background: #000; border: 1px solid #333; padding: 10px; margin-bottom: 10px; font-size: 13px; }
     </style>
 </head>
 <body>
-
-    <div id="loginScreen" style="position:fixed; inset:0; background:#000; z-index:9999; display:flex; justify-content:center; align-items:center;">
-        <div style="background:#1a1d24; border:1px solid #333; padding:40px; text-align:center;">
-            <h2 style="color:var(--gold);">STAFF ACCESS</h2>
-            <input type="text" id="aUser" placeholder="Username" style="display:block; margin:10px auto; width:200px;">
-            <input type="password" id="aPass" placeholder="Password" style="display:block; margin:10px auto; width:200px;">
-            <button class="btn-small" style="font-size:14px; padding:8px 20px; background:var(--gold); color:black;" onclick="doLogin()">LOGIN</button>
-            <div id="loginErr" style="color:red; margin-top:10px;"></div>
+    <div id="loginOverlay" style="position:fixed; inset:0; background:#000; display:flex; justify-content:center; align-items:center; z-index:99;">
+        <div style="text-align:center;">
+            <h2>ADMIN LOGIN</h2>
+            <input id="aUser" placeholder="Username"><br><br>
+            <input id="aPass" type="password" placeholder="Password"><br><br>
+            <button onclick="login()">LOGIN</button>
         </div>
     </div>
 
-    <div class="admin-wrapper">
-        <div class="sidebar">
-            <h3 style="color:white; margin:0 0 20px 0;">ADMIN PANEL</h3>
-            <div id="identity" style="font-size:12px; color:#888; margin-bottom:20px;"></div>
-            
-            <div style="font-size:11px; color:#aaa; font-weight:bold; margin-bottom:10px;">ACTIVE USERS (<span id="userCount">0</span>)</div>
-            <div id="playerList" style="flex:1; overflow-y:auto; margin-bottom:20px;"></div>
+    <div class="sidebar">
+        <h3>CONTROLS</h3>
+        <div id="userList" style="font-size:12px; color:#aaa;"></div>
+    </div>
 
-            <button class="btn-small" style="width:100%; border-color:var(--red); color:var(--red);" onclick="doLogout()">LOGOUT</button>
+    <div class="main">
+        <div class="panel">
+            <h3>MUSIC CONTROL</h3>
+            <div class="row">
+                <input id="mUrl" placeholder="Track URL" style="flex:1;">
+                <button onclick="loadTrack()">LOAD</button>
+            </div>
+            <div class="row">
+                <input id="mTitle" placeholder="Title">
+                <input id="mArtist" placeholder="Artist">
+                <button onclick="updMeta()">UPDATE META</button>
+            </div>
+            <div class="row">
+                <button onclick="music('play')">PLAY</button>
+                <button onclick="music('pause')">PAUSE</button>
+                <input type="range" min="0" max="200" onchange="music('seek', this.value)">
+            </div>
         </div>
 
-        <div class="main-grid">
+        <div class="panel" style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
             <div>
-                <div class="panel-box">
-                    <div class="panel-header">
-                        SUPPORT INBOX
-                        <div style="display:flex; gap:5px;">
-                            <input id="manualTicketInput" placeholder="Open User..." style="padding:2px 5px; width:100px;">
-                            <button class="btn-small" onclick="openTicketManual()">OPEN</button>
-                        </div>
-                    </div>
-                    <div class="support-layout">
-                        <div class="thread-list" id="threadList"></div>
-                        <div class="thread-view">
-                            <div class="panel-header" style="background:rgba(0,0,0,0.5); border-bottom:1px solid #333;">
-                                <span id="activeTicketUser">SELECT A TICKET</span>
-                                <button id="btnCloseTicket" class="btn-small" style="color:var(--red); display:none;" onclick="closeCurrentTicket()">CLOSE TICKET</button>
-                            </div>
-                            <div id="ticketMsgs" class="thread-msgs chat-font"></div>
-                            <div class="thread-input-area" id="ticketInputArea" style="display:none;">
-                                <input id="ticketReply" style="flex:1;" placeholder="Reply...">
-                                <button class="btn-small" onclick="sendTicketReply()">SEND</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="panel-box">
-                    <div class="panel-header">
-                        <div>
-                            <button class="btn-small" onclick="showLogs('system')">SYSTEM LOGS</button>
-                            <button class="btn-small" onclick="showLogs('player')">PLAYER LOGS</button>
-                        </div>
-                    </div>
-                    <div id="systemLogs" class="logs-container"></div>
-                    <div id="playerLogs" class="logs-container" style="display:none;"></div>
-                </div>
+                <h3>PUBLIC CHAT</h3>
+                <div id="chatPub" class="chat-box"></div>
+                <div class="row"><input id="msgPub" style="flex:1;"><button onclick="sendPub()">SEND</button></div>
             </div>
-
             <div>
-                <div class="panel-box">
-                    <div class="panel-header">MUSIC CONTROL</div>
-                    <div style="padding:15px; display:flex; align-items:center; gap:15px;">
-                        <div style="flex:1;">
-                            <div class="music-meta">
-                                <div id="mTitle" class="music-title">Waiting...</div>
-                                <div id="mArtist" class="music-artist"></div>
-                            </div>
-                            <div style="display:flex; justify-content:center; gap:10px;">
-                                <button class="btn-small" onclick="ctrlMusic('play')">PLAY</button>
-                                <button class="btn-small" onclick="ctrlMusic('pause')">PAUSE</button>
-                            </div>
-                        </div>
-                        <div style="width:40px; text-align:center;">
-                            <div style="font-size:10px; color:#aaa; margin-bottom:5px;">VOL</div>
-                            <select id="volStep" onchange="setVolume(this.value)" style="background:#000; color:white; border:1px solid #333;">
-                                <option value="0">0%</option>
-                                <option value="0.05">5%</option>
-                                <option value="0.1">10%</option>
-                                <option value="0.25" selected>25%</option>
-                                <option value="0.5">50%</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div style="padding:10px; border-top:1px solid var(--border); display:flex; gap:5px;">
-                        <input id="newTrackUrl" style="flex:1;" placeholder="Track URL">
-                        <button class="btn-small" onclick="changeTrack()">LOAD</button>
-                        <button class="btn-small" onclick="updateMeta()">META</button>
-                    </div>
-                    <audio id="admAudio"></audio>
-                </div>
-
-                <div class="panel-box">
-                    <div class="panel-header">
-                        PUBLIC CHAT
-                        <button class="btn-small" style="color:var(--red);" onclick="clearChat('public')">CLEAR</button>
-                    </div>
-                    <div id="pubChat" class="logs-container chat-font" style="background:#000;"></div>
-                    <div style="padding:10px; display:flex; gap:5px;">
-                        <input id="pubMsg" style="flex:1;" placeholder="Chat as Staff...">
-                        <button class="btn-small" onclick="sendPub()">SEND</button>
-                    </div>
-                </div>
+                <h3>SUPPORT TICKETS</h3>
+                <div id="chatSup" class="chat-box"></div>
+                <div class="row"><input id="supTarget" placeholder="Username" style="width:100px;"><input id="msgSup" style="flex:1;"><button onclick="replySup()">REPLY</button></div>
             </div>
         </div>
     </div>
@@ -176,199 +65,41 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
-        let myToken = localStorage.getItem('admToken');
-        let currentTicketUser = null;
-        const audio = document.getElementById('admAudio');
+        let token = localStorage.getItem('admTok');
+        if(token) socket.emit('auth_handshake', {type:'admin', token});
 
-        // --- AUTH ---
-        if(myToken) socket.emit('auth_handshake', { type: 'admin', token: myToken });
-
-        function doLogin() {
-            const u = document.getElementById('aUser').value;
-            const p = document.getElementById('aPass').value;
-            fetch('/api/admin/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:u, password:p}) })
+        function login() {
+            const u=document.getElementById('aUser').value, p=document.getElementById('aPass').value;
+            fetch('/api/admin/login', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:u, password:p})})
             .then(r=>r.json()).then(d=>{
-                if(d.token) {
-                    localStorage.setItem('admToken', d.token);
-                    location.reload();
-                } else document.getElementById('loginErr').innerText = d.error;
-            });
-        }
-        function doLogout() {
-            fetch('/api/admin/logout', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({token:myToken}) });
-            localStorage.removeItem('admToken');
-            location.reload();
-        }
-
-        socket.on('auth_success', (d) => {
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('identity').innerHTML = `<span style="color:${d.role==='ADMIN'?'var(--red)':'var(--blue)'}">${d.username} [${d.role}]</span>`;
-        });
-        socket.on('auth_fail', () => { document.getElementById('loginScreen').style.display = 'flex'; });
-
-        // --- DATA INIT ---
-        socket.on('admin_init_data', (data) => {
-            renderLogs(data.systemLogs, 'systemLogs');
-            renderLogs(data.playerLogs, 'playerLogs');
-            updateSupportList(data.support);
-        });
-
-        // --- ACTIVE PLAYERS ---
-        socket.on('active_players_update', (list) => {
-            document.getElementById('userCount').innerText = list.length;
-            const box = document.getElementById('playerList');
-            box.innerHTML = '';
-            list.forEach(u => {
-                let bulletClass = 'bullet-yellow'; // Idle default
-                if (!u.isIdle) bulletClass = 'bullet-green'; // Online
-                if (u.hasBet) bulletClass = 'bullet-blue'; // Betting
-                
-                let nameClass = 'name-player';
-                if (u.role !== 'PLAYER') {
-                    nameClass = 'name-staff';
-                    // Staff bullet logic: Keep Green unless idle? Or always green. 
-                    // Requirement said: Bullet logic applies.
-                }
-
-                box.innerHTML += `
-                <div class="player-row">
-                    <div class="status-bullet ${bulletClass}"></div>
-                    <span class="${nameClass}">${u.username}</span>
-                </div>`;
-            });
-        });
-
-        // --- LOGS ---
-        function showLogs(type) {
-            document.getElementById('systemLogs').style.display = type==='system'?'block':'none';
-            document.getElementById('playerLogs').style.display = type==='player'?'block':'none';
-        }
-        function renderLogs(logs, elId) {
-            const box = document.getElementById(elId);
-            box.innerHTML = logs.map(l => `
-                <div class="log-entry">
-                    <div class="log-time">${l.timestamp.split(' ')[1]}</div>
-                    ${l.actor ? `<div class="log-actor">${l.actor}</div>` : ''}
-                    ${l.username ? `<div class="log-actor" style="color:var(--yellow)">${l.username}</div>` : ''}
-                    <div class="log-action">${l.action}</div>
-                    <div class="log-details">${l.details}</div>
-                </div>
-            `).join('');
-        }
-        socket.on('log_update_system', (l) => { document.getElementById('systemLogs').insertAdjacentHTML('afterbegin', `<div class="log-entry"><div class="log-time">${l.timestamp.split(' ')[1]}</div><div class="log-actor">${l.actor}</div><div class="log-action">${l.action}</div><div class="log-details">${l.details}</div></div>`); });
-        socket.on('log_update_player', (l) => { document.getElementById('playerLogs').insertAdjacentHTML('afterbegin', `<div class="log-entry"><div class="log-time">${l.timestamp.split(' ')[1]}</div><div class="log-actor" style="color:var(--yellow)">${l.username}</div><div class="log-action">${l.action}</div><div class="log-details">${l.details}</div></div>`); });
-
-        // --- SUPPORT SYSTEM ---
-        let threadsData = {};
-
-        socket.on('support_update', (data) => {
-            threadsData[data.username] = data.thread;
-            updateSupportList(threadsData);
-            if (currentTicketUser === data.username) {
-                renderTicketChat(data.username);
-            }
-        });
-
-        function updateSupportList(threads) {
-            const list = document.getElementById('threadList');
-            list.innerHTML = '';
-            threadsData = threads || {};
-            
-            Object.keys(threadsData).forEach(user => {
-                const t = threadsData[user];
-                if (!t.active) return; // Hide closed tickets
-                
-                const lastMsg = t.messages[t.messages.length-1] || { msg: 'No messages' };
-                list.innerHTML += `
-                <div class="thread-item ${currentTicketUser===user?'active':''}" onclick="openTicket('${user}')">
-                    <div class="thread-user">${user}</div>
-                    <div class="thread-preview">${lastMsg.msg}</div>
-                </div>`;
+                if(d.token) { localStorage.setItem('admTok', d.token); location.reload(); }
             });
         }
 
-        function openTicket(user) {
-            currentTicketUser = user;
-            document.getElementById('activeTicketUser').innerText = user;
-            document.getElementById('btnCloseTicket').style.display = 'block';
-            document.getElementById('ticketInputArea').style.display = 'flex';
-            renderTicketChat(user);
-            updateSupportList(threadsData); // refresh active highlighting
-        }
-
-        function openTicketManual() {
-            const u = document.getElementById('manualTicketInput').value;
-            if(u) openTicket(u);
-        }
-
-        function renderTicketChat(user) {
-            const msgs = threadsData[user]?.messages || [];
-            const box = document.getElementById('ticketMsgs');
-            box.innerHTML = msgs.map(m => {
-                const color = m.sender === 'staff' ? 'var(--cyan)' : 'var(--yellow)';
-                const name = m.sender === 'staff' ? m.user : user;
-                return `<div style="margin-bottom:5px;"><span style="color:#666">[${m.time.split(' ')[1]}]</span> <b style="color:${color}">${name}:</b> ${m.msg}</div>`;
-            }).join('');
-            box.scrollTop = box.scrollHeight;
-        }
-
-        function sendTicketReply() {
-            const msg = document.getElementById('ticketReply').value;
-            if (msg && currentTicketUser) {
-                socket.emit('admin_reply_support', { targetUser: currentTicketUser, msg: msg });
-                document.getElementById('ticketReply').value = '';
-            }
-        }
-
-        function closeCurrentTicket() {
-            if (currentTicketUser) {
-                socket.emit('admin_close_ticket', currentTicketUser);
-                currentTicketUser = null;
-                document.getElementById('ticketMsgs').innerHTML = '';
-                document.getElementById('activeTicketUser').innerText = 'SELECT A TICKET';
-                document.getElementById('btnCloseTicket').style.display = 'none';
-                document.getElementById('ticketInputArea').style.display = 'none';
-            }
-        }
-
-        // --- MUSIC ---
-        function ctrlMusic(act) { 
-            audio[act](); 
-            socket.emit('admin_music_action', { action: act, seek: audio.currentTime }); 
-        }
-        function setVolume(v) { audio.volume = v; }
-        function changeTrack() { socket.emit('admin_change_track', document.getElementById('newTrackUrl').value); }
-        function updateMeta() { socket.emit('admin_update_metadata', { title: document.getElementById('mTitle').innerText = prompt("Title"), artist: document.getElementById('mArtist').innerText = prompt("Artist") }); }
+        socket.on('auth_success', () => document.getElementById('loginOverlay').style.display='none');
         
-        socket.on('music_sync', (d) => {
-            if (d.url && audio.src !== d.url) audio.src = d.url;
-            if (d.playing) audio.play().catch(()=>{}); else audio.pause();
-            if (Math.abs(audio.currentTime - d.seek) > 2) audio.currentTime = d.seek;
-            document.getElementById('mTitle').innerText = d.title;
-            document.getElementById('mArtist').innerText = d.artist;
+        socket.on('active_players_update', (l) => {
+            document.getElementById('userList').innerHTML = l.map(u=>`<div>${u.username} [${u.role}]</div>`).join('');
         });
 
-        // --- PUBLIC CHAT ---
-        function sendPub() {
-            const m = document.getElementById('pubMsg').value;
-            if(m) { socket.emit('admin_chat_public', m); document.getElementById('pubMsg').value = ''; }
-        }
-        function clearChat(scope) {
-            if(confirm(`Clear ${scope} chat?`)) socket.emit('admin_clear_chat', scope);
-        }
         socket.on('chat_broadcast', (d) => {
-            if (d.type === 'public' || d.type === 'public_staff') {
-                const box = document.getElementById('pubChat');
-                const color = d.role === 'ADMIN' ? 'var(--red)' : (d.role === 'MOD' ? 'var(--blue)' : 'var(--yellow)');
-                const msgColor = (d.role === 'ADMIN' || d.role === 'MOD') ? 'var(--cyan)' : '#fff';
-                box.innerHTML += `<div><b style="color:${color}">${d.user}:</b> <span style="color:${msgColor}">${d.msg}</span></div>`;
-                box.scrollTop = box.scrollHeight;
+            if(d.type==='public') {
+                document.getElementById('chatPub').innerHTML += `<div><b>${d.user}:</b> ${d.msg}</div>`;
+            } else if(d.type==='support_reply') {
+                document.getElementById('chatSup').innerHTML += `<div><b style="color:cyan">ADMIN -> ${d.msg}</b></div>`;
             }
         });
-        socket.on('chat_cleared', (scope) => {
-            if(scope === 'public') document.getElementById('pubChat').innerHTML = '<div style="color:grey; text-align:center;">--- CHAT CLEARED BY STAFF ---</div>';
+        
+        socket.on('support_rx', (t) => {
+            document.getElementById('chatSup').innerHTML += `<div><b style="color:yellow">${t.user}:</b> ${t.msg}</div>`;
         });
 
+        function loadTrack() { socket.emit('admin_change_track', document.getElementById('mUrl').value); }
+        function updMeta() { socket.emit('admin_update_metadata', {title:document.getElementById('mTitle').value, artist:document.getElementById('mArtist').value}); }
+        function music(act, val) { socket.emit('admin_music_action', {action:act, seek:val}); }
+        
+        function sendPub() { socket.emit('admin_chat_public', document.getElementById('msgPub').value); document.getElementById('msgPub').value=''; }
+        function replySup() { socket.emit('admin_reply_support', {target:document.getElementById('supTarget').value, msg:document.getElementById('msgSup').value}); }
     </script>
 </body>
 </html>
