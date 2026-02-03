@@ -10,7 +10,8 @@
     "bcryptjs": "^2.4.3",
     "express": "^4.18.2",
     "socket.io": "^4.7.2",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "moment-timezone": "^0.5.43"
   },
   "engines": {
     "node": "18.x"
