@@ -3,414 +3,191 @@
 <head>
     <title>Fantasy Color Game</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <script>
-        document.addEventListener('contextmenu', event => event.preventDefault());
-        document.onkeydown = function(e) { if(e.keyCode == 123) return false; }
-    </script>
-
     <style>
-        :root { --gold: #FFD700; --cyan: #00E5FF; --red: #ff4444; --blue: #2979FF; --yellow: #FFEA00; --glass-bg: rgba(15, 20, 25, 0.6); --border: rgba(255, 255, 255, 0.15); }
-        body { font-family: 'Rajdhani', sans-serif; text-align: center; margin: 0; color: white; background: url('background.jpg') center/cover; height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+        :root { --gold: #FFD700; --cyan: #00E5FF; --border: rgba(255,255,255,0.15); }
+        body { font-family: 'Rajdhani', sans-serif; margin:0; background: url('background.jpg') center/cover; height: 100vh; overflow:hidden; display:flex; justify-content:center; align-items:center; color:white; text-align:center; }
         
-        .chat-font { font-family: 'VT323', monospace; font-size: 18px; letter-spacing: 1px; }
-
-        /* --- AUTH UI START --- */
-        #authOverlay { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: url('background.jpg') center/cover; z-index: 3000; 
-            display: flex; justify-content: center; align-items: center; 
-            backdrop-filter: blur(5px); 
-        }
-        
-        .auth-container {
-            width: 380px; background: rgba(10, 10, 10, 0.9); 
-            border: 1px solid var(--border); border-radius: 20px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8); padding: 30px; text-align: center;
-        }
-
-        .auth-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 25px; }
-        .auth-tab { flex: 1; padding: 15px; cursor: pointer; color: #666; font-weight: 700; font-size: 16px; transition: 0.3s; text-transform: uppercase; }
-        .auth-tab.active { color: white; border-bottom: 2px solid var(--gold); }
-        
-        .auth-form { display: none; }
-        .auth-form.active { display: block; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .auth-input { 
-            width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            color: white; padding: 15px; border-radius: 10px; font-family: 'Rajdhani'; font-size: 18px; 
-            outline: none; transition: 0.3s; box-sizing: border-box; text-align: center; margin-bottom: 10px;
-        }
-        .auth-input:focus { border-color: var(--gold); background: rgba(255,255,255,0.1); }
-        
-        .auth-btn { 
-            width: 100%; padding: 15px; border: none; border-radius: 10px; cursor: pointer;
-            font-weight: 800; font-size: 20px; text-transform: uppercase; transition: 0.2s;
-            margin-top: 10px; color: #000;
-        }
-        .btn-login { background: var(--gold); }
-        .btn-register { background: var(--cyan); }
-        .auth-error { color: #ff4444; font-size: 14px; margin-top: 15px; font-weight: 700; min-height: 20px; }
-        /* --- AUTH UI END --- */
+        #authOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: url('background.jpg') center/cover; z-index:3000; display:flex; justify-content:center; align-items:center; backdrop-filter:blur(10px); }
+        .auth-box { background: rgba(0,0,0,0.85); padding: 40px; border-radius: 16px; border: 1px solid var(--border); width: 320px; }
+        .auth-input { width:100%; padding:12px; margin-bottom:10px; background:rgba(255,255,255,0.1); border:1px solid var(--border); color:white; text-align:center; border-radius:6px; box-sizing:border-box; }
+        .auth-btn { width:100%; padding:12px; background:var(--gold); border:none; font-weight:bold; cursor:pointer; border-radius:6px; margin-top:5px; }
+        .link { font-size:12px; color:#aaa; margin-top:15px; cursor:pointer; text-decoration:underline; }
 
         .main-container { display: grid; grid-template-columns: 260px 1fr 260px; gap: 20px; width: 95%; height: 90vh; max-width: 1600px; }
-        .side-panel { background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); border: 1px solid var(--border); border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; }
-        .game-wrapper { background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 16px; display: flex; flex-direction: column; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
+        .side-panel { background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); border: 1px solid var(--border); border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; }
+        .game-wrapper { background: rgba(15,20,25,0.6); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 16px; display: flex; flex-direction: column; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
 
-        /* CHAT STYLES */
-        .chat-msg { padding: 4px 10px; font-size: 16px; line-height: 1.2; }
+        .hud-header { padding: 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .music-pill { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.6); padding: 5px 15px; border-radius: 20px; border: 1px solid var(--border); }
         
-        /* MUSIC */
-        .music-center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
-        .music-pill { display: flex; align-items: center; gap: 15px; background: rgba(0,0,0,0.7); padding: 8px 20px; border-radius: 12px; border: 1px solid var(--border); min-width: 250px; }
-        .title-wrap { width: 100%; overflow: hidden; white-space: nowrap; text-align: center; }
-        .music-title { font-size: 14px; font-weight: 700; color: white; }
-        .music-artist { font-size: 11px; color: var(--gold); text-transform: uppercase; }
-        .marquee { animation: scroll-left 8s linear infinite; padding-left: 100%; }
-        @keyframes scroll-left { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
-
-        /* ACTIVE PLAYERS */
-        .pl-item { padding: 6px 10px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.05); display:flex; align-items:center; }
-        .status-bullet { width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; }
-        .bullet-green { background: var(--green); box-shadow: 0 0 5px var(--green); }
-        .bullet-blue { background: var(--blue); box-shadow: 0 0 5px var(--blue); }
-        .bullet-yellow { background: var(--yellow); }
-        
-        /* BETTING */
         .bet-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; padding: 20px; }
-        .bet-card { height: 100px; border: 2px solid rgba(255,255,255,0.1); border-radius: 8px; position: relative; cursor: pointer; transition: 0.1s; }
+        .bet-card { height: 100px; border: 2px solid rgba(255,255,255,0.1); border-radius: 8px; cursor: pointer; transition: 0.1s; }
         .bet-card:active { transform: scale(0.95); }
-        .bg-RED { background: linear-gradient(135deg, #d32f2f, #b71c1c); }
-        .bg-GREEN { background: linear-gradient(135deg, #388e3c, #1b5e20); }
-        .bg-BLUE { background: linear-gradient(135deg, #1976d2, #0d47a1); }
-        .bg-PINK { background: linear-gradient(135deg, #f06292, #c2185b); }
-        .bg-WHITE { background: linear-gradient(135deg, #f5f5f5, #bdbdbd); color: black; }
-        .bg-YELLOW { background: linear-gradient(135deg, #fbc02d, #f57f17); color: black; }
+        .bg-RED { background: #d32f2f; } .bg-GREEN { background: #388e3c; } .bg-BLUE { background: #1976d2; } 
+        .bg-PINK { background: #c2185b; } .bg-WHITE { background: #f5f5f5; } .bg-YELLOW { background: #fbc02d; }
 
-        /* CONTROLS */
-        .controls-bar { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid var(--border); }
-        .chip-rack { display: flex; gap: 8px; background: rgba(0,0,0,0.5); padding: 5px 15px; border-radius: 30px; }
-        .chip { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #444; background: #222; color: #888; font-weight: 700; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .chip.active { border-color: var(--gold); color: var(--gold); background: rgba(255, 215, 0, 0.1); transform: scale(1.1); }
+        .chat-msg { padding: 5px 10px; font-size: 14px; text-align: left; }
         
-        .btn-action { background: rgba(255,255,255,0.1); border: 1px solid #555; color: white; padding: 8px 20px; border-radius: 6px; font-weight: 700; font-size: 12px; cursor: pointer; }
-        .btn-action:hover { background: rgba(255,255,255,0.2); }
-
-        /* WIN MODAL */
-        #winModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 5000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: 0.3s; }
-        #winModal.show { opacity: 1; pointer-events: auto; }
-        .win-card { background: #111; border: 2px solid var(--gold); padding: 30px; border-radius: 16px; text-align: center; min-width: 250px; }
-        .win-title { font-size: 40px; font-weight: 800; color: var(--gold); margin-bottom: 10px; }
-        .win-total { font-size: 30px; font-weight: 700; margin-bottom: 15px; }
-
-        @media (max-width: 768px) { 
-            .main-container { display: flex; flex-direction: column; height: 100vh; gap: 0; } 
-            .side-panel { display: none; }
-            .auth-container { width: 90%; } 
-        }
+        @media (max-width: 768px) { .main-container { display:flex; flex-direction:column; width:100%; height:100vh; gap:0; } .side-panel { display:none; } }
     </style>
 </head>
 <body>
 
-    <div id="winModal"><div class="win-card"><div class="win-title">VICTORY</div><div class="win-total" id="winTotalDisplay">+0</div><div class="win-list" id="winListDisplay"></div></div></div>
-    <div id="toastBox"></div>
-    <audio id="bgMusic"></audio>
-
     <div id="authOverlay">
-        <div class="auth-container">
-            <h1 style="color:white; margin:0 0 20px 0; letter-spacing:2px; font-size:28px;">WELCOME</h1>
-            
-            <div class="auth-tabs">
-                <div class="auth-tab active" id="tabLogin" onclick="showAuth('login')">LOGIN</div>
-                <div class="auth-tab" id="tabRegister" onclick="showAuth('register')">SIGNUP</div>
-            </div>
-
-            <div id="formLogin" class="auth-form active">
-                <input type="text" id="loginUser" class="auth-input" placeholder="USERNAME">
-                <input type="password" id="loginPass" class="auth-input" placeholder="PASSWORD">
-                <button onclick="doLogin()" class="auth-btn btn-login">ENTER WORLD</button>
-                <div class="auth-error" id="loginError"></div>
-            </div>
-
-            <div id="formRegister" class="auth-form">
-                <input type="text" id="regUser" class="auth-input" placeholder="NEW USERNAME">
-                <input type="password" id="regPass" class="auth-input" placeholder="NEW PASSWORD">
-                <button onclick="doRegister()" class="auth-btn btn-register">CREATE ACCOUNT</button>
-                <div class="auth-error" id="regError"></div>
-            </div>
+        <div id="boxLogin" class="auth-box">
+            <h1 style="color:var(--gold);">LOGIN</h1>
+            <input type="text" id="lUser" class="auth-input" placeholder="USERNAME">
+            <input type="password" id="lPass" class="auth-input" placeholder="PASSWORD">
+            <button onclick="doLogin()" class="auth-btn">ENTER</button>
+            <div class="link" onclick="toggleAuth()">Create Account</div>
+            <div id="lErr" style="color:red; margin-top:10px;"></div>
+        </div>
+        <div id="boxReg" class="auth-box" style="display:none;">
+            <h1 style="color:var(--cyan);">REGISTER</h1>
+            <input type="text" id="rUser" class="auth-input" placeholder="NEW USERNAME">
+            <input type="password" id="rPass" class="auth-input" placeholder="NEW PASSWORD">
+            <button onclick="doReg()" class="auth-btn" style="background:var(--cyan);">CREATE</button>
+            <div class="link" onclick="toggleAuth()">Back to Login</div>
+            <div id="rErr" style="color:red; margin-top:10px;"></div>
         </div>
     </div>
 
     <div class="main-container" id="gameUI" style="display:none;">
         <div class="side-panel">
-            <div style="padding:15px; border-bottom:1px solid var(--border); font-weight:bold; color:var(--gold);">ACTIVE PLAYERS</div>
-            <div id="activeList" style="flex:1; overflow-y:auto;"></div>
+            <div style="padding:15px; border-bottom:1px solid var(--border); font-weight:bold; color:var(--gold);">PLAYERS</div>
+            <div id="pList" style="flex:1; overflow-y:auto; text-align:left;"></div>
         </div>
 
         <div class="game-wrapper">
-            <div style="padding:15px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
-                <div><div style="font-size:10px; color:#aaa;">PLAYER</div><div id="dispUser" style="font-weight:700;">GUEST</div></div>
-                
-                <div class="music-center">
-                    <div class="music-pill">
-                        <i class="fas fa-music" style="color:var(--gold); font-size:18px;"></i>
-                        <div class="song-container">
-                            <div class="title-wrap"><span id="mTitle" class="music-title">Waiting...</span></div>
-                            <div id="mArtist" class="music-artist"></div>
-                        </div>
-                        <select onchange="document.getElementById('bgMusic').volume=this.value" style="background:#000; color:white; border:1px solid #333; font-size:10px;">
-                            <option value="0">0%</option><option value="0.05">5%</option><option value="0.1">10%</option><option value="0.25" selected>25%</option><option value="0.5">50%</option>
-                        </select>
-                    </div>
+            <div class="hud-header">
+                <div><div style="font-size:10px; color:#aaa;">PLAYER</div><div id="dUser" style="font-weight:700;">GUEST</div></div>
+                <div class="music-pill">
+                    <i class="fas fa-music" style="color:var(--gold);"></i>
+                    <div style="text-align:left;"><div id="mTitle" style="font-weight:bold; font-size:12px;">Waiting...</div><div id="mArtist" style="font-size:10px; color:var(--gold);"></div></div>
                 </div>
-
-                <div style="text-align:right;"><div style="font-size:10px; color:#aaa;">CREDITS</div><div id="balance" style="color:var(--gold); font-weight:800; font-size:20px;">0</div></div>
+                <div><div style="font-size:10px; color:#aaa;">CREDITS</div><div id="dBal" style="font-size:20px; font-weight:800; color:var(--gold);">0</div></div>
             </div>
-
+            
             <div style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center;">
-                <div id="status" style="font-size:24px; color:#aaa; letter-spacing:3px; margin-bottom:10px;">BETS OPEN</div>
-                <div id="timer" style="font-size:80px; font-weight:800;">20</div>
+                <div id="gStatus" style="font-size:24px; color:#aaa; letter-spacing:3px;">BETS OPEN</div>
+                <div id="gTimer" style="font-size:80px; font-weight:800;">20</div>
                 <div style="display:flex; gap:20px; margin-top:20px;">
-                    <div id="d1" class="die">?</div><div id="d2" class="die">?</div><div id="d3" class="die">?</div>
+                    <div id="d1" style="width:60px; height:60px; background:#333; border-radius:10px;"></div>
+                    <div id="d2" style="width:60px; height:60px; background:#333; border-radius:10px;"></div>
+                    <div id="d3" style="width:60px; height:60px; background:#333; border-radius:10px;"></div>
                 </div>
             </div>
 
-            <div class="controls-bar">
-                <div class="chip-rack">
-                    <div class="chip active" onclick="selectChip(50, this)">50</div>
-                    <div class="chip" onclick="selectChip(100, this)">100</div>
-                    <div class="chip" onclick="selectChip(1000, this)">1K</div>
-                    <div class="chip" onclick="selectChip(10000, this)">10K</div>
-                    <div class="chip" onclick="selectChip(100000, this)">100K</div>
+            <div style="padding:10px; border-top:1px solid var(--border);">
+                <div style="display:flex; justify-content:center; gap:10px; margin-bottom:10px;">
+                    <button class="auth-btn" style="width:auto; padding:5px 15px; font-size:12px;" onclick="selChip(50)">50</button>
+                    <button class="auth-btn" style="width:auto; padding:5px 15px; font-size:12px;" onclick="selChip(100)">100</button>
+                    <button class="auth-btn" style="width:auto; padding:5px 15px; font-size:12px;" onclick="selChip(1000)">1K</button>
+                    <button class="auth-btn" style="width:auto; padding:5px 15px; font-size:12px;" onclick="selChip(10000)">10K</button>
                 </div>
-                <div style="display:flex; gap:10px;">
-                    <button class="btn-action" onclick="undoBet()">UNDO</button>
-                    <button class="btn-action" onclick="clearBets()">CLEAR</button>
+                <div class="bet-grid">
+                    <div class="bet-card bg-RED" onclick="place('RED')"></div>
+                    <div class="bet-card bg-GREEN" onclick="place('GREEN')"></div>
+                    <div class="bet-card bg-BLUE" onclick="place('BLUE')"></div>
+                    <div class="bet-card bg-PINK" onclick="place('PINK')"></div>
+                    <div class="bet-card bg-WHITE" onclick="place('WHITE')"></div>
+                    <div class="bet-card bg-YELLOW" onclick="place('YELLOW')"></div>
                 </div>
-            </div>
-
-            <div class="bet-grid">
-                <div class="bet-card bg-RED" id="card-RED" onclick="placeBet('RED')"></div>
-                <div class="bet-card bg-GREEN" id="card-GREEN" onclick="placeBet('GREEN')"></div>
-                <div class="bet-card bg-BLUE" id="card-BLUE" onclick="placeBet('BLUE')"></div>
-                <div class="bet-card bg-PINK" id="card-PINK" onclick="placeBet('PINK')"></div>
-                <div class="bet-card bg-WHITE" id="card-WHITE" onclick="placeBet('WHITE')"></div>
-                <div class="bet-card bg-YELLOW" id="card-YELLOW" onclick="placeBet('YELLOW')"></div>
             </div>
         </div>
 
         <div class="side-panel">
-            <div class="chat-tabs" style="display:flex; border-bottom:1px solid var(--border);">
-                <button style="flex:1; padding:10px; background:transparent; border:none; color:white; font-weight:bold; cursor:pointer;" onclick="tab('public')">PUBLIC</button>
-                <button style="flex:1; padding:10px; background:transparent; border:none; color:#888; font-weight:bold; cursor:pointer;" onclick="tab('support')">SUPPORT</button>
-            </div>
-            
-            <div id="view-public" style="flex:1; display:flex; flex-direction:column;">
-                <div id="chatList" class="chat-font" style="flex:1; overflow-y:auto; padding:10px;"></div>
-                <div style="padding:10px; display:flex; gap:5px; border-top:1px solid var(--border);">
-                    <input id="cInput" style="flex:1; background:rgba(255,255,255,0.1); border:none; color:white; padding:8px;" placeholder="...">
-                    <button onclick="sendChat()" style="background:var(--gold); border:none; font-weight:bold;">></button>
-                </div>
-            </div>
-
-            <div id="view-support" style="flex:1; display:none; flex-direction:column;">
-                <div id="suppList" class="chat-font" style="flex:1; overflow-y:auto; padding:10px;"></div>
-                <div style="padding:10px; display:flex; gap:5px; border-top:1px solid var(--border);">
-                    <input id="sInput" style="flex:1; background:rgba(255,255,255,0.1); border:none; color:white; padding:8px;" placeholder="Help...">
-                    <button onclick="sendSupp()" style="background:var(--cyan); border:none; font-weight:bold;">></button>
-                </div>
+            <div style="padding:10px; border-bottom:1px solid var(--border);">CHAT</div>
+            <div id="chatBox" style="flex:1; overflow-y:auto;"></div>
+            <div style="padding:10px; display:flex;">
+                <input id="cMsg" style="flex:1; background:rgba(255,255,255,0.1); border:none; color:white; padding:8px;" placeholder="...">
+                <button onclick="send()" style="background:var(--gold); border:none; font-weight:bold;">></button>
             </div>
         </div>
     </div>
 
+    <audio id="bgm"></audio>
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
-        const audio = document.getElementById('bgMusic'); audio.volume = 0.25;
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        let selectedChip = 50; 
-        let currentRoundBets = {}; 
-        let currentBalance = 0;
+        const audio = document.getElementById('bgm'); audio.volume = 0.3;
+        let chip = 50;
 
-        // --- AUTH ---
-        function showAuth(type) {
-            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
-            if(type === 'login') {
-                document.getElementById('tabLogin').classList.add('active');
-                document.getElementById('formLogin').classList.add('active');
-            } else {
-                document.getElementById('tabRegister').classList.add('active');
-                document.getElementById('formRegister').classList.add('active');
-            }
-            document.getElementById('loginError').innerText = "";
-            document.getElementById('regError').innerText = "";
+        function toggleAuth() {
+            const l = document.getElementById('boxLogin');
+            const r = document.getElementById('boxReg');
+            if(l.style.display === 'none') { l.style.display='block'; r.style.display='none'; }
+            else { l.style.display='none'; r.style.display='block'; }
         }
 
-        function doLogin(){
-            const u=document.getElementById('loginUser').value; 
-            const p=document.getElementById('loginPass').value; 
-            if(u&&p) socket.emit('auth_handshake',{ type: 'player', username:u, password:p }); 
-            else document.getElementById('loginError').innerText = "Enter credentials"; 
+        function doLogin() {
+            const u = document.getElementById('lUser').value;
+            const p = document.getElementById('lPass').value;
+            socket.emit('auth_handshake', { type:'player', username:u, password:p });
         }
 
-        function doRegister(){
-            const u=document.getElementById('regUser').value; 
-            const p=document.getElementById('regPass').value; 
-            if(u&&p) socket.emit('register',{ username:u, password:p }); 
-            else document.getElementById('regError').innerText = "Enter details"; 
+        function doReg() {
+            const u = document.getElementById('rUser').value;
+            const p = document.getElementById('rPass').value;
+            if(u && p) socket.emit('register', { username:u, password:p });
+            else document.getElementById('rErr').innerText = "Enter details";
         }
-        
+
         socket.on('login_success', (d) => {
-            document.getElementById('authOverlay').style.display='none';
-            document.getElementById('gameUI').style.display='grid';
-            document.getElementById('dispUser').innerText = d.username;
-            document.getElementById('balance').innerText = d.balance;
-            currentBalance = d.balance;
+            document.getElementById('authOverlay').style.display = 'none';
+            document.getElementById('gameUI').style.display = 'grid';
+            document.getElementById('dUser').innerText = d.username;
+            document.getElementById('dBal').innerText = d.balance;
             audio.play().catch(()=>{});
         });
-        socket.on('login_error', (m) => {
-            document.getElementById('loginError').innerText = m;
-            document.getElementById('regError').innerText = m;
-        });
+        socket.on('login_error', (m) => { document.getElementById('lErr').innerText = m; document.getElementById('rErr').innerText = m; });
 
-        // --- IDLE ---
-        document.addEventListener("visibilitychange", () => {
-            socket.emit('status_update', document.hidden ? 'idle' : 'active');
-        });
-
-        // --- ACTIVE LIST ---
+        // GAME
         socket.on('active_players_update', (list) => {
-            const el = document.getElementById('activeList'); el.innerHTML = "";
+            const b = document.getElementById('pList'); b.innerHTML = '';
             list.forEach(u => {
-                let bClass = 'bullet-yellow';
-                if(!u.isIdle) bClass = 'bullet-green';
-                if(u.hasBet) bClass = 'bullet-blue';
-                
-                let color = 'var(--yellow)';
-                if(u.role === 'ADMIN') color = 'var(--red)';
-                if(u.role === 'MOD') color = 'var(--blue)';
-                
-                el.innerHTML += `<div class="pl-item"><div class="status-bullet ${bClass}"></div><span style="color:${color}">${u.username}</span></div>`;
+                let col = u.role==='ADMIN' ? 'var(--gold)' : (u.role==='MOD' ? 'var(--cyan)' : 'white');
+                b.innerHTML += `<div class="pl-item" style="padding:5px 10px; color:${col};">● ${u.username}</div>`;
             });
         });
 
-        // --- CHAT ---
-        function sendChat() { const v = document.getElementById('cInput').value; if(v) { socket.emit('chat_msg', v); document.getElementById('cInput').value=''; }}
-        function sendSupp() { const v = document.getElementById('sInput').value; if(v) { socket.emit('support_msg', v); document.getElementById('sInput').value=''; }}
-        function tab(t) {
-            document.getElementById('view-public').style.display = t==='public'?'flex':'none';
-            document.getElementById('view-support').style.display = t==='support'?'flex':'none';
-        }
-        socket.on('chat_broadcast', (d) => {
-            if(d.type.includes('public')) {
-                const box = document.getElementById('chatList');
-                const uColor = d.role === 'ADMIN' ? 'var(--red)' : (d.role === 'MOD' ? 'var(--blue)' : 'var(--yellow)');
-                const mColor = (d.role === 'ADMIN' || d.role === 'MOD') ? 'var(--cyan)' : '#fff';
-                box.innerHTML += `<div class="chat-msg"><b style="color:${uColor}">${d.user}:</b> <span style="color:${mColor}">${d.msg}</span></div>`;
-                box.scrollTop = box.scrollHeight;
-            } else if (d.type.includes('support')) {
-                const box = document.getElementById('suppList');
-                const sender = d.type === 'support_sent' ? 'You' : 'ADMIN';
-                const color = d.type === 'support_sent' ? '#888' : 'var(--cyan)';
-                box.innerHTML += `<div class="chat-msg"><b style="color:${color}">${sender}:</b> ${d.msg}</div>`;
-                box.scrollTop = box.scrollHeight;
-            }
+        function selChip(v) { chip = v; }
+        function place(c) { socket.emit('place_bet', { color:c, amount:chip }); }
+        socket.on('update_balance', (b) => document.getElementById('dBal').innerText = b);
+        
+        socket.on('timer_update', (t) => document.getElementById('gTimer').innerText = t);
+        socket.on('game_rolling', () => document.getElementById('gStatus').innerText = "ROLLING...");
+        socket.on('game_reset', () => document.getElementById('gStatus').innerText = "BETS OPEN");
+        
+        socket.on('game_result', (res) => {
+            document.getElementById('gStatus').innerText = "RESULT";
+            ['d1','d2','d3'].forEach((id, i) => document.getElementById(id).className = `die bg-${res[i]}`);
         });
-        socket.on('chat_cleared', (s) => { if(s==='public') document.getElementById('chatList').innerHTML = '<div style="color:grey;text-align:center;">--- CLEARED ---</div>'; });
 
-        // --- MUSIC ---
+        // CHAT
+        function send() { const m = document.getElementById('cMsg').value; if(m) { socket.emit('chat_msg', m); document.getElementById('cMsg').value=''; }}
+        socket.on('chat_broadcast', (d) => {
+            const b = document.getElementById('chatBox');
+            let col = d.role==='ADMIN' ? 'var(--gold)' : (d.role==='MOD' ? 'var(--cyan)' : 'white');
+            b.innerHTML += `<div class="chat-msg"><b style="color:${col}">${d.user}:</b> ${d.msg}</div>`;
+            b.scrollTop = b.scrollHeight;
+        });
+
+        // MUSIC
         socket.on('music_sync', (d) => {
             if(d.url && audio.src !== d.url) audio.src = d.url;
             if(d.playing) audio.play().catch(()=>{}); else audio.pause();
             if(Math.abs(audio.currentTime - d.seek) > 2) audio.currentTime = d.seek;
             document.getElementById('mTitle').innerText = d.title || 'Waiting...';
             document.getElementById('mArtist').innerText = d.artist || '';
-            if(!d.artist) document.getElementById('mArtist').style.display='none'; 
-            else document.getElementById('mArtist').style.display='block';
-            if((d.title||'').length > 20) document.getElementById('mTitle').className='music-title marquee';
-            else document.getElementById('mTitle').className='music-title';
         });
-
-        // --- GAME / BETTING ---
-        function selectChip(amt, btn) { selectedChip=amt; document.querySelectorAll('.chip').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
-        function placeBet(c) { 
-            if(currentBalance < selectedChip) { showToast("NO CREDITS", 'error'); return; }
-            currentBalance -= selectedChip;
-            document.getElementById('balance').innerText = currentBalance; // Optimistic
-            if(!currentRoundBets[c]) currentRoundBets[c] = 0;
-            currentRoundBets[c] += selectedChip;
-            socket.emit('place_bet', {color:c, amount:selectedChip}); 
-        }
-        function undoBet() { socket.emit('undo_bet'); }
-        function clearBets() { socket.emit('clear_bets'); }
-
-        socket.on('update_balance', (b) => { currentBalance = b; document.getElementById('balance').innerText = b; });
-        socket.on('bet_undone', (d) => {
-            if(currentRoundBets[d.color]) {
-                currentRoundBets[d.color] -= d.amount;
-                showToast(`Undone ${d.amount}`, 'info');
-            }
+        socket.on('meta_update', (d) => {
+            document.getElementById('mTitle').innerText = d.title;
+            document.getElementById('mArtist').innerText = d.artist;
         });
-        socket.on('bets_cleared', () => { currentRoundBets = {}; });
-
-        socket.on('timer_update', (t) => {
-            document.getElementById('timer').innerText = t;
-            document.getElementById('status').innerText = "BETS OPEN";
-            document.getElementById('status').style.color = "#aaa";
-            document.getElementById('winModal').classList.remove('show');
-        });
-        socket.on('game_rolling', () => {
-            document.getElementById('timer').innerText = "--";
-            document.getElementById('status').innerText = "ROLLING...";
-            document.getElementById('status').style.color = "var(--gold)";
-            const colors = ['RED','GREEN','BLUE','YELLOW','PINK','WHITE'];
-            let rollInt = setInterval(() => { 
-                ['d1','d2','d3'].forEach(id => { 
-                    const el = document.getElementById(id);
-                    const c = colors[Math.floor(Math.random()*6)];
-                    el.className = `die ${c}`;
-                    el.innerText = "";
-                    // Quick hack to show color logic visually if needed, but CSS handles bg
-                }); 
-            }, 100);
-            window.rollInterval = rollInt;
-        });
-        socket.on('game_result', (res) => { 
-            clearInterval(window.rollInterval);
-            document.getElementById('status').innerText = "RESULT";
-            document.getElementById('status').style.color = "white";
-            document.getElementById('d1').className = `die ${res[0]}`;
-            document.getElementById('d2').className = `die ${res[1]}`;
-            document.getElementById('d3').className = `die ${res[2]}`;
-            playBeep(400); setTimeout(()=>playBeep(500), 200);
-        });
-
-        // --- NOTIFICATIONS ---
-        function showToast(msg, type='info') {
-            const b = document.getElementById('toastBox');
-            const t = document.createElement('div'); t.className=`toast ${type}`; t.innerHTML=msg;
-            if(type==='error') t.style.borderColor='var(--red)';
-            b.appendChild(t); setTimeout(()=>t.remove(), 3000);
-        }
-        socket.on('notification', (d) => { showToast(d.msg || d, 'info'); playWinSound(); });
-        socket.on('bet_error', (m) => showToast(m, 'error'));
-        
-        socket.on('win_notification', (d) => {
-            document.getElementById('winTotalDisplay').innerText = "+" + d.total;
-            let listHtml = "";
-            d.details.forEach(det => { listHtml += `<div>${det.color} (x${det.multiplier}) +${det.win}</div>`; });
-            document.getElementById('winListDisplay').innerHTML = listHtml;
-            document.getElementById('winModal').classList.add('show');
-            playWinSound();
-        });
-
-        function playBeep(f) { if (audioCtx.state === 'suspended') audioCtx.resume(); const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.frequency.setValueAtTime(f, audioCtx.currentTime); g.gain.setValueAtTime(0.05, audioCtx.currentTime); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+0.1); }
-        function playWinSound() { [523,659,783,1046].forEach((f,i)=>setTimeout(()=>playBeep(f),i*100)); }
     </script>
 </body>
 </html>
