@@ -41,8 +41,21 @@
         .toast.error { border-color: #ff4444; color: #ff4444; }
         @keyframes slideIn { to { opacity: 1; transform: translateY(0); } }
 
-        /* IMPROVED AUTH UI */
-        #authOverlay { position: fixed; inset: 0; background: url('background.jpg') no-repeat center center fixed; background-size: cover; z-index: 3000; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        /* FIXED AUTH UI VISIBILITY */
+        #authOverlay { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: url('background.jpg') no-repeat center center fixed; 
+            background-size: cover; 
+            z-index: 3000; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            backdrop-filter: blur(5px); 
+        }
         
         .auth-container {
             width: 380px; background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(20px);
@@ -191,4 +204,370 @@
         .card-amount { font-size: 24px; font-weight: 800; text-align: center; }
         .bet-card.has-bet { border-color: white; box-shadow: 0 0 15px rgba(255,255,255,0.5); }
 
-        .
+        .staff-badge { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; background: #333; vertical-align: middle; margin-left: 5px; }
+        .badge-ADMIN { background: #FFD700; color: black; }
+        .badge-MOD { background: #00E5FF; color: black; }
+        .badge-PLAYER { display: none; }
+
+        #winModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 5000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: 0.3s; }
+        #winModal.show { opacity: 1; pointer-events: auto; }
+        .win-card { background: #111; border: 2px solid var(--gold); padding: 30px; border-radius: 16px; text-align: center; min-width: 250px; }
+        .win-title { font-size: 40px; font-weight: 800; color: var(--gold); margin-bottom: 10px; }
+        .win-total { font-size: 30px; font-weight: 700; margin-bottom: 15px; }
+
+        @media (max-width: 768px) {
+            .main-container { display: flex; flex-direction: column; width: 100%; height: 100vh; max-width: 100%; gap: 0; }
+            .side-panel { display: none; }
+            .game-wrapper { width: 100%; height: 100%; border-radius: 0; border: none; }
+            .bet-grid { grid-template-columns: repeat(3, 1fr); }
+            #timer { font-size: 70px; }
+            .auth-container { width: 90%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="winModal"><div class="win-card"><div class="win-title">VICTORY</div><div class="win-total" id="winTotalDisplay">+0</div><div class="win-list" id="winListDisplay"></div></div></div>
+    <div id="toastBox"></div>
+    <audio id="bgMusic"></audio>
+
+    <div id="authOverlay">
+        <div class="auth-container">
+            <h1 style="color:white; margin:0 0 20px 0; letter-spacing:2px; font-size:28px;">WELCOME</h1>
+            
+            <div class="auth-tabs">
+                <div class="auth-tab active" id="tabLogin" onclick="showAuth('login')">LOGIN</div>
+                <div class="auth-tab" id="tabRegister" onclick="showAuth('register')">SIGNUP</div>
+            </div>
+
+            <div id="formLogin" class="auth-form active">
+                <input type="text" id="loginUser" class="auth-input" placeholder="USERNAME" style="margin-bottom:10px;">
+                <input type="password" id="loginPass" class="auth-input" placeholder="PASSWORD">
+                <button onclick="doLogin()" class="auth-btn btn-login">ENTER WORLD</button>
+                <div class="auth-error" id="loginError"></div>
+            </div>
+
+            <div id="formRegister" class="auth-form">
+                <input type="text" id="regUser" class="auth-input" placeholder="NEW USERNAME" style="margin-bottom:10px;">
+                <input type="password" id="regPass" class="auth-input" placeholder="NEW PASSWORD">
+                <button onclick="doRegister()" class="auth-btn btn-register">CREATE ACCOUNT</button>
+                <div class="auth-error" id="regError"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container" id="gameUI" style="display:none;">
+        
+        <div class="side-panel">
+            <div class="panel-header">ACTIVE PLAYERS</div>
+            <div class="panel-body" id="activeListBody"></div>
+        </div>
+
+        <div class="game-wrapper">
+            <div class="hud-header">
+                <div>
+                    <div style="font-size:10px; color:#aaa; font-weight:700;">PLAYER</div>
+                    <div class="user-name" id="displayUser">GUEST</div>
+                </div>
+                
+                <div class="music-center">
+                    <div class="music-pill">
+                        <i class="fas fa-music" style="color:var(--gold); font-size:18px;"></i>
+                        <div class="song-container">
+                            <div class="title-wrap"><span id="musicTitle" class="music-title">Waiting...</span></div>
+                            <div id="musicArtist" class="music-artist"></div>
+                        </div>
+                        <input type="range" class="vol-slider" min="0.05" max="0.5" step="0.05" onchange="document.getElementById('bgMusic').volume=this.value">
+                    </div>
+                </div>
+
+                <div style="text-align:right;">
+                    <div style="font-size:10px; color:#aaa; font-weight:700;">CREDITS</div>
+                    <div class="balance-amount" id="balance">0</div>
+                </div>
+            </div>
+
+            <div class="game-focus">
+                <div class="status-text" id="status">BETS OPEN</div>
+                <div id="timer">20</div>
+                <div class="dice-row"><div id="die1" class="die">?</div><div id="die2" class="die">?</div><div id="die3" class="die">?</div></div>
+            </div>
+
+            <div class="betting-panel">
+                <div class="controls-bar">
+                    <div class="chip-rack">
+                        <div class="chip active" onclick="selectChip(50, this)">50</div>
+                        <div class="chip" onclick="selectChip(100, this)">100</div>
+                        <div class="chip" onclick="selectChip(1000, this)">1K</div>
+                        <div class="chip" onclick="selectChip(10000, this)">10K</div>
+                        <div class="chip" onclick="selectChip(100000, this)">100K</div>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn-action" onclick="undoBet()"><i class="fas fa-undo"></i> UNDO</button>
+                        <button class="btn-action btn-clear" onclick="clearBets()"><i class="fas fa-trash"></i> CLEAR</button>
+                    </div>
+                </div>
+
+                <div class="bet-grid">
+                    <div class="bet-card bg-RED" onclick="placeBet('RED')" id="card-RED"><div class="card-label">RED</div> <div class="card-amount" id="bet-RED">0</div></div>
+                    <div class="bet-card bg-GREEN" onclick="placeBet('GREEN')" id="card-GREEN"><div class="card-label">GREEN</div> <div class="card-amount" id="bet-GREEN">0</div></div>
+                    <div class="bet-card bg-BLUE" onclick="placeBet('BLUE')" id="card-BLUE"><div class="card-label">BLUE</div> <div class="card-amount" id="bet-BLUE">0</div></div>
+                    <div class="bet-card bg-PINK" onclick="placeBet('PINK')" id="card-PINK"><div class="card-label">PINK</div> <div class="card-amount" id="bet-PINK">0</div></div>
+                    <div class="bet-card bg-WHITE" onclick="placeBet('WHITE')" id="card-WHITE"><div class="card-label">WHITE</div> <div class="card-amount" id="bet-WHITE">0</div></div>
+                    <div class="bet-card bg-YELLOW" onclick="placeBet('YELLOW')" id="card-YELLOW"><div class="card-label">YELLOW</div> <div class="card-amount" id="bet-YELLOW">0</div></div>
+                </div>
+            </div>
+            
+            <div class="footer-bar">
+                <div class="payouts"><span>x2 (1 Match)</span> <span>x3 (2 Matches)</span> <span>x4 (3 Matches)</span></div>
+                <div>TOP-UP: @ASHLEY.GG | 1 TRADECASH = 1 CREDIT</div>
+            </div>
+        </div>
+
+        <div class="side-panel">
+            <div class="chat-tabs">
+                <button class="tab-btn active" onclick="switchChat('public')" id="tab-public">PUBLIC</button>
+                <button class="tab-btn" onclick="switchChat('support')" id="tab-support">SUPPORT</button>
+            </div>
+            
+            <div id="view-public" class="chat-view active">
+                <div class="panel-body" id="chatList"></div>
+                <div class="chat-input-area">
+                    <input type="text" id="chatInput" class="chat-input" placeholder="Type here...">
+                    <button onclick="sendChat()" style="background:var(--gold); border:none; padding:0 15px; font-weight:bold; border-radius:4px;">></button>
+                </div>
+            </div>
+
+            <div id="view-support" class="chat-view">
+                <div class="panel-body" id="supportList"><div style="text-align:center; color:#666; font-size:12px; margin-top:10px;">Direct line to Admin.</div></div>
+                <div class="chat-input-area">
+                    <input type="text" id="supportInput" class="chat-input" placeholder="Help me...">
+                    <button onclick="sendSupport()" style="background:var(--cyan); border:none; padding:0 15px; font-weight:bold; border-radius:4px;">></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        let selectedChip = 50; let currentRoundBets = {}; let currentBalance = 0; const bgMusic = document.getElementById('bgMusic'); bgMusic.volume = 0.25;
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // NEW AUTH UI LOGIC
+        function showAuth(type) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            
+            if(type === 'login') {
+                document.getElementById('tabLogin').classList.add('active');
+                document.getElementById('formLogin').classList.add('active');
+            } else {
+                document.getElementById('tabRegister').classList.add('active');
+                document.getElementById('formRegister').classList.add('active');
+            }
+            document.getElementById('loginError').innerText = "";
+            document.getElementById('regError').innerText = "";
+        }
+
+        function doLogin(){
+            const u=document.getElementById('loginUser').value; 
+            const p=document.getElementById('loginPass').value; 
+            if(u&&p) socket.emit('auth_handshake',{ type: 'player', username:u, password:p }); 
+            else document.getElementById('loginError').innerText = "Enter credentials"; 
+        }
+
+        function doRegister(){
+            const u=document.getElementById('regUser').value; 
+            const p=document.getElementById('regPass').value; 
+            if(u&&p) socket.emit('register',{ username:u, password:p }); 
+            else document.getElementById('regError').innerText = "Enter details"; 
+        }
+        
+        socket.on('login_success', (data) => { 
+            document.getElementById('authOverlay').style.display='none'; 
+            document.getElementById('gameUI').style.display='grid'; 
+            document.getElementById('displayUser').innerText = data.username; 
+            currentBalance = data.balance; 
+            document.getElementById('balance').innerText = data.balance; 
+            bgMusic.play().catch(e=>{}); 
+        });
+
+        socket.on('login_error', (msg) => { 
+            // Show error in both boxes just in case
+            document.getElementById('loginError').innerText = msg; 
+            document.getElementById('regError').innerText = msg;
+        });
+
+        function playBeep(pitch) { if (audioCtx.state === 'suspended') audioCtx.resume(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.frequency.setValueAtTime(pitch, audioCtx.currentTime); osc.type='square'; gain.gain.setValueAtTime(0.05, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime+0.1); osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime+0.1); }
+        function playWinSound() { [523,659,783,1046].forEach((f,i)=>setTimeout(()=>playBeep(f),i*100)); }
+        function playCountdown() { playBeep(800); }
+        
+        socket.on('notification', (data) => { 
+            let msg = (typeof data === 'string') ? data : data.msg;
+            let dur = (typeof data === 'object' && data.duration) ? data.duration : 3000;
+            showToast(msg, 'info', dur);
+            playWinSound(); 
+        });
+        
+        socket.on('bet_error', (msg) => { showToast(msg, 'error', 3000); });
+
+        function showToast(msg, type='info', duration=3000) { 
+            const b = document.getElementById('toastBox'); 
+            const t = document.createElement('div'); t.className=`toast ${type}`; t.innerHTML=msg; 
+            if(type==='error') t.style.borderColor='#ff4444';
+            b.appendChild(t); setTimeout(()=>t.remove(), duration); 
+        }
+        
+        function selectChip(amt, btn) { selectedChip=amt; document.querySelectorAll('.chip').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
+        
+        let isBetting = false; 
+        function placeBet(color) {
+            if(isBetting) return; 
+            if(document.getElementById(`card-${color}`).classList.contains('locked')) return;
+            
+            if(currentBalance < selectedChip) { 
+                showToast("INSUFFICIENT CREDITS", 'error', 2000); 
+                return; 
+            }
+
+            isBetting = true; setTimeout(() => { isBetting = false; }, 200);
+
+            // Optimistic update
+            currentBalance -= selectedChip;
+            document.getElementById('balance').innerText = currentBalance;
+
+            if(!currentRoundBets[color]) currentRoundBets[color] = 0;
+            currentRoundBets[color] += selectedChip;
+            updateCard(color);
+
+            socket.emit('place_bet', { color: color, amount: selectedChip });
+        }
+
+        function updateCard(color) { document.getElementById(`bet-${color}`).innerText = currentRoundBets[color]; document.getElementById(`card-${color}`).classList.add('has-bet'); }
+        function undoBet() { socket.emit('undo_bet'); }
+        function clearBets() { socket.emit('clear_bets'); }
+        
+        socket.on('bet_undone', (data) => { 
+            if(currentRoundBets[data.color]) {
+                currentRoundBets[data.color] -= data.amount;
+                if(currentRoundBets[data.color] < 0) currentRoundBets[data.color] = 0;
+                document.getElementById(`bet-${data.color}`).innerText = currentRoundBets[data.color];
+                if(currentRoundBets[data.color] === 0) document.getElementById(`card-${data.color}`).classList.remove('has-bet');
+                showToast(`Undone ${data.amount} on ${data.color}`); 
+            }
+        });
+        socket.on('bets_cleared', () => { currentRoundBets = {}; document.querySelectorAll('.bet-card').forEach(c => { c.classList.remove('has-bet'); }); document.querySelectorAll('.card-amount').forEach(s => s.innerText = '0'); });
+        socket.on('game_reset', () => { currentRoundBets = {}; document.querySelectorAll('.bet-card').forEach(c => { c.classList.remove('has-bet'); }); document.querySelectorAll('.card-amount').forEach(s => s.innerText = '0'); });
+
+        socket.on('countdown_beep', (t) => { if(t <= 3) playCountdown(); });
+        socket.on('timer_update', (t) => {
+            document.getElementById('timer').innerText = t; 
+            document.getElementById('status').innerText = "BETS OPEN"; document.getElementById('status').style.color = "#ddd"; document.getElementById('status').style.fontSize="24px";
+            document.querySelectorAll('.bet-card').forEach(b => b.classList.remove('locked'));
+            document.getElementById('winModal').classList.remove('show');
+        });
+        socket.on('game_rolling', () => {
+            document.getElementById('timer').innerText = "--"; 
+            document.getElementById('status').innerText = "ROLLING..."; document.getElementById('status').style.color = "#FFD700"; document.getElementById('status').style.fontSize="32px";
+            document.querySelectorAll('.bet-card').forEach(b => b.classList.add('locked'));
+            const colors = ['RED','GREEN','BLUE','YELLOW','PINK','WHITE'];
+            let rollInt = setInterval(() => { ['die1','die2','die3'].forEach(id => { let el = document.getElementById(id); el.className = `die ${colors[Math.floor(Math.random()*6)]}`; el.innerText = ""; }); }, 100);
+            window.rollInterval = rollInt;
+        });
+        socket.on('game_result', (res) => { 
+            clearInterval(window.rollInterval); 
+            document.getElementById('status').innerText = "RESULT"; document.getElementById('status').style.color = "white"; 
+            updateDie('die1', res[0]); updateDie('die2', res[1]); updateDie('die3', res[2]);
+            playBeep(400); setTimeout(()=>playBeep(500), 200);
+        });
+        function updateDie(id, color) { document.getElementById(id).className = `die ${color}`; }
+
+        socket.on('win_notification', (data) => {
+            document.getElementById('winTotalDisplay').innerText = "+" + data.total;
+            let listHtml = "";
+            data.details.forEach(d => { listHtml += `<div class="win-row"><span>${d.color} (x${d.multiplier})</span> <span>+${d.win}</span></div>`; });
+            document.getElementById('winListDisplay').innerHTML = listHtml;
+            document.getElementById('winModal').classList.add('show');
+            playWinSound();
+        });
+
+        socket.on('active_players_update', (list) => {
+            const el = document.getElementById('activeListBody'); el.innerHTML = "";
+            list.forEach(u => {
+                let badge = "";
+                let color = "#ccc"; 
+                if(u.role === 'ADMIN') { badge = `<span class="staff-badge badge-ADMIN">ADMIN</span>`; color = "var(--gold)"; }
+                else if(u.role === 'MOD') { badge = `<span class="staff-badge badge-MOD">MOD</span>`; color = "var(--cyan)"; }
+                el.innerHTML += `<div class="pl-item" style="color:${color}"><i class="fas fa-circle"></i> ${u.username} ${badge}</div>`;
+            });
+        });
+
+        // UPDATED MUSIC HANDLER
+        socket.on('music_sync', (data) => {
+            const titleEl = document.getElementById('musicTitle');
+            const artistEl = document.getElementById('musicArtist');
+            
+            let titleText = data.title || "Waiting...";
+            titleEl.innerText = titleText;
+            artistEl.innerText = data.artist || "";
+
+            if(!data.artist) artistEl.style.display = 'none';
+            else artistEl.style.display = 'block';
+
+            if(titleText.length > 20) titleEl.className = "music-title marquee";
+            else titleEl.className = "music-title";
+
+            if(data.url && bgMusic.src !== data.url) bgMusic.src = data.url;
+            if(data.playing) { if(Math.abs(bgMusic.currentTime - data.seek) > 2) bgMusic.currentTime = data.seek; bgMusic.play().catch(e=>{}); } else { bgMusic.pause(); }
+        });
+        socket.on('metadata_update', (data) => { 
+            const titleEl = document.getElementById('musicTitle');
+            const artistEl = document.getElementById('musicArtist');
+            const titleText = data.title || "Waiting...";
+            const artistText = data.artist || "";
+
+            titleEl.innerText = titleText;
+            artistEl.innerText = artistText;
+
+            if(!artistText) artistEl.style.display = 'none';
+            else artistEl.style.display = 'block';
+
+            if(titleText.length > 20) titleEl.className = "music-title marquee";
+            else titleEl.className = "music-title";
+        });
+        socket.on('music_track_changed', (data) => { bgMusic.src = data.url; bgMusic.play(); });
+
+        function switchChat(type) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.chat-view').forEach(v => v.classList.remove('active'));
+            document.getElementById(`tab-${type}`).classList.add('active');
+            document.getElementById(`view-${type}`).classList.add('active');
+        }
+        function sendChat() { const i=document.getElementById('chatInput'); if(i.value) { socket.emit('chat_msg', i.value); i.value=''; } }
+        function sendSupport() { const i=document.getElementById('supportInput'); if(i.value) { socket.emit('support_msg', i.value); i.value=''; } }
+        
+        socket.on('chat_broadcast', (data) => {
+            if(data.type === 'public' || data.type === 'public_staff') {
+                const box = document.getElementById('chatList');
+                let badge = "";
+                let nameColor = "white"; 
+                
+                if(data.role === 'ADMIN') { badge = `<span class="staff-badge badge-ADMIN">ADMIN</span>`; nameColor = "var(--gold)"; }
+                else if(data.role === 'MOD') { badge = `<span class="staff-badge badge-MOD">MOD</span>`; nameColor = "var(--cyan)"; }
+                
+                box.innerHTML += `<div class="chat-msg"><div>${badge}<b style="color:${nameColor}">${data.user}:</b> ${data.msg}</div></div>`;
+                box.scrollTop = box.scrollHeight;
+            } else if (data.type === 'support_reply') {
+                const box = document.getElementById('supportList');
+                box.innerHTML += `<div class="chat-msg"><b style="color:var(--cyan)">ADMIN:</b> ${data.msg}</div>`;
+                box.scrollTop = box.scrollHeight;
+            } else if (data.type === 'support_sent') {
+                const box = document.getElementById('supportList');
+                box.innerHTML += `<div class="chat-msg"><b style="color:#888">You:</b> ${data.msg}</div>`;
+                box.scrollTop = box.scrollHeight;
+            }
+        });
+    </script>
+</body>
+</html>
