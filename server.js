@@ -9,34 +9,32 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-app.use(express.json()); // Allow JSON body parsing
+app.use(express.json()); 
 
 // --- DATABASE & INIT ---
 const DB_FILE = 'database.json';
 let dbData = { users: {}, admins: {} };
 
-// Helper to load DB
 function loadDatabase() {
     if (fs.existsSync(DB_FILE)) {
         try {
             const raw = fs.readFileSync(DB_FILE);
             dbData = JSON.parse(raw);
-            if (!dbData.admins) dbData.admins = {}; // Ensure admins exist
+            if (!dbData.admins) dbData.admins = {}; 
         } catch (e) { console.error("DB Load Error:", e); }
     }
 }
 
-// Helper to save DB
 function saveDatabase() {
     fs.writeFileSync(DB_FILE, JSON.stringify(dbData, null, 2));
 }
 
 loadDatabase();
 
-// --- SEED DEFAULT ADMIN (If none exist) ---
-// Default: username "admin", password "admin123" (Change this immediately after login!)
+// --- SEED DEFAULT ADMIN ---
+// IF YOU WANT TO CHANGE DEFAULT CREDENTIALS, EDIT HERE BEFORE RUNNING FIRST TIME
 if (Object.keys(dbData.admins).length === 0) {
-    const hash = bcrypt.hashSync("admin123", 10);
+    const hash = bcrypt.hashSync("admin123", 10); 
     dbData.admins["admin"] = { 
         password: hash, 
         role: "ADMIN", 
@@ -47,71 +45,23 @@ if (Object.keys(dbData.admins).length === 0) {
 }
 
 // --- GLOBAL STATE ---
-let activeSockets = {}; // Map: socket.id -> { username, role }
-let adminSessions = {}; // Map: token -> username
-let loginAttempts = {}; // Rate limiting
+let activeSockets = {}; // socket.id -> { username, role }
+let adminSessions = {}; // token -> { username, role }
+let loginAttempts = {}; 
 let supportHistory = [];
-let musicState = { playing: false, trackUrl: '', title: 'Waiting...', artist: '', timestamp: 0, lastUpdate: Date.now() };
+let musicState = { playing: false, trackUrl: '', title: 'Waiting for DJ...', artist: '', timestamp: 0, lastUpdate: Date.now() };
 let globalColorBets = { RED:0, GREEN:0, BLUE:0, PINK:0, WHITE:0, YELLOW:0 };
+let roundBets = [];
 let gameState = 'BETTING';
 let timeLeft = 20;
-let roundBets = [];
-
-// --- LOGGING ---
-function logHistory(username, message, balance) {
-    if (!dbData.users[username]) return;
-    if (!dbData.users[username].history) dbData.users[username].history = [];
-    dbData.users[username].history.unshift(`[${new Date().toLocaleTimeString()}] ${message} | BAL: ${balance}`);
-    if (dbData.users[username].history.length > 50) dbData.users[username].history.pop();
-}
-
-app.use(express.static(__dirname));
-app.get('/', (req, res) => res.sendFile(__dirname + '/index.html'));
-app.get('/admin', (req, res) => res.sendFile(__dirname + '/admin.html'));
-
-// --- AUTH API ENDPOINTS ---
-
-// Rate Limiter Helper
-const checkRateLimit = (ip) => {
-    if (!loginAttempts[ip]) loginAttempts[ip] = { count: 0, time: Date.now() };
-    if (Date.now() - loginAttempts[ip].time > 60000) { loginAttempts[ip] = { count: 0, time: Date.now() }; } // Reset every min
-    loginAttempts[ip].count++;
-    return loginAttempts[ip].count <= 5; // Max 5 attempts per minute
-};
-
-app.post('/api/admin/login', (req, res) => {
-    const ip = req.ip;
-    if (!checkRateLimit(ip)) return res.status(429).json({ error: "Too many attempts. Wait 1 min." });
-
-    const { username, password } = req.body;
-    const adminUser = dbData.admins[username];
-
-    if (!adminUser) return res.status(401).json({ error: "Invalid credentials" });
-
-    // Compare Password
-    if (!bcrypt.compareSync(password, adminUser.password)) {
-        return res.status(401).json({ error: "Invalid credentials" });
-    }
-
-    // Generate Session Token
-    const token = uuidv4();
-    adminSessions[token] = { username: username, role: adminUser.role };
-    
-    console.log(`[AUTH] Admin logged in: ${username} (${adminUser.role})`);
-    res.json({ token: token, username: username, role: adminUser.role });
-});
-
-app.post('/api/admin/logout', (req, res) => {
-    const { token } = req.body;
-    if (token) delete adminSessions[token];
-    res.json({ success: true });
-});
+let chatCooldowns = {};
 
 // --- GAME LOOP ---
 setInterval(() => {
     if (gameState === 'BETTING') {
         timeLeft--;
         if (timeLeft <= 3 && timeLeft > 0) io.emit('countdown_beep', timeLeft);
+        
         if (timeLeft <= 0) {
             gameState = 'ROLLING';
             const COLORS = ['RED', 'GREEN', 'BLUE', 'YELLOW', 'PINK', 'WHITE'];
@@ -121,8 +71,11 @@ setInterval(() => {
             setTimeout(() => {
                 io.emit('game_result', result);
                 processWinners(result);
+                
+                // Reset Round
                 roundBets = [];
                 globalColorBets = { RED:0, GREEN:0, BLUE:0, PINK:0, WHITE:0, YELLOW:0 };
+                
                 setTimeout(() => {
                     gameState = 'BETTING';
                     timeLeft = 20;
@@ -152,6 +105,7 @@ function processWinners(diceResult) {
         for(let [color, amount] of Object.entries(data.bets)) {
             let matches = 0;
             diceResult.forEach(die => { if(die === color) matches++; });
+            
             if (matches > 0) {
                 let multiplier = matches + 1;
                 let winAmount = amount * multiplier;
@@ -175,14 +129,52 @@ function processWinners(diceResult) {
     if(winnersList.length > 0) io.emit('update_winners', winnersList);
 }
 
-// --- SOCKET.IO HANDLING ---
+function logHistory(username, message, balance) {
+    if (!dbData.users[username]) return;
+    if (!dbData.users[username].history) dbData.users[username].history = [];
+    dbData.users[username].history.unshift(`[${new Date().toLocaleTimeString()}] ${message} | BAL: ${balance}`);
+    if (dbData.users[username].history.length > 50) dbData.users[username].history.pop();
+}
+
+// --- AUTH ROUTES ---
+const checkRateLimit = (ip) => {
+    if (!loginAttempts[ip]) loginAttempts[ip] = { count: 0, time: Date.now() };
+    if (Date.now() - loginAttempts[ip].time > 60000) { loginAttempts[ip] = { count: 0, time: Date.now() }; }
+    loginAttempts[ip].count++;
+    return loginAttempts[ip].count <= 5;
+};
+
+app.post('/api/admin/login', (req, res) => {
+    const ip = req.ip;
+    if (!checkRateLimit(ip)) return res.status(429).json({ error: "Too many attempts. Wait 1 min." });
+
+    const { username, password } = req.body;
+    const adminUser = dbData.admins[username];
+
+    if (!adminUser) return res.status(401).json({ error: "Invalid credentials" });
+    if (!bcrypt.compareSync(password, adminUser.password)) return res.status(401).json({ error: "Invalid credentials" });
+
+    const token = uuidv4();
+    adminSessions[token] = { username: username, role: adminUser.role };
+    res.json({ token: token, username: username, role: adminUser.role });
+});
+
+app.post('/api/admin/logout', (req, res) => {
+    const { token } = req.body;
+    if (token) delete adminSessions[token];
+    res.json({ success: true });
+});
+
+app.use(express.static(__dirname));
+app.get('/', (req, res) => res.sendFile(__dirname + '/index.html'));
+app.get('/admin', (req, res) => res.sendFile(__dirname + '/admin.html'));
+
+// --- SOCKET LOGIC ---
 io.on('connection', (socket) => {
     
-    // 1. Initial Identity Handshake
-    // Client sends 'auth' event to declare if they are Player or Admin
+    // AUTH HANDSHAKE
     socket.on('auth_handshake', (authData) => {
         if (authData.type === 'admin') {
-            // Validate Token
             const session = adminSessions[authData.token];
             if (session) {
                 activeSockets[socket.id] = { username: session.username, role: session.role };
@@ -193,14 +185,10 @@ io.on('connection', (socket) => {
                 socket.emit('auth_fail', "Invalid Session");
             }
         } else if (authData.type === 'player') {
-            // Player Login Logic (Simple)
             const { username, password } = authData;
-            // (Keeping your original simple player logic, but ideally you hash this too later)
             if (!username) return;
             
-            // Check Player DB
             if (!dbData.users[username]) {
-                // Register
                 dbData.users[username] = { password, balance: 0, history: [] };
                 saveDatabase();
             } else if (dbData.users[username].password !== password) {
@@ -212,21 +200,21 @@ io.on('connection', (socket) => {
             socket.emit('login_success', { username, balance: dbData.users[username].balance });
             
             // Late Join Sync
-            let currentSeek = musicState.playing ? musicState.timestamp + (Date.now() - musicState.lastUpdate)/1000 : musicState.timestamp;
+            let currentSeek = musicState.timestamp;
+            if (musicState.playing) {
+                currentSeek += (Date.now() - musicState.lastUpdate) / 1000;
+            }
             socket.emit('music_sync', { playing: musicState.playing, seek: currentSeek, url: musicState.trackUrl, title: musicState.title, artist: musicState.artist });
             socket.emit('update_global_bets', globalColorBets);
-            
             broadcastPresence();
         }
     });
 
-    // 2. Disconnect Handler
     socket.on('disconnect', () => {
         delete activeSockets[socket.id];
         broadcastPresence();
     });
 
-    // 3. Presence Broadcaster (Sorted: Admin -> Mod -> Player)
     function broadcastPresence() {
         const sortedList = Object.values(activeSockets).sort((a, b) => {
             const roleWeight = { 'ADMIN': 3, 'MOD': 2, 'PLAYER': 1 };
@@ -234,16 +222,11 @@ io.on('connection', (socket) => {
         });
         io.emit('active_players_update', sortedList);
         
-        // Also send full data object to admins for the table view
-        const adminData = {
-            users: dbData.users,
-            active: activeSockets,
-            support: supportHistory
-        };
+        const adminData = { users: dbData.users, active: activeSockets, support: supportHistory };
         io.to('staff_room').emit('admin_data_resp', adminData);
     }
 
-    // --- PLAYER ACTIONS (Available to Everyone) ---
+    // --- PLAYER ACTIONS ---
     socket.on('place_bet', (data) => {
         const user = activeSockets[socket.id];
         if (!user || user.role !== 'PLAYER') return;
@@ -262,98 +245,109 @@ io.on('connection', (socket) => {
         }
     });
 
-    // --- CHAT SYSTEM (Role-Aware) ---
+    socket.on('undo_bet', () => {
+        const user = activeSockets[socket.id];
+        if (!user || gameState !== 'BETTING') return;
+        
+        // Find last bet
+        let betIndex = -1;
+        for (let i = roundBets.length - 1; i >= 0; i--) { 
+            if (roundBets[i].username === user.username) { betIndex = i; break; } 
+        }
+        
+        if (betIndex !== -1) {
+            let bet = roundBets[betIndex];
+            dbData.users[user.username].balance += bet.amount;
+            globalColorBets[bet.color] -= bet.amount;
+            if(globalColorBets[bet.color] < 0) globalColorBets[bet.color] = 0;
+            
+            roundBets.splice(betIndex, 1);
+            saveDatabase();
+            socket.emit('update_balance', dbData.users[user.username].balance);
+            socket.emit('bet_undone', { color: bet.color, amount: bet.amount });
+            io.emit('update_global_bets', globalColorBets);
+        }
+    });
+
+    socket.on('clear_bets', () => {
+        const user = activeSockets[socket.id];
+        if (!user || gameState !== 'BETTING') return;
+        
+        let totalRefund = 0;
+        roundBets = roundBets.filter(bet => {
+            if (bet.username === user.username) {
+                totalRefund += bet.amount;
+                globalColorBets[bet.color] -= bet.amount;
+                return false;
+            }
+            return true;
+        });
+        
+        if (totalRefund > 0) {
+            dbData.users[user.username].balance += totalRefund;
+            saveDatabase();
+            socket.emit('update_balance', dbData.users[user.username].balance);
+            socket.emit('bets_cleared');
+            io.emit('update_global_bets', globalColorBets);
+        }
+    });
+
+    // --- CHAT ---
     socket.on('chat_msg', (msg) => {
         const user = activeSockets[socket.id];
         if (!user) return;
-        
-        // Rate limit players, exempt staff
         if (user.role === 'PLAYER') {
             if (chatCooldowns[user.username] && Date.now() < chatCooldowns[user.username]) return;
             chatCooldowns[user.username] = Date.now() + 3000;
         }
-
-        io.emit('chat_broadcast', { 
-            user: user.username, 
-            msg: msg, 
-            role: user.role, // Server validates role
-            type: 'public' 
-        });
+        io.emit('chat_broadcast', { user: user.username, msg: msg, role: user.role, type: 'public' });
     });
 
     socket.on('support_msg', (msg) => {
         const user = activeSockets[socket.id];
         if (!user) return;
-        
         const ticket = { user: user.username, msg, time: Date.now() };
         supportHistory.push(ticket);
         io.to('staff_room').emit('admin_support_receive', ticket);
         socket.emit('chat_broadcast', { user: "You", msg, type: 'support_sent' });
     });
 
-    // --- ADMIN/MOD ACTIONS (Protected) ---
-    
-    // Middleware-like check
+    // --- STAFF HELPERS ---
     function isStaff() { return activeSockets[socket.id] && (activeSockets[socket.id].role === 'ADMIN' || activeSockets[socket.id].role === 'MOD'); }
     function isAdmin() { return activeSockets[socket.id] && activeSockets[socket.id].role === 'ADMIN'; }
 
-    socket.on('admin_req_data', () => {
-        if (!isStaff()) return;
-        broadcastPresence(); // Triggers the admin data update
-    });
+    socket.on('admin_req_data', () => { if (isStaff()) broadcastPresence(); });
 
     socket.on('admin_chat_public', (msg) => {
         if (!isStaff()) return;
         const user = activeSockets[socket.id];
-        io.emit('chat_broadcast', { 
-            user: user.username, 
-            msg: msg, 
-            role: user.role, 
-            type: 'public_staff' 
-        });
+        io.emit('chat_broadcast', { user: user.username, msg: msg, role: user.role, type: 'public_staff' });
     });
 
     socket.on('admin_reply_support', (data) => {
         if (!isStaff()) return;
-        const adminUser = activeSockets[socket.id];
-        
-        // Send to specific player
         for (let [sid, u] of Object.entries(activeSockets)) {
             if (u.username === data.targetUser) {
-                io.to(sid).emit('chat_broadcast', { 
-                    user: adminUser.username, 
-                    role: adminUser.role,
-                    msg: data.msg, 
-                    type: 'support_reply' 
-                });
+                io.to(sid).emit('chat_broadcast', { msg: data.msg, type: 'support_reply' });
             }
         }
-        // Save history and echo to staff
         supportHistory.push({ user: `To ${data.targetUser}`, msg: data.msg, time: Date.now() });
-        io.to('staff_room').emit('chat_broadcast', { 
-            user: `To ${data.targetUser}`, 
-            msg: data.msg, 
-            type: 'support_log_echo',
-            sender: adminUser.username 
-        });
+        io.to('staff_room').emit('chat_broadcast', { user: `To ${data.targetUser}`, msg: data.msg, type: 'support_log_echo', target: data.targetUser });
     });
 
-    // --- ONLY ADMIN ACTIONS (No Mods) ---
-    
+    // --- ADMIN ACTIONS (Money & Staff) ---
     socket.on('admin_add_credits', (data) => {
         if (!isAdmin()) return;
         if (dbData.users[data.username]) {
             dbData.users[data.username].balance += parseInt(data.amount);
             logHistory(data.username, `ADMIN ADDED +${data.amount}`, dbData.users[data.username].balance);
             saveDatabase();
-            // Notify specific player
             for (let [sid, u] of Object.entries(activeSockets)) {
                 if (u.username === data.username) {
                     io.to(sid).emit('update_balance', dbData.users[data.username].balance);
                     io.to(sid).emit('notification', { msg: `ADMIN ADDED ${data.amount} CREDITS!`, duration: 3000 });
                 }
             }
-            socket.emit('admin_log', `Success: Added ${data.amount} to ${data.username}`);
             broadcastPresence();
         }
     });
@@ -371,18 +365,43 @@ io.on('connection', (socket) => {
                     io.to(sid).emit('notification', { msg: `WITHDRAWAL: -${data.amount} CREDITS`, duration: 3000 });
                 }
             }
-            socket.emit('admin_log', `Success: Deducted ${data.amount} from ${data.username}`);
             broadcastPresence();
         }
     });
 
-    // MUSIC
-    socket.on('admin_music_action', (data) => {
-        if (!isStaff()) return; // Mods can control music? Usually yes. If not, change to isAdmin()
-        musicState.playing = (data.action === 'play');
-        musicState.timestamp = data.seek;
-        musicState.lastUpdate = Date.now();
-        io.emit('music_sync', { playing: musicState.playing, seek: musicState.timestamp, url: musicState.trackUrl, title: musicState.title, artist: musicState.artist });
+    socket.on('admin_add_all', (amount) => {
+        if (!isAdmin()) return;
+        const amt = parseInt(amount);
+        for(let [sid, u] of Object.entries(activeSockets)) {
+            if(u.role === 'PLAYER' && dbData.users[u.username]) {
+                dbData.users[u.username].balance += amt;
+                logHistory(u.username, `ADMIN GIFT +${amt}`, dbData.users[u.username].balance);
+                io.to(sid).emit('update_balance', dbData.users[u.username].balance);
+                io.to(sid).emit('notification', { msg: `GIFT! +${amt} CREDITS`, duration: 3000 });
+            }
+        }
+        saveDatabase();
+        broadcastPresence();
+    });
+
+    socket.on('admin_create_staff', (data) => {
+        if (!isAdmin()) { socket.emit('admin_log', "Error: Permission Denied."); return; }
+        const { username, password, role } = data;
+        if (!username || !password || !role) return;
+        if (dbData.admins[username]) { socket.emit('admin_log', "Error: Username exists."); return; }
+
+        const hash = bcrypt.hashSync(password, 10);
+        dbData.admins[username] = { password: hash, role: role, created: Date.now() };
+        saveDatabase();
+        socket.emit('admin_log', `Success: Created ${role} account for ${username}`);
+    });
+
+    // --- MUSIC CONTROLS ---
+    socket.on('admin_update_metadata', (data) => {
+        if (!isStaff()) return;
+        if(data.title) musicState.title = data.title;
+        if(data.artist) musicState.artist = data.artist;
+        io.emit('metadata_update', musicState);
     });
 
     socket.on('admin_change_track', (newUrl) => {
@@ -394,11 +413,12 @@ io.on('connection', (socket) => {
         io.emit('music_sync', { playing: true, seek: 0, url: newUrl, title: musicState.title, artist: musicState.artist });
     });
 
-    socket.on('admin_update_metadata', (data) => {
+    socket.on('admin_music_action', (data) => {
         if (!isStaff()) return;
-        if(data.title) musicState.title = data.title;
-        if(data.artist) musicState.artist = data.artist;
-        io.emit('metadata_update', musicState);
+        musicState.playing = (data.action === 'play');
+        musicState.timestamp = data.seek;
+        musicState.lastUpdate = Date.now();
+        io.emit('music_sync', { playing: musicState.playing, seek: musicState.timestamp, url: musicState.trackUrl, title: musicState.title, artist: musicState.artist });
     });
 
     socket.on('admin_announce', (msg) => {
@@ -407,4 +427,4 @@ io.on('connection', (socket) => {
     });
 });
 
-server.listen(process.env.PORT || 3000, () => { console.log('Secure Server running on 3000'); });
+server.listen(process.env.PORT || 3000, () => { console.log('Server running on 3000'); });
