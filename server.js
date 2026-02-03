@@ -32,21 +32,16 @@ function saveDatabase() {
 loadDatabase();
 
 // --- SEED DEFAULT ADMIN ---
-// IF YOU WANT TO CHANGE DEFAULT CREDENTIALS, EDIT HERE BEFORE RUNNING FIRST TIME
 if (Object.keys(dbData.admins).length === 0) {
     const hash = bcrypt.hashSync("admin123", 10); 
-    dbData.admins["admin"] = { 
-        password: hash, 
-        role: "ADMIN", 
-        created: Date.now() 
-    };
+    dbData.admins["admin"] = { password: hash, role: "ADMIN", created: Date.now() };
     saveDatabase();
-    console.log("⚠️  DEFAULT ADMIN CREATED: User: 'admin' | Pass: '4shley8'");
+    console.log("⚠️  DEFAULT ADMIN CREATED: User: 'admin' | Pass: 'admin123'");
 }
 
 // --- GLOBAL STATE ---
-let activeSockets = {}; // socket.id -> { username, role }
-let adminSessions = {}; // token -> { username, role }
+let activeSockets = {}; 
+let adminSessions = {}; 
 let loginAttempts = {}; 
 let supportHistory = [];
 let musicState = { playing: false, trackUrl: '', title: 'Waiting for DJ...', artist: '', timestamp: 0, lastUpdate: Date.now() };
@@ -72,7 +67,6 @@ setInterval(() => {
                 io.emit('game_result', result);
                 processWinners(result);
                 
-                // Reset Round
                 roundBets = [];
                 globalColorBets = { RED:0, GREEN:0, BLUE:0, PINK:0, WHITE:0, YELLOW:0 };
                 
@@ -172,7 +166,7 @@ app.get('/admin', (req, res) => res.sendFile(__dirname + '/admin.html'));
 // --- SOCKET LOGIC ---
 io.on('connection', (socket) => {
     
-    // AUTH HANDSHAKE
+    // AUTH: LOGIN
     socket.on('auth_handshake', (authData) => {
         if (authData.type === 'admin') {
             const session = adminSessions[authData.token];
@@ -188,18 +182,20 @@ io.on('connection', (socket) => {
             const { username, password } = authData;
             if (!username) return;
             
+            // Login Check
             if (!dbData.users[username]) {
-                dbData.users[username] = { password, balance: 0, history: [] };
-                saveDatabase();
+                socket.emit('login_error', "User not found. Please Register.");
+                return;
             } else if (dbData.users[username].password !== password) {
                 socket.emit('login_error', "Wrong Password");
                 return;
             }
             
+            // Success
             activeSockets[socket.id] = { username: username, role: 'PLAYER' };
             socket.emit('login_success', { username, balance: dbData.users[username].balance });
             
-            // Late Join Sync
+            // Sync Game Data
             let currentSeek = musicState.timestamp;
             if (musicState.playing) {
                 currentSeek += (Date.now() - musicState.lastUpdate) / 1000;
@@ -208,6 +204,31 @@ io.on('connection', (socket) => {
             socket.emit('update_global_bets', globalColorBets);
             broadcastPresence();
         }
+    });
+
+    // AUTH: REGISTER (New!)
+    socket.on('register', (data) => {
+        const { username, password } = data;
+        if (!username || !password) return;
+        
+        if (dbData.users[username] || dbData.admins[username]) {
+            socket.emit('login_error', "Username Taken!"); // Reuse login error to show toast
+            return;
+        }
+
+        dbData.users[username] = { password, balance: 0, history: [] };
+        saveDatabase();
+
+        // Auto-login after register
+        activeSockets[socket.id] = { username: username, role: 'PLAYER' };
+        socket.emit('login_success', { username, balance: 0 });
+        
+        // Sync
+        let currentSeek = musicState.timestamp;
+        if (musicState.playing) currentSeek += (Date.now() - musicState.lastUpdate) / 1000;
+        socket.emit('music_sync', { playing: musicState.playing, seek: currentSeek, url: musicState.trackUrl, title: musicState.title, artist: musicState.artist });
+        socket.emit('update_global_bets', globalColorBets);
+        broadcastPresence();
     });
 
     socket.on('disconnect', () => {
@@ -226,7 +247,7 @@ io.on('connection', (socket) => {
         io.to('staff_room').emit('admin_data_resp', adminData);
     }
 
-    // --- PLAYER ACTIONS ---
+    // --- GAME ACTIONS ---
     socket.on('place_bet', (data) => {
         const user = activeSockets[socket.id];
         if (!user || user.role !== 'PLAYER') return;
@@ -249,7 +270,6 @@ io.on('connection', (socket) => {
         const user = activeSockets[socket.id];
         if (!user || gameState !== 'BETTING') return;
         
-        // Find last bet
         let betIndex = -1;
         for (let i = roundBets.length - 1; i >= 0; i--) { 
             if (roundBets[i].username === user.username) { betIndex = i; break; } 
@@ -312,7 +332,7 @@ io.on('connection', (socket) => {
         socket.emit('chat_broadcast', { user: "You", msg, type: 'support_sent' });
     });
 
-    // --- STAFF HELPERS ---
+    // --- ADMIN ACTIONS ---
     function isStaff() { return activeSockets[socket.id] && (activeSockets[socket.id].role === 'ADMIN' || activeSockets[socket.id].role === 'MOD'); }
     function isAdmin() { return activeSockets[socket.id] && activeSockets[socket.id].role === 'ADMIN'; }
 
@@ -335,7 +355,6 @@ io.on('connection', (socket) => {
         io.to('staff_room').emit('chat_broadcast', { user: `To ${data.targetUser}`, msg: data.msg, type: 'support_log_echo', target: data.targetUser });
     });
 
-    // --- ADMIN ACTIONS (Money & Staff) ---
     socket.on('admin_add_credits', (data) => {
         if (!isAdmin()) return;
         if (dbData.users[data.username]) {
