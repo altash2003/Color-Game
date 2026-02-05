@@ -19,13 +19,17 @@
         /* --- THEME VARIABLES --- */
         :root {
             --bg-color: #070d0b;
+            /* UNIFIED PANEL COLOR */
             --panel-bg: rgba(5, 10, 8, 0.90); 
+            
             --text-color: #eaf3ef;
             --gold: #c9a44c;
             --cyan: #00E5FF;
             --green: #00e676;
             --red: #d32f2f;
             --border-color: rgba(255,255,255,0.15);
+            
+            /* LAYOUT LOCKS */
             --gap: 16px;            
             --wheel-w: 450px; 
             --stats-w: 280px;
@@ -71,27 +75,37 @@
         .game-view { width: 100%; height: 100%; display: none; }
         .game-view.active { display: flex; justify-content: center; align-items: center; }
 
+        /* ======================== */
+        /* === ROULETTE LAYOUT === */
+        /* ======================== */
+        
         .roulette-container {
             display: flex; flex-direction: row; gap: var(--gap);
             height: auto; max-height: 95vh; width: fit-content; margin: auto; align-items: stretch;
         }
 
+        /* --- LEFT GROUP (Wheel/Stats + Table) --- */
         .left-group {
             display: flex; flex-direction: column; gap: var(--gap);
             width: calc(var(--wheel-w) + var(--stats-w) + var(--gap)); 
             min-width: calc(var(--wheel-w) + var(--stats-w) + var(--gap));
         }
 
+        /* UPPER ROW (Wheel + Stats) */
         .upper-row { display: flex; gap: var(--gap); height: var(--upper-h); flex-shrink: 0; }
 
+        /* WHEEL PANEL */
         .wheelPanel {
             flex: 1; background: var(--panel-bg); border: 1px solid var(--border-color);
-            border-radius: 12px; position: relative; display: flex; justify-content: center; align-items: center;
+            border-radius: 12px; position: relative;
+            display: flex; justify-content: center; align-items: center;
             box-shadow: 0 10px 40px rgba(0,0,0,0.6);
         }
         .stage { width: 95%; height: 95%; display: flex; align-items: center; justify-content: center; }
+        
         canvas { max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 0 5px rgba(0,0,0,0.8)); }
         
+        /* Realistic Metallic Wood Ring */
         .wood-ring {
             position: absolute; width: 380px; height: 380px; border-radius: 50%;
             border: 14px solid #3e2723; /* Dark Wood */
@@ -102,9 +116,16 @@
             pointer-events: none; z-index: 5; background: transparent;
         }
 
-        .pointer { position: absolute; top: 10px; width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid #f0e6d2; z-index: 20; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); }
+        /* POINTER HIDDEN (Visual only, ball logic handles landing) */
+        .pointer { 
+            position: absolute; top: 10px; width: 0; height: 0; 
+            border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid #f0e6d2; 
+            z-index: 20; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); 
+            display: none; 
+        }
         .spin-trigger { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 80px; height: 80px; border-radius: 50%; z-index: 30; cursor: pointer; }
 
+        /* MIDDLE STATS COLUMN */
         .middle-col { width: var(--stats-w); display: flex; flex-direction: column; gap: var(--gap); height: 100%; flex-shrink: 0; }
 
         .payout-wrap {
@@ -129,6 +150,7 @@
         .hb-red { background: var(--red); } .hb-black { background: #111; } .hb-green { background: #165b33; } 
         .hb-empty { display: none; } 
 
+        /* TABLE */
         .tableWrap {
             background: var(--panel-bg); padding: 10px; border-radius: 12px; border: 1px solid var(--border-color);
             width: 100%; display: flex; justify-content: center; align-items: flex-start;
@@ -149,6 +171,7 @@
         .cell.has-bet { box-shadow: inset 0 0 0 1px var(--gold), inset 0 0 10px rgba(201, 164, 76, 0.2); }
         .indicator-dot { position: absolute; top: 3px; right: 3px; width: 6px; height: 6px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 4px #c9a44c; pointer-events: none; }
 
+        /* --- RIGHT SIDEBAR --- */
         .stats-sidebar { width: var(--sidebar-w); display: flex; flex-direction: column; gap: var(--gap); flex-shrink: 0; }
         .list-box { 
             background: var(--panel-bg); border: 1px solid var(--border-color); 
@@ -175,6 +198,7 @@
         .modal-btn { flex: 1; padding: 10px; border-radius: 6px; font-weight: 700; cursor: pointer; border: none; font-family: inherit; }
         .btn-cancel { background: #444; color: #ccc; } .btn-confirm { background: var(--gold); color: #000; }
 
+        /* DICE STYLES */
         .dice-layout { display: grid; grid-template-columns: 260px 1fr 260px; gap: 20px; height: 100%; max-width: 1200px; margin: auto; }
         .dice-panel { background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); border-radius: 12px; display: flex; flex-direction: column; padding: 15px; }
         .dice-center { display: flex; flex-direction: column; gap: 20px; justify-content: center; align-items: center; }
@@ -266,6 +290,7 @@
                     <div class="upper-row">
                         <div class="wheelPanel">
                             <div class="wood-ring"></div>
+                            
                             <div class="stage">
                                 <div class="pointer"></div>
                                 <div class="spin-trigger" onclick="reqSpin()"></div>
@@ -379,10 +404,12 @@
         function initGame(){ buildGrid(); drawWheel(); window.addEventListener('resize', fitLayout); setTimeout(fitLayout, 100); }
 
         function fitLayout() {
+            // Lock Sidebar Height
             const left = document.getElementById('leftGroup');
             const right = document.getElementById('statsSidebar');
             if(left && right) right.style.height = `${left.offsetHeight}px`;
 
+            // Lock Table Cells
             const grid = document.getElementById('grid');
             if(grid && grid.children.length > 2) {
                 const cellW = grid.children[2].getBoundingClientRect().width;
@@ -395,13 +422,13 @@
         const REDS = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
         const ctx = document.getElementById('wheelCanvas').getContext('2d');
         let angle = 0;
-        let ball = { r: 350, a: 0, active: false }; // Ball is inactive until spin
+        let ball = { r: 350, a: 0, active: false };
 
         function drawWheel(){
             const W = 800, H = 800, CX = 400, CY = 400;
             ctx.clearRect(0,0,W,H);
             
-            // Draw Wheel Background
+            // Draw Wheel Background (Darker)
             let g = ctx.createRadialGradient(CX, CY, 330, CX, CY, 380);
             g.addColorStop(0, '#1a0f05'); g.addColorStop(1, '#000');
             ctx.beginPath(); ctx.arc(CX,CY,380,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
@@ -420,14 +447,16 @@
             ctx.beginPath(); ctx.arc(CX,CY,90,0,Math.PI*2); ctx.fillStyle="#222"; ctx.fill(); 
             ctx.strokeStyle="#c9a44c"; ctx.lineWidth=4; ctx.stroke();
 
-            // DRAW BALL (Always draw if active OR simply sitting there)
-            if(ball.active || !spinning) { 
-                // We use ball.a which is absolute angle
-                let bx = CX + ball.r * Math.cos(ball.a);
-                let by = CY + ball.r * Math.sin(ball.a);
-                ctx.beginPath(); ctx.arc(bx, by, 10, 0, Math.PI*2); ctx.fillStyle="#fff"; ctx.fill();
-                ctx.shadowColor="black"; ctx.shadowBlur=8;
-            }
+            // DRAW BALL (Persistent)
+            // If ball.active is true, it is animating. If false, it stays at last position.
+            // We use global `ball.a` which is absolute screen rotation.
+            // If ball is active or just resting, we draw it.
+            // Initial state (active=false, r=350) -> Ball rests on rim
+            let bx = CX + ball.r * Math.cos(ball.a);
+            let by = CY + ball.r * Math.sin(ball.a);
+            
+            ctx.beginPath(); ctx.arc(bx, by, 10, 0, Math.PI*2); ctx.fillStyle="#fff"; ctx.fill();
+            ctx.shadowColor="black"; ctx.shadowBlur=8;
         }
 
         // --- GRID ---
@@ -482,84 +511,104 @@
         function reqSpin(){ if(spinning || bets.length==0) return; socket.emit('roulette_req_spin', bets); }
         
         socket.on('roulette_res_spin', data => {
-            spinning=true; 
-            let start=null; const dur=6000;
+            spinning = true; 
+            let start = null; 
+            const duration = 5000; // 5 seconds
             
-            // 1. RANDOM WHEEL STOP (No pointer alignment)
+            // Random Wheel Stop: We pick a random final angle for the wheel
             const randomOffset = Math.random() * Math.PI * 2;
-            const wheelRotations = Math.PI * 12; // 6 spins
-            const finalWheelA = angle + wheelRotations + randomOffset;
-            const startA = angle;
+            const totalWheelRotations = Math.PI * 8; // 4 spins
+            const finalWheelAngle = angle + totalWheelRotations + randomOffset;
+            const startWheelAngle = angle;
 
-            // 2. BALL TARGETING (Center of Pocket + Jitter)
+            // Ball Land Target
+            // The pocket is at index * slice width. 
+            // We want the ball to land in the MIDDLE of the pocket (+slice/2)
             const slice = (Math.PI*2)/WHEEL.length;
-            const pocketCenter = (slice * data.winningIndex) + (slice/2); // Exact middle of frets
-            const jitter = (Math.random() * slice * 0.4) - (slice * 0.2); // +/- 20% random offset
-            const targetPocketOffset = pocketCenter + jitter;
-
-            // Ball spins CCW (opposite)
-            ball.active = true;
-            ball.r = 350; 
-            ball.a = 0; 
+            const pocketCenter = (slice * data.winningIndex) + (slice/2); 
             
-            // Animation Phases
+            ball.active = true;
+            ball.r = 350; // Track
+            ball.speed = 0.2; // Initial speed
+            
+            // We need ball to travel some relative distance CCW.
+            // Let's approximate physics: 
+            // Phase 1: High speed, decaying.
+            // Phase 2: Drop & Catch.
+            
+            // We will just animate ball angle simply relative to wheel for the catch.
+            // Target Ball Angle (Absolute) = FinalWheelAngle + PocketCenterOffset
+            const targetBallAngle = finalWheelAngle + pocketCenter;
+            
+            // Ball Start Angle?
+            ball.a = angle; // Start where wheel is (or keep current ball pos)
+
             function anim(t){
-                if(!start)start=t; const p=(t-start)/dur;
+                if(!start) start=t; 
+                const p = (t-start)/duration; 
                 
-                if(p<1){
-                    // Wheel EaseOut
+                if(p < 1){
+                    // 1. Wheel Physics (Ease Out)
                     const e = 1 - Math.pow(1-p, 3);
-                    angle = startA + (finalWheelA - startA)*e;
-
+                    angle = startWheelAngle + (finalWheelAngle - startWheelAngle) * e;
+                    
+                    // 2. Ball Physics
                     if(p < 0.6) {
-                        // PHASE 1: FREE SPIN (Ball moves independent CCW)
-                        ball.a -= 0.15; // Fast CCW
+                        // PHASE 1: SPINNING CCW (Opposite)
+                        // Simple linear movement backward relative to wheel?
+                        // No, let's just rotate it counter-clockwise in world space.
+                        ball.a -= 0.15 * (1-p); // Decelerating spin
                     } else if (p < 0.8) {
-                        // PHASE 2: CATCH/DROP
-                        // Interpolate ball from current free pos -> locked pos
-                        // We cheat: just move ball angle towards (angle + targetPocketOffset)
+                        // PHASE 2: HUNTING/DROPPING
+                        // Interpolate ball angle towards the locking position relative to current wheel angle
+                        // Current Target Position = angle + pocketCenter
+                        let currentTarget = angle + pocketCenter;
                         
-                        let lockedPos = angle + targetPocketOffset;
-                        // Determine shortest path? No, just sync speed
+                        // Move ball.a towards currentTarget via shortest path?
+                        // Or just lerp?
+                        // Simple Lerp for "Magnet" effect
+                        let mix = (p-0.6)/0.2; // 0 to 1
+                        ball.a = ball.a + (currentTarget - ball.a) * 0.1; // Soft follow
                         
-                        // Simple drop logic:
-                        let dropP = (p-0.6)/0.2; // 0 to 1
-                        ball.r = 350 - (70 * dropP); // Drop radius 350->280
+                        // Wobble Radius
+                        let wobble = Math.sin(p * 50) * 10;
                         
-                        // Force ball angle to align with pocket
-                        // This causes a "snap" visual which is actually realistic for roulette catch
-                        ball.a = lockedPos; 
+                        // Drop Radius
+                        let dropP = (p-0.6)/0.2;
+                        ball.r = 350 - (70 * dropP) + wobble;
                     } else {
-                        // PHASE 3: LOCKED (0.8 to 1.0)
+                        // PHASE 3: LOCKED
+                        // Ball is stuck to wheel
                         ball.r = 280;
-                        ball.a = angle + targetPocketOffset; // Perfectly stick to wheel
+                        ball.a = angle + pocketCenter; 
                     }
-
-                    drawWheel(); 
+                    
+                    drawWheel();
                     requestAnimationFrame(anim);
                 } else {
-                    // END
-                    angle = finalWheelA;
-                    ball.a = finalWheelA + targetPocketOffset;
+                    // Final state
+                    angle = finalWheelAngle;
+                    ball.a = finalWheelAngle + pocketCenter;
                     ball.r = 280;
                     drawWheel();
-                    spinning=false; 
+                    spinning = false; 
                     finish(data);
                 }
             }
             requestAnimationFrame(anim);
         });
-
+        
         function finish(data){
             document.getElementById('resNum').innerText=data.resultVal;
             document.getElementById('resColor').style.background = (data.resultVal=="0"||data.resultVal=="00")?'#165b33':(REDS.includes(parseInt(data.resultVal))?'#c03a35':'#111');
             
-            // HISTORY
+            // STRICT 5 HISTORY
             const h = document.getElementById('historyBar');
             let cls = (data.resultVal=="0"||data.resultVal=="00")?'hb-green':(REDS.includes(parseInt(data.resultVal))?'hb-red':'hb-black');
             let newBall = document.createElement('div');
             newBall.className = `hist-ball ${cls}`;
             newBall.innerText = data.resultVal;
+            
             h.insertBefore(newBall, h.firstChild); 
             if(h.children.length > 5) h.removeChild(h.lastElementChild); 
 
