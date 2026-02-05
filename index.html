@@ -43,7 +43,6 @@
             backdrop-filter: blur(8px);
         }
         
-        /* SCROLLBARS */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
@@ -72,37 +71,27 @@
         .game-view { width: 100%; height: 100%; display: none; }
         .game-view.active { display: flex; justify-content: center; align-items: center; }
 
-        /* ======================== */
-        /* === ROULETTE LAYOUT === */
-        /* ======================== */
-        
         .roulette-container {
             display: flex; flex-direction: row; gap: var(--gap);
             height: auto; max-height: 95vh; width: fit-content; margin: auto; align-items: stretch;
         }
 
-        /* --- LEFT GROUP (Wheel/Stats + Table) --- */
         .left-group {
             display: flex; flex-direction: column; gap: var(--gap);
             width: calc(var(--wheel-w) + var(--stats-w) + var(--gap)); 
             min-width: calc(var(--wheel-w) + var(--stats-w) + var(--gap));
         }
 
-        /* UPPER ROW (Wheel + Stats) */
         .upper-row { display: flex; gap: var(--gap); height: var(--upper-h); flex-shrink: 0; }
 
-        /* WHEEL PANEL */
         .wheelPanel {
             flex: 1; background: var(--panel-bg); border: 1px solid var(--border-color);
-            border-radius: 12px; position: relative;
-            display: flex; justify-content: center; align-items: center;
+            border-radius: 12px; position: relative; display: flex; justify-content: center; align-items: center;
             box-shadow: 0 10px 40px rgba(0,0,0,0.6);
         }
         .stage { width: 95%; height: 95%; display: flex; align-items: center; justify-content: center; }
-        
         canvas { max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 0 5px rgba(0,0,0,0.8)); }
         
-        /* Realistic Metallic Wood Ring */
         .wood-ring {
             position: absolute; width: 380px; height: 380px; border-radius: 50%;
             border: 14px solid #3e2723; /* Dark Wood */
@@ -113,16 +102,9 @@
             pointer-events: none; z-index: 5; background: transparent;
         }
 
-        /* POINTER IS HIDDEN (Visual only, logic doesn't use it) */
-        .pointer { 
-            position: absolute; top: 10px; width: 0; height: 0; 
-            border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid #f0e6d2; 
-            z-index: 20; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); 
-            display: none; /* User requested random stop, no pointer alignment */
-        }
+        .pointer { position: absolute; top: 10px; width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid #f0e6d2; z-index: 20; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); }
         .spin-trigger { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 80px; height: 80px; border-radius: 50%; z-index: 30; cursor: pointer; }
 
-        /* MIDDLE STATS COLUMN */
         .middle-col { width: var(--stats-w); display: flex; flex-direction: column; gap: var(--gap); height: 100%; flex-shrink: 0; }
 
         .payout-wrap {
@@ -147,7 +129,6 @@
         .hb-red { background: var(--red); } .hb-black { background: #111; } .hb-green { background: #165b33; } 
         .hb-empty { display: none; } 
 
-        /* TABLE */
         .tableWrap {
             background: var(--panel-bg); padding: 10px; border-radius: 12px; border: 1px solid var(--border-color);
             width: 100%; display: flex; justify-content: center; align-items: flex-start;
@@ -168,7 +149,6 @@
         .cell.has-bet { box-shadow: inset 0 0 0 1px var(--gold), inset 0 0 10px rgba(201, 164, 76, 0.2); }
         .indicator-dot { position: absolute; top: 3px; right: 3px; width: 6px; height: 6px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 4px #c9a44c; pointer-events: none; }
 
-        /* --- RIGHT SIDEBAR --- */
         .stats-sidebar { width: var(--sidebar-w); display: flex; flex-direction: column; gap: var(--gap); flex-shrink: 0; }
         .list-box { 
             background: var(--panel-bg); border: 1px solid var(--border-color); 
@@ -180,6 +160,7 @@
         .list-head { color: var(--gold); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
         .list-content { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; padding-right: 4px; }
         .list-row { display: flex; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 5px 8px; border-radius: 4px; font-size: 11px; color: #ddd; align-items: center; }
+        
         .chat-row { text-align: left; background: rgba(255,255,255,0.02); padding: 4px 8px; border-radius: 4px; font-size: 11px; margin-bottom: 4px; word-wrap: break-word; color: #ccc; }
         .chat-input-row { display: flex; gap: 5px; margin-top: 10px; }
         .chat-inp { flex: 1; background: rgba(0,0,0,0.3); border: 1px solid #444; color: white; border-radius: 4px; padding: 6px; font-family: inherit; font-size: 12px; text-align: left; }
@@ -194,7 +175,6 @@
         .modal-btn { flex: 1; padding: 10px; border-radius: 6px; font-weight: 700; cursor: pointer; border: none; font-family: inherit; }
         .btn-cancel { background: #444; color: #ccc; } .btn-confirm { background: var(--gold); color: #000; }
 
-        /* DICE STYLES */
         .dice-layout { display: grid; grid-template-columns: 260px 1fr 260px; gap: 20px; height: 100%; max-width: 1200px; margin: auto; }
         .dice-panel { background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); border-radius: 12px; display: flex; flex-direction: column; padding: 15px; }
         .dice-center { display: flex; flex-direction: column; gap: 20px; justify-content: center; align-items: center; }
@@ -286,7 +266,6 @@
                     <div class="upper-row">
                         <div class="wheelPanel">
                             <div class="wood-ring"></div>
-                            
                             <div class="stage">
                                 <div class="pointer"></div>
                                 <div class="spin-trigger" onclick="reqSpin()"></div>
@@ -400,12 +379,10 @@
         function initGame(){ buildGrid(); drawWheel(); window.addEventListener('resize', fitLayout); setTimeout(fitLayout, 100); }
 
         function fitLayout() {
-            // Lock Sidebar Height
             const left = document.getElementById('leftGroup');
             const right = document.getElementById('statsSidebar');
             if(left && right) right.style.height = `${left.offsetHeight}px`;
 
-            // Lock Table Cells
             const grid = document.getElementById('grid');
             if(grid && grid.children.length > 2) {
                 const cellW = grid.children[2].getBoundingClientRect().width;
@@ -418,14 +395,13 @@
         const REDS = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
         const ctx = document.getElementById('wheelCanvas').getContext('2d');
         let angle = 0;
-        // Ball now holds its own angle independent of wheel initially
-        let ball = { r: 350, a: 0, active: false, speed: 0 };
+        let ball = { r: 350, a: 0, active: false }; // Ball is inactive until spin
 
         function drawWheel(){
             const W = 800, H = 800, CX = 400, CY = 400;
             ctx.clearRect(0,0,W,H);
             
-            // Draw Wheel Background (Darker)
+            // Draw Wheel Background
             let g = ctx.createRadialGradient(CX, CY, 330, CX, CY, 380);
             g.addColorStop(0, '#1a0f05'); g.addColorStop(1, '#000');
             ctx.beginPath(); ctx.arc(CX,CY,380,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
@@ -444,13 +420,11 @@
             ctx.beginPath(); ctx.arc(CX,CY,90,0,Math.PI*2); ctx.fillStyle="#222"; ctx.fill(); 
             ctx.strokeStyle="#c9a44c"; ctx.lineWidth=4; ctx.stroke();
 
-            // DRAW BALL
-            if(ball.active) {
-                // Calculate position relative to center
-                // Note: Ball angle is global, not relative to wheel group
+            // DRAW BALL (Always draw if active OR simply sitting there)
+            if(ball.active || !spinning) { 
+                // We use ball.a which is absolute angle
                 let bx = CX + ball.r * Math.cos(ball.a);
                 let by = CY + ball.r * Math.sin(ball.a);
-                
                 ctx.beginPath(); ctx.arc(bx, by, 10, 0, Math.PI*2); ctx.fillStyle="#fff"; ctx.fill();
                 ctx.shadowColor="black"; ctx.shadowBlur=8;
             }
@@ -487,7 +461,7 @@
         function confirmBet(){
             const amt = parseInt(document.getElementById('betAmt').value);
             if(amt>0 && amt<=balance){
-                bets.push({ ...tempBet, quantity: amt }); // Fix: quantity
+                bets.push({ ...tempBet, quantity: amt });
                 balance-=amt; document.getElementById('dispBal').innerText=balance;
                 closeModal();
                 const cell = document.querySelector(`.cell[data-id="${tempBet.id}"]`) || document.querySelector(`.cell`);
@@ -508,90 +482,86 @@
         function reqSpin(){ if(spinning || bets.length==0) return; socket.emit('roulette_req_spin', bets); }
         
         socket.on('roulette_res_spin', data => {
-            spinning = true; 
-            let start = null; 
-            const duration = 5000; // 5 seconds spin
+            spinning=true; 
+            let start=null; const dur=6000;
             
-            // Random Wheel Stop: We pick a random final angle for the wheel
-            // e.g. Random between 3 and 6 full rotations + random offset
+            // 1. RANDOM WHEEL STOP (No pointer alignment)
             const randomOffset = Math.random() * Math.PI * 2;
-            const totalWheelRotations = Math.PI * 8; // 4 spins
-            const finalWheelAngle = angle + totalWheelRotations + randomOffset;
-            const startWheelAngle = angle;
+            const wheelRotations = Math.PI * 12; // 6 spins
+            const finalWheelA = angle + wheelRotations + randomOffset;
+            const startA = angle;
 
-            // Calculate where the winning pocket is relative to the start of the wheel (index 0)
-            const pocketAngle = data.winningIndex * ((Math.PI*2)/WHEEL.length);
-            
-            // Logic: At the end, Ball Angle must equal (Wheel Angle + Pocket Angle)
-            // But visually, the ball stays at a fixed angle relative to the screen initially? 
-            // No, user said "ball should stop at the position of 32 on the wheel".
-            
+            // 2. BALL TARGETING (Center of Pocket + Jitter)
+            const slice = (Math.PI*2)/WHEEL.length;
+            const pocketCenter = (slice * data.winningIndex) + (slice/2); // Exact middle of frets
+            const jitter = (Math.random() * slice * 0.4) - (slice * 0.2); // +/- 20% random offset
+            const targetPocketOffset = pocketCenter + jitter;
+
+            // Ball spins CCW (opposite)
             ball.active = true;
-            ball.r = 350; // Track
-            ball.speed = 0.15; // Initial ball speed (radians per frame)
+            ball.r = 350; 
+            ball.a = 0; 
             
+            // Animation Phases
             function anim(t){
-                if(!start) start=t; 
-                const p = (t-start)/duration; // 0.0 to 1.0
+                if(!start)start=t; const p=(t-start)/dur;
                 
-                if(p < 1){
-                    // 1. Wheel Physics (Ease Out)
+                if(p<1){
+                    // Wheel EaseOut
                     const e = 1 - Math.pow(1-p, 3);
-                    angle = startWheelAngle + (finalWheelAngle - startWheelAngle) * e;
-                    
-                    // 2. Ball Physics
-                    if(p < 0.7) {
-                        // Rolling on track (Opposite direction)
-                        ball.a -= ball.speed;
-                        // Decelerate ball
-                        ball.speed *= 0.99; 
+                    angle = startA + (finalWheelA - startA)*e;
+
+                    if(p < 0.6) {
+                        // PHASE 1: FREE SPIN (Ball moves independent CCW)
+                        ball.a -= 0.15; // Fast CCW
+                    } else if (p < 0.8) {
+                        // PHASE 2: CATCH/DROP
+                        // Interpolate ball from current free pos -> locked pos
+                        // We cheat: just move ball angle towards (angle + targetPocketOffset)
+                        
+                        let lockedPos = angle + targetPocketOffset;
+                        // Determine shortest path? No, just sync speed
+                        
+                        // Simple drop logic:
+                        let dropP = (p-0.6)/0.2; // 0 to 1
+                        ball.r = 350 - (70 * dropP); // Drop radius 350->280
+                        
+                        // Force ball angle to align with pocket
+                        // This causes a "snap" visual which is actually realistic for roulette catch
+                        ball.a = lockedPos; 
                     } else {
-                        // DROP PHASE (0.7 to 1.0)
-                        // Interpolate ball angle to match the target pocket location
-                        // Target Pocket Location at current time = angle + pocketAngle
-                        
-                        // Let's smooth lock it
-                        const currentPocketPos = angle + pocketAngle;
-                        
-                        // Lerp ball.a towards currentPocketPos
-                        // Adjust radii
-                        let dropP = (p-0.7)/0.3; // 0 to 1
-                        ball.r = 350 - (70 * dropP); // Drop to 280
-                        
-                        // Force ball to sync with pocket
-                        // We do a simple lerp from "where we were" to "where pocket is"
-                        // But since wheel is moving, we just lock it for simplicity in 2D
-                        ball.a = currentPocketPos;
+                        // PHASE 3: LOCKED (0.8 to 1.0)
+                        ball.r = 280;
+                        ball.a = angle + targetPocketOffset; // Perfectly stick to wheel
                     }
-                    
-                    drawWheel();
+
+                    drawWheel(); 
                     requestAnimationFrame(anim);
                 } else {
-                    // Final state
-                    angle = finalWheelAngle;
-                    ball.a = finalWheelAngle + pocketAngle;
+                    // END
+                    angle = finalWheelA;
+                    ball.a = finalWheelA + targetPocketOffset;
                     ball.r = 280;
                     drawWheel();
-                    spinning = false; 
+                    spinning=false; 
                     finish(data);
                 }
             }
             requestAnimationFrame(anim);
         });
-        
+
         function finish(data){
             document.getElementById('resNum').innerText=data.resultVal;
             document.getElementById('resColor').style.background = (data.resultVal=="0"||data.resultVal=="00")?'#165b33':(REDS.includes(parseInt(data.resultVal))?'#c03a35':'#111');
             
-            // STRICT 5 HISTORY
+            // HISTORY
             const h = document.getElementById('historyBar');
             let cls = (data.resultVal=="0"||data.resultVal=="00")?'hb-green':(REDS.includes(parseInt(data.resultVal))?'hb-red':'hb-black');
             let newBall = document.createElement('div');
             newBall.className = `hist-ball ${cls}`;
             newBall.innerText = data.resultVal;
-            
-            h.insertBefore(newBall, h.firstChild); // Add new to start
-            if(h.children.length > 5) h.removeChild(h.lastElementChild); // Remove 6th
+            h.insertBefore(newBall, h.firstChild); 
+            if(h.children.length > 5) h.removeChild(h.lastElementChild); 
 
             if(data.totalWin>0) { balance+=data.totalWin; updateBalance(); showToast(`WON +${data.totalWin}`); }
             bets=[]; renderBets(); document.querySelectorAll('.has-bet').forEach(c=>{c.classList.remove('has-bet'); c.querySelector('.indicator-dot')?.remove();});
