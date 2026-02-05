@@ -502,62 +502,56 @@
             spinning=true; 
             let start=null; const dur=6000;
             
-            // RANDOM WHEEL STOP (Clockwise)
+            // 1. WHEEL ROTATION (Clockwise)
             const randomOffset = Math.random() * Math.PI * 2;
             const wheelRotations = Math.PI * 12; // 6 spins
             const finalWheelA = angle + wheelRotations + randomOffset;
             const startA = angle;
 
-            // BALL TARGET (Center of Pocket)
-            // pocketCenter is relative to wheel start (0)
+            // 2. BALL TARGETING (Center of Pocket, relative to wheel start)
             const slice = (Math.PI*2)/WHEEL.length;
-            const pocketCenter = (data.winningIndex * slice) + (slice/2); // Exact Center Landing
+            const pocketCenter = (data.winningIndex * slice) + (slice/2);
             
-            // Init Ball (CCW Spin)
             ball.active = true;
             ball.r = 350; 
             
-            // We animate ball.a relative to the wheel for the "catch"
-            // Start: Ball moves CCW rapidly
-            // End: Ball locks to (wheelAngle + pocketCenter)
-            
+            // 3. BALL COUNTER-ROTATION LOGIC
+            // We want the ball to spin CCW (Opposite).
+            // At the end (t=1), Ball Angle must equal (Wheel Angle + Pocket Center).
+            // Let's set a relative offset that starts negative and reaches "pocketCenter" at t=1.
+            const startRelAngle = pocketCenter - (Math.PI * 10); // 5 spins backwards relative to wheel
+            const endRelAngle = pocketCenter; // Final lock position
+
             function anim(t){
                 if(!start)start=t; const p=(t-start)/dur;
                 
                 if(p<1){
-                    // Wheel Ease Out
+                    // Wheel Ease Out (Cubic)
                     const e = 1 - Math.pow(1-p, 3);
                     angle = startA + (finalWheelA - startA)*e;
 
-                    if(p < 0.6) {
-                        // PHASE 1: SPIN CCW (Opposite)
-                        // Simple: ball angle decreases
-                        ball.a -= 0.15 * (1-p); 
-                    } else if (p < 0.8) {
-                        // PHASE 2: DROP & BOUNCE
-                        // Radius drops 350 -> 280
-                        let dropP = (p-0.6)/0.2;
-                        
-                        // Bounce/Wobble Logic
-                        let bounce = Math.sin(dropP * Math.PI * 4) * 10 * (1-dropP);
-                        ball.r = 350 - (70 * dropP) + bounce;
-                        
-                        // Decelerate CCW spin to near stop relative to world, effectively "caught" by wheel
-                        ball.a -= 0.05 * (1-dropP);
-                    } else {
-                        // PHASE 3: LOCK
-                        // Ball moves exactly with wheel
-                        // We interpolate from current ball pos to exact pocket center
-                        ball.r = 280;
-                        ball.a = angle + pocketCenter; 
+                    // Ball Relative Angle Interpolation
+                    // To simulate friction, we want it to move fast at start, slow at end.
+                    // We can use the same ease-out 'e' for synchronization.
+                    const currentRelAngle = startRelAngle + (endRelAngle - startRelAngle) * e;
+                    
+                    // Drop/Spiral Logic
+                    if(p > 0.6) {
+                        let dropP = (p-0.6)/0.4;
+                        ball.r = 350 - (70 * dropP); // Spiral In
                     }
                     
+                    // Update Ball World Angle
+                    // World = Wheel + Relative.
+                    // Since relative is increasing from negative (CCW relative motion), 
+                    // and wheel is CW, the ball looks like it's spinning opposite.
+                    ball.a = angle + currentRelAngle;
+
                     drawWheel();
                     requestAnimationFrame(anim);
                 } else {
-                    // Final State
                     angle = finalWheelA;
-                    ball.a = finalWheelA + pocketCenter; // Lock exactly to center
+                    ball.a = finalWheelA + pocketCenter;
                     ball.r = 280;
                     drawWheel();
                     spinning = false; 
@@ -576,7 +570,6 @@
             let newBall = document.createElement('div');
             newBall.className = `hist-ball ${cls}`;
             newBall.innerText = data.resultVal;
-            
             h.insertBefore(newBall, h.firstChild); 
             if(h.children.length > 5) h.removeChild(h.lastElementChild); 
 
