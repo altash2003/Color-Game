@@ -1,84 +1,81 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Color Game</title>
+    <title>Fantasy Color Game</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        :root { --gold: #FFD700; --cyan: #00E5FF; --glass-bg: rgba(15, 20, 25, 0.6); --border: rgba(255, 255, 255, 0.15); }
+        /* PASTE YOUR ORIGINAL CSS HERE */
+        /* ... */ 
+        :root { --gold: #FFD700; --cyan: #00E5FF; --glass-bg: rgba(15, 20, 25, 0.6); --panel-glass: rgba(0, 0, 0, 0.4); --border: rgba(255, 255, 255, 0.15); }
         body { font-family: 'Rajdhani', sans-serif; text-align: center; margin: 0; color: white; background: url('background.jpg') no-repeat center center fixed; background-size: cover; height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center; }
         
-        /* ... [INCLUDE ALL YOUR PREVIOUS CSS HERE] ... */
-        /* To save space in this response, assume the previous CSS is here */
-        /* IMPORTANT: Add this CSS for the Home Button */
-        .home-btn { position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.6); border: 1px solid var(--gold); color: var(--gold); padding: 10px 20px; cursor: pointer; font-weight: bold; text-decoration: none; border-radius: 8px; z-index: 5000; }
+        /* NEW HOME BUTTON STYLE */
+        .home-btn { position: fixed; top: 20px; left: 20px; z-index: 9999; background: rgba(0,0,0,0.6); border: 1px solid var(--gold); color: var(--gold); padding: 10px 20px; text-decoration: none; font-weight: bold; border-radius: 8px; transition: 0.3s; }
         .home-btn:hover { background: var(--gold); color: black; }
         
-        /* Re-paste your specific game CSS classes (bet-card, die, etc) here */
+        /* [Rest of your original CSS...] */
         .main-container { display: grid; grid-template-columns: 260px 1fr 260px; gap: 20px; width: 95%; height: 90vh; max-width: 1600px; }
         .game-wrapper { background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 16px; display: flex; flex-direction: column; overflow: hidden; }
-        /* ... ensure you have the dice/cards CSS ... */
+        #timer { font-size: 90px; font-weight: 800; }
+        .die { width: 90px; height: 90px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 800; border: 3px solid rgba(255,255,255,0.2); background: #222; margin: 0 10px;}
+        .die.RED { background: #d32f2f; } .die.GREEN { background: #388e3c; } .die.BLUE { background: #1976d2; } .die.PINK { background: #f06292; } .die.WHITE { background: #f5f5f5; color:black; } .die.YELLOW { background: #fbc02d; color:black; }
+        /* Add other necessary CSS classes from your original file */
+        .bet-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; padding: 20px; }
+        .bet-card { height: 100px; border: 2px solid #444; border-radius: 8px; cursor: pointer; background: rgba(255,255,255,0.05); }
+        .auth-container { background: rgba(0,0,0,0.9); padding: 40px; border-radius: 20px; border: 1px solid var(--gold); }
     </style>
 </head>
 <body>
     
     <a href="/" class="home-btn"><i class="fas fa-home"></i> LOBBY</a>
 
-    <div id="authOverlay">
+    <div id="authOverlay" style="position:fixed; inset:0; z-index:5000; background:rgba(0,0,0,0.8); display:flex; justify-content:center; align-items:center;">
         <div class="auth-container">
-            <h1 style="color:white;">COLOR GAME</h1>
-            <input type="text" id="loginUser" class="auth-input" placeholder="USERNAME">
-            <input type="password" id="loginPass" class="auth-input" placeholder="PASSWORD">
-            <button onclick="doLogin()" class="auth-btn btn-login">PLAY</button>
-            <button onclick="doRegister()" class="auth-btn btn-register">REGISTER</button>
-            <div class="auth-error" id="loginError"></div>
+            <h1>COLOR GAME</h1>
+            <input id="uName" placeholder="Username"><input id="pWord" type="password" placeholder="Password">
+            <button onclick="login()">Login</button><button onclick="reg()">Register</button>
         </div>
     </div>
-
+    
     <div class="main-container" id="gameUI" style="display:none;">
         <div class="game-wrapper">
-             <div id="timer" style="font-size:80px; font-weight:bold; margin-top:50px;">20</div>
-             <div style="display:flex; gap:10px; justify-content:center; margin-bottom:50px;">
-                 <div id="die1" class="die" style="background:#333; width:80px; height:80px;">?</div>
-                 <div id="die2" class="die" style="background:#333; width:80px; height:80px;">?</div>
-                 <div id="die3" class="die" style="background:#333; width:80px; height:80px;">?</div>
+             <div id="timer">20</div>
+             <div style="display:flex; justify-content:center; margin: 20px;">
+                 <div id="die1" class="die">?</div><div id="die2" class="die">?</div><div id="die3" class="die">?</div>
              </div>
+             <div class="bet-grid">
+                 <div class="bet-card" style="background:red" onclick="placeBet('RED')">RED</div>
+                 <div class="bet-card" style="background:green" onclick="placeBet('GREEN')">GREEN</div>
+                 <div class="bet-card" style="background:blue" onclick="placeBet('BLUE')">BLUE</div>
+                 <div class="bet-card" style="background:pink" onclick="placeBet('PINK')">PINK</div>
+                 <div class="bet-card" style="background:white; color:black" onclick="placeBet('WHITE')">WHITE</div>
+                 <div class="bet-card" style="background:yellow; color:black" onclick="placeBet('YELLOW')">YELLOW</div>
              </div>
+        </div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
         
-        // CRITICAL: TELL SERVER WE ARE IN COLOR GAME
+        // ** CRITICAL: TELL SERVER WE ARE IN COLOR ROOM **
         socket.emit('enter_room', 'color');
 
-        // ... [Your existing Game Logic: Login, Bets, Timer, etc.] ...
-        
-        function doLogin(){
-            const u=document.getElementById('loginUser').value; 
-            const p=document.getElementById('loginPass').value; 
-            socket.emit('auth_handshake',{ type: 'player', username:u, password:p }); 
-        }
-        function doRegister(){
-            const u=document.getElementById('loginUser').value; 
-            const p=document.getElementById('loginPass').value; 
-            socket.emit('register',{ username:u, password:p }); 
-        }
+        // [PASTE YOUR ORIGINAL JS LOGIC HERE]
+        // Ensure you update the login functions to use the new socket instance
+        function login() { socket.emit('auth_handshake', {type:'player', username: document.getElementById('uName').value, password: document.getElementById('pWord').value}); }
+        function reg() { socket.emit('register', {username: document.getElementById('uName').value, password: document.getElementById('pWord').value}); }
+        function placeBet(c) { socket.emit('place_bet', {color: c, amount: 100}); } // Example
 
-        socket.on('login_success', (data) => {
-            document.getElementById('authOverlay').style.display='none';
-            document.getElementById('gameUI').style.display='grid';
-        });
-        
-        // Listeners for Color Game specifics
+        socket.on('login_success', () => { document.getElementById('authOverlay').style.display='none'; document.getElementById('gameUI').style.display='grid'; });
         socket.on('timer_update', (t) => document.getElementById('timer').innerText = t);
-        socket.on('game_rolling', () => document.getElementById('timer').innerText = "ROLLING");
         socket.on('game_result', (res) => {
-            // Update dice visuals
-            document.getElementById('timer').innerText = "RESULT";
+             document.getElementById('die1').className = `die ${res[0]}`;
+             document.getElementById('die2').className = `die ${res[1]}`;
+             document.getElementById('die3').className = `die ${res[2]}`;
         });
     </script>
 </body>
