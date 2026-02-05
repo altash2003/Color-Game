@@ -63,7 +63,7 @@
         .auth-error { color: #ff4444; font-size: 14px; margin-top: 15px; font-weight: 700; min-height: 20px; }
 
         /* TOP NAV */
-        .top-nav { width: 98%; max-width: 1800px; display: none; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.6); padding: 8px 20px; border-radius: 12px; margin-bottom: 5px; border: 1px solid var(--border); box-sizing: border-box; flex-shrink: 0; }
+        .top-nav { width: 98%; max-width: 1800px; display: none; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.6); padding: 6px 20px; border-radius: 12px; margin-bottom: 5px; border: 1px solid var(--border); box-sizing: border-box; flex-shrink: 0; }
         .nav-brand { font-size: 20px; font-weight: 800; letter-spacing: 2px; color: var(--gold); }
         .game-switcher { display: flex; gap: 10px; background: rgba(255,255,255,0.05); padding: 4px; border-radius: 8px; }
         .switch-btn { padding: 6px 15px; background: transparent; border: none; color: #888; font-family: 'Rajdhani'; font-weight: 700; font-size: 14px; cursor: pointer; border-radius: 6px; transition: 0.3s; }
@@ -147,110 +147,108 @@
         .roulette-wrapper {
             width: 100%; height: 100%;
             background: radial-gradient(circle at 50% 40%, #1b2b25, #070d0b 60%, #050807);
-            border: 4px solid var(--wood1); /* Reduced Border */
+            border: 2px solid var(--wood1); /* Minimal Wood Border */
             border-radius: 8px;
             box-shadow: inset 0 0 100px rgba(0,0,0,0.8);
             display: flex; flex-direction: column;
-            overflow: hidden; padding: 10px; box-sizing: border-box; gap: 10px;
+            overflow: hidden; padding: 5px; box-sizing: border-box; gap: 8px;
         }
 
+        /* UPPER SECTION: REDUCED HEIGHT 
+           Takes ~35% of container to leave room for square table below
+        */
         .r-upper-section {
             display: grid; 
-            /* Larger Wheel Col, Smaller others */
             grid-template-columns: 1.5fr 0.8fr 0.6fr 0.8fr; 
-            gap: 10px;
-            height: 45%; /* Use percentage height to avoid scroll */
-            min-height: 0; /* flex/grid overflow fix */
+            gap: 8px;
+            height: 35vh; /* Reduced from 45% to leave room */
+            min-height: 0;
+            flex-shrink: 0;
         }
 
         .r-col-1 { grid-column: 1; } /* Wheel */
         .r-col-2 { grid-column: 2; } /* Winner/History */
-        .r-col-3 { grid-column: 3; } /* Payouts (Merged) */
-        .r-col-4 { grid-column: 4; } /* Bets/Winners */
+        .r-col-3 { grid-column: 3; } /* Payouts */
+        .r-col-4 { grid-column: 4; } /* Bets */
 
         .wheelPanel {
             width: 100%; height: 100%;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: rgba(0,0,0,0.2); /* Lighter bg to emphasize wheel */
+            background: rgba(0,0,0,0.2); 
             border-radius: 20px;
             position: relative; overflow: hidden;
             box-sizing: border-box;
+            /* No extra padding/borders to maximize wheel size in this box */
         }
         .stage { position:relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
-        /* Maximized Canvas */
-        canvas { border-radius: 50%; max-width: 99%; max-height: 99%; object-fit: contain; }
+        canvas { border-radius: 50%; max-width: 98%; max-height: 98%; object-fit: contain; }
         .pointer { position:absolute; top: 10px; left:50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid #f0e6d2; z-index: 20; filter: drop-shadow(0 4px 4px rgba(0,0,0,.5)); pointer-events: none; }
         .spin-trigger { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 100px; height: 100px; border-radius: 50%; z-index: 30; cursor: pointer; }
 
-        /* Winner & History Panel */
+        /* Panels: Compact Heights */
         .winner-history-panel {
-            background: rgba(0,0,0,.6); padding: 10px; border-radius: 12px;
+            background: rgba(0,0,0,.6); padding: 8px; border-radius: 8px;
             border: 1px solid rgba(255,255,255,0.15); display: flex; flex-direction: column;
             height: 100%; box-sizing: border-box; justify-content: space-between;
         }
-        .r-res-top { text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 0; }
-        #resColor { width: 40px; height: 40px; border-radius: 8px; margin-bottom: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.5); flex-shrink: 0; }
-        #resNum { font-size: 70px; font-weight: 800; color: #fff; line-height: 1; text-shadow: 0 0 20px rgba(255,255,255,0.2); }
-        .history-bar { margin-top: 10px; display: flex; justify-content: center; gap: 5px; flex-shrink: 0; }
-        .hist-ball { width: 32px; height: 32px; border-radius: 50%; font-weight: 800; font-size: 14px; color: #fff; display: flex; align-items: center; justify-content: center; border: 2px solid rgba(255,255,255,0.2); box-shadow: 0 3px 10px rgba(0,0,0,0.5); }
+        .r-res-top { text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 0; }
+        #resColor { width: 35px; height: 35px; border-radius: 6px; margin-bottom: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.5); flex-shrink: 0; }
+        #resNum { font-size: 60px; font-weight: 800; color: #fff; line-height: 1; text-shadow: 0 0 20px rgba(255,255,255,0.2); }
+        .history-bar { margin-top: 5px; display: flex; justify-content: center; gap: 4px; flex-shrink: 0; }
+        .hist-ball { width: 28px; height: 28px; border-radius: 50%; font-weight: 800; font-size: 12px; color: #fff; display: flex; align-items: center; justify-content: center; border: 2px solid rgba(255,255,255,0.2); box-shadow: 0 3px 10px rgba(0,0,0,0.5); }
         .hb-red { background: linear-gradient(135deg, #d32f2f, #9a0007); }
         .hb-black { background: linear-gradient(135deg, #333, #000); }
         .hb-green { background: linear-gradient(135deg, #388e3c, #1b5e20); }
 
-        /* Payout Columns - MERGED */
         .payout-col {
             background: rgba(5, 20, 15, 0.4); border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 12px; padding: 10px; display: flex; flex-direction: column;
+            border-radius: 8px; padding: 8px; display: flex; flex-direction: column;
             height: 100%; box-sizing: border-box; overflow: hidden;
         }
-        .pay-title { color: #c9a44c; font-weight: 700; text-transform: uppercase; font-size: 13px; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; flex-shrink: 0; }
-        .payout-grid { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #aab; overflow-y: auto; }
-        .pay-item { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.02); padding: 3px 0; }
+        .pay-title { color: #c9a44c; font-weight: 700; text-transform: uppercase; font-size: 12px; margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 2px; flex-shrink: 0; }
+        .payout-grid { display: flex; flex-direction: column; gap: 2px; font-size: 11px; color: #aab; overflow-y: auto; }
+        .pay-item { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.02); padding: 2px 0; }
         .pay-val { color: #fff; font-weight: 700; }
 
-        /* Bets / Winner Panel (Rightmost) */
         .bets-win-panel {
             background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px; padding: 10px; display: flex; flex-direction: column;
+            border-radius: 8px; padding: 8px; display: flex; flex-direction: column;
             height: 100%; box-sizing: border-box; text-align: left;
         }
-        .bw-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #c9a44c; font-weight: 700; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; margin-bottom: 5px; }
-        .bw-content { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; }
-        /* Win List Style */
-        .win-row-head { color: #4f4; font-size: 14px; font-weight: bold; text-align: center; margin-bottom: 5px; border-bottom: 1px dashed #4f4; padding-bottom: 2px; }
-        .win-row-item { font-size: 12px; color: #ddd; display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 2px 0; }
+        .bw-header { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #c9a44c; font-weight: 700; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; margin-bottom: 5px; }
+        .bw-content { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+        .win-row-head { color: #4f4; font-size: 13px; font-weight: bold; text-align: center; margin-bottom: 4px; border-bottom: 1px dashed #4f4; padding-bottom: 2px; }
+        .win-row-item { font-size: 11px; color: #ddd; display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 2px 0; }
 
-        /* Lower Section */
+        /* LOWER SECTION */
         .r-lower-section {
             display: grid;
-            /* Table width matches Upper Col 1+2 (roughly) to shrink it */
-            /* Upper grid: 1.5 + 0.8 + 0.6 + 0.8 = 3.7 total fr */
-            /* Table should span roughly 1.5+0.8 = 2.3/3.7 ~= 62% */
             grid-template-columns: 2.3fr 1.4fr; 
-            gap: 10px;
-            flex-grow: 1; /* Fill remaining height */
+            gap: 8px;
+            flex-grow: 1; /* Fills remaining 65vh */
             min-height: 0;
             overflow: hidden;
         }
         
-        .r-lower-left { display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
+        .r-lower-left { display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; }
         .r-lower-right { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
 
-        /* Betting Table - REDUCED SIZE */
+        /* BETTING TABLE */
         .tableWrap { 
-            background: rgba(0,0,0,.25); padding: 5px; border-radius: 12px; 
+            background: rgba(0,0,0,.25); padding: 0; 
+            border-radius: 8px; 
             border: 1px solid rgba(255,255,255,.08); 
-            /* Let container center the grid, max-width restricts size */
-            width: 100%; height: 100%;
+            width: 100%; 
             display: flex; align-items: center; justify-content: center; 
             box-sizing: border-box; overflow: hidden;
         }
-        /* Grid container shrinks to fit cell size */
+        
+        /* Grid container calculates squareness */
         .grid { 
             display:grid; grid-template-columns: repeat(14, 1fr); 
-            width: 90%; /* Shrink width */
+            /* Width controlled by container, height by JS */
+            width: 95%; 
             border-top: 1px solid rgba(255,255,255,0.25); 
-            aspect-ratio: 3.5 / 1; /* Approx Aspect Ratio of roulette table to maintain shape */
         }
         .cell { display:flex; align-items:center; justify-content:center; border-right: 1px solid rgba(255,255,255,0.25); border-bottom: 1px solid rgba(255,255,255,0.25); cursor:pointer; position:relative; font-size: 12px; font-weight: 700; color: rgba(255,255,255,.9); transition: background 0.1s; user-select: none; text-align: center; }
         .cell:hover { background: rgba(255,255,255,.15) !important; }
@@ -259,7 +257,6 @@
         .cell.has-bet { box-shadow: inset 0 0 0 1px rgba(201, 164, 76, 0.9), inset 0 0 8px rgba(201, 164, 76, 0.1); }
         .indicator-dot { position: absolute; top: 2px; right: 2px; width: 5px; height: 5px; background: #c9a44c; border-radius: 50%; box-shadow: 0 0 4px #c9a44c; pointer-events: none; }
 
-        /* List Items */
         .list-row { display: grid; grid-template-columns: 14px 1fr auto; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); padding: 4px 6px; border-radius: 4px; font-size: 11px; color: #ddd; }
         .lr-icon.action-del { width: 8px; height: 8px; background: #666; border-radius: 50%; cursor: pointer; } .lr-icon.action-del:hover { background: #f44; }
 
@@ -557,7 +554,7 @@
             document.querySelectorAll('.switch-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(`view-${game}`).classList.add('active');
             document.getElementById(`btn-${game}`).classList.add('active');
-            if(game === 'roulette') { drawWheel(); setTimeout(adjustTableHeights, 50); }
+            if(game === 'roulette') { drawWheel(); setTimeout(adjustTableHeights, 100); }
         }
 
         // --- DICE LOGIC ---
@@ -811,12 +808,16 @@
             });
         });
         
+        // --- STRICT SQUARE CELL LOGIC ---
         function adjustTableHeights() {
-            const g = document.getElementById('grid');
-            if(g && g.children.length > 3) {
-                // Ensure grid fits vertically within container
-                const h = (g.clientHeight - 4) / 5; 
-                g.style.gridTemplateRows = `${h}px ${h}px ${h}px ${h}px ${h}px`;
+            const grid = document.getElementById('grid');
+            if(grid) {
+                // Calculate precise width of one column (total width / 14 columns)
+                const colWidth = grid.clientWidth / 14;
+                // Force rows to equal the calculated width
+                if(colWidth > 10) {
+                    grid.style.gridTemplateRows = `${colWidth}px ${colWidth}px ${colWidth}px ${colWidth}px ${colWidth}px`;
+                }
             }
         }
         window.addEventListener('resize', adjustTableHeights);
