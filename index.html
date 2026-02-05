@@ -19,10 +19,8 @@
         /* --- THEME VARIABLES --- */
         :root {
             --bg-color: #070d0b;
-            
-            /* UNIFIED DARKER PANEL COLOR */
-            /* Increased opacity for solidness (0.85) to match wheel vibe */
-            --panel-bg: rgba(5, 10, 8, 0.85); 
+            /* UNIFIED PANEL COLOR */
+            --panel-bg: rgba(5, 10, 8, 0.90); 
             
             --text-color: #eaf3ef;
             --gold: #c9a44c;
@@ -49,7 +47,6 @@
             backdrop-filter: blur(8px);
         }
         
-        /* SCROLLBARS */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
@@ -83,82 +80,51 @@
         /* ======================== */
         
         .roulette-container {
-            display: flex;
-            flex-direction: row;
-            gap: var(--gap);
-            height: auto;
-            max-height: 95vh;
-            width: fit-content;
-            margin: auto;
-            align-items: stretch;
+            display: flex; flex-direction: row; gap: var(--gap);
+            height: auto; max-height: 95vh; width: fit-content; margin: auto; align-items: stretch;
         }
 
         /* --- LEFT GROUP (Wheel/Stats + Table) --- */
         .left-group {
-            display: flex;
-            flex-direction: column;
-            gap: var(--gap);
+            display: flex; flex-direction: column; gap: var(--gap);
             width: calc(var(--wheel-w) + var(--stats-w) + var(--gap)); 
             min-width: calc(var(--wheel-w) + var(--stats-w) + var(--gap));
         }
 
         /* UPPER ROW (Wheel + Stats) */
-        .upper-row {
-            display: flex;
-            gap: var(--gap);
-            height: var(--upper-h);
-            flex-shrink: 0; 
-        }
+        .upper-row { display: flex; gap: var(--gap); height: var(--upper-h); flex-shrink: 0; }
 
         /* WHEEL PANEL */
         .wheelPanel {
-            flex: 1; 
-            background: var(--panel-bg); /* Unified Color */
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            position: relative;
+            flex: 1; background: var(--panel-bg); border: 1px solid var(--border-color);
+            border-radius: 12px; position: relative;
             display: flex; justify-content: center; align-items: center;
             box-shadow: 0 10px 40px rgba(0,0,0,0.6);
         }
         .stage { width: 95%; height: 95%; display: flex; align-items: center; justify-content: center; }
         
-        /* Realistic Wood Border Logic via Canvas Shadow + CSS */
-        canvas { 
-            max-width: 100%; max-height: 100%; object-fit: contain; 
-            filter: drop-shadow(0 0 5px rgba(0,0,0,0.8));
-        }
+        canvas { max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 0 5px rgba(0,0,0,0.8)); }
         
-        /* Metallic/Wood Ring CSS Overlay (Optional embellishment) */
+        /* Realistic Metallic Wood Ring */
         .wood-ring {
             position: absolute; width: 380px; height: 380px; border-radius: 50%;
             border: 14px solid #3e2723; /* Dark Wood */
             box-shadow: 
                 inset 0 0 15px #000, 
                 0 0 15px #000,
-                inset 2px 2px 8px rgba(255,255,255,0.15); /* Varnish shine */
-            pointer-events: none; z-index: 5;
-            background: transparent;
+                inset 2px 2px 8px rgba(255,255,255,0.15);
+            pointer-events: none; z-index: 5; background: transparent;
         }
 
         .pointer { position: absolute; top: 10px; width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid #f0e6d2; z-index: 20; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); }
         .spin-trigger { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 80px; height: 80px; border-radius: 50%; z-index: 30; cursor: pointer; }
 
         /* MIDDLE STATS COLUMN */
-        .middle-col {
-            width: var(--stats-w);
-            display: flex; flex-direction: column;
-            gap: var(--gap);
-            height: 100%;
-            flex-shrink: 0;
-        }
+        .middle-col { width: var(--stats-w); display: flex; flex-direction: column; gap: var(--gap); height: 100%; flex-shrink: 0; }
 
         .payout-wrap {
-            background: var(--panel-bg); /* Darker Opacity */
-            border: 1px solid var(--border-color);
-            border-radius: 12px; padding: 12px;
-            flex: 1; 
-            display: flex; flex-direction: column;
-            overflow: hidden;
+            background: var(--panel-bg); border: 1px solid var(--border-color);
+            border-radius: 12px; padding: 12px; flex: 1; display: flex; flex-direction: column; overflow: hidden;
         }
         .pay-title { color: var(--gold); font-weight: 700; text-transform: uppercase; font-size: 11px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px; margin-bottom: 8px; }
         .payout-grid { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #aab; }
@@ -166,12 +132,8 @@
         .pay-val { color: #fff; font-weight: 700; }
 
         .result-panel {
-            background: var(--panel-bg); /* Darker Opacity */
-            padding: 12px; border-radius: 12px;
-            border: 1px solid var(--border-color);
-            height: 130px; 
-            flex-shrink: 0;
-            display: flex; flex-direction: column; justify-content: center;
+            background: var(--panel-bg); padding: 12px; border-radius: 12px; border: 1px solid var(--border-color);
+            height: 130px; flex-shrink: 0; display: flex; flex-direction: column; justify-content: center;
         }
         .res-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; }
         .res-box { display: flex; align-items: center; gap: 10px; }
@@ -184,13 +146,9 @@
 
         /* TABLE */
         .tableWrap {
-            background: var(--panel-bg); /* Darker Opacity (Matched) */
-            padding: 10px; border-radius: 12px;
-            border: 1px solid var(--border-color);
-            width: 100%;
-            display: flex; justify-content: center; align-items: flex-start;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            box-sizing: border-box;
+            background: var(--panel-bg); padding: 10px; border-radius: 12px; border: 1px solid var(--border-color);
+            width: 100%; display: flex; justify-content: center; align-items: flex-start;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); box-sizing: border-box;
         }
         .grid { display: grid; grid-template-columns: repeat(14, 1fr); width: 100%; border-top: 1px solid var(--border-color); }
         .cell {
@@ -208,30 +166,18 @@
         .indicator-dot { position: absolute; top: 3px; right: 3px; width: 6px; height: 6px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 4px #c9a44c; pointer-events: none; }
 
         /* --- RIGHT SIDEBAR --- */
-        .stats-sidebar {
-            width: var(--sidebar-w);
-            display: flex; flex-direction: column;
-            gap: var(--gap);
-            flex-shrink: 0;
-        }
-
+        .stats-sidebar { width: var(--sidebar-w); display: flex; flex-direction: column; gap: var(--gap); flex-shrink: 0; }
         .list-box { 
-            background: var(--panel-bg); /* Darker Opacity (Matched) */
-            border: 1px solid var(--border-color); 
-            border-radius: 12px; padding: 12px; 
-            display: flex; flex-direction: column; 
+            background: var(--panel-bg); border: 1px solid var(--border-color); 
+            border-radius: 12px; padding: 12px; display: flex; flex-direction: column; 
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
-
         #currentBetsBox { flex: 1; min-height: 0; overflow: hidden; }
         #chatBox { flex: 1; min-height: 0; overflow: hidden; }
-
         .list-head { color: var(--gold); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-        
         .list-content { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; padding-right: 4px; }
         .list-row { display: flex; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 5px 8px; border-radius: 4px; font-size: 11px; color: #ddd; align-items: center; }
         
-        /* Left Aligned Chat */
         .chat-row { text-align: left; background: rgba(255,255,255,0.02); padding: 4px 8px; border-radius: 4px; font-size: 11px; margin-bottom: 4px; word-wrap: break-word; color: #ccc; }
         .chat-input-row { display: flex; gap: 5px; margin-top: 10px; }
         .chat-inp { flex: 1; background: rgba(0,0,0,0.3); border: 1px solid #444; color: white; border-radius: 4px; padding: 6px; font-family: inherit; font-size: 12px; text-align: left; }
@@ -389,7 +335,7 @@
                         <div class="list-head">CHAT</div>
                         <div class="list-content" id="chatList"></div>
                         <div class="chat-input-row">
-                            <input class="auth-inp" id="chatInput" placeholder="Type..." style="margin:0; padding:6px; font-size:12px;">
+                            <input class="chat-inp" id="chatInput" placeholder="Type..." style="margin:0; padding:6px; font-size:12px;">
                             <button class="switch-btn" style="padding:4px 8px; border-color:#444;" onclick="sendChat()">></button>
                         </div>
                     </div>
@@ -470,13 +416,13 @@
         const REDS = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
         const ctx = document.getElementById('wheelCanvas').getContext('2d');
         let angle = 0;
-        let ball = { r: 350, a: 0, active: false }; // Ball State
+        let ball = { r: 350, a: 0, active: false };
 
         function drawWheel(){
             const W = 800, H = 800, CX = 400, CY = 400;
             ctx.clearRect(0,0,W,H);
             
-            // Draw Wheel Background (Darker to pop)
+            // Draw Wheel Background (Darker)
             let g = ctx.createRadialGradient(CX, CY, 330, CX, CY, 380);
             g.addColorStop(0, '#1a0f05'); g.addColorStop(1, '#000');
             ctx.beginPath(); ctx.arc(CX,CY,380,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
@@ -560,7 +506,7 @@
             const target = (Math.PI*1.5) - (data.winningIndex * (Math.PI*2)/WHEEL.length) - ((Math.PI*2)/WHEEL.length)/2;
             const end = target + (Math.PI*10); const startA = angle;
             
-            // Ball setup
+            // Ball setup (Counter-Rotating)
             ball.active = true;
             ball.r = 350; // Outer track
             ball.a = 0; 
@@ -569,16 +515,15 @@
             function anim(t){
                 if(!start)start=t; const p=(t-start)/dur;
                 if(p<1){ 
-                    // Wheel Easing (Stops early at 2.5s)
-                    const pWheel = Math.min(p * 2, 1); // 0 to 1 in 2.5s
-                    const eWheel = 1 - Math.pow(1-pWheel, 3);
-                    if(p < 0.5) angle = startA+(end-startA)*eWheel;
+                    // Wheel Easing
+                    const e = 1 - Math.pow(1-p, 3);
+                    angle=startA+(end-startA)*e; 
                     
-                    // Ball Easing (Rolls full 5s)
+                    // Ball Animation
                     const eBall = 1 - Math.pow(1-p, 3);
                     ball.a = ballEnd * eBall;
                     
-                    // Ball Drop Logic (Last 1.5s)
+                    // Ball Drop Logic
                     if(p > 0.7) {
                         let dropP = (p-0.7)/0.3; // 0 to 1
                         ball.r = 350 - (70 * dropP); // Drops inward
@@ -596,20 +541,15 @@
             document.getElementById('resNum').innerText=data.resultVal;
             document.getElementById('resColor').style.background = (data.resultVal=="0"||data.resultVal=="00")?'#165b33':(REDS.includes(parseInt(data.resultVal))?'#c03a35':'#111');
             
-            // HISTORY: STRICTLY 5 BALLS
+            // STRICT 5 HISTORY
             const h = document.getElementById('historyBar');
             let cls = (data.resultVal=="0"||data.resultVal=="00")?'hb-green':(REDS.includes(parseInt(data.resultVal))?'hb-red':'hb-black');
-            
-            // Prepend new ball
             let newBall = document.createElement('div');
             newBall.className = `hist-ball ${cls}`;
             newBall.innerText = data.resultVal;
-            h.insertBefore(newBall, h.firstChild);
             
-            // Remove old ones if > 5
-            while(h.children.length > 5) {
-                h.removeChild(h.lastElementChild);
-            }
+            h.insertBefore(newBall, h.firstChild); // Add new to start
+            if(h.children.length > 5) h.removeChild(h.lastElementChild); // Remove 6th
 
             if(data.totalWin>0) { balance+=data.totalWin; updateBalance(); showToast(`WON +${data.totalWin}`); }
             bets=[]; renderBets(); document.querySelectorAll('.has-bet').forEach(c=>{c.classList.remove('has-bet'); c.querySelector('.indicator-dot')?.remove();});
