@@ -22,13 +22,13 @@
         :root {
             --gold: #FFD700;
             --cyan: #00E5FF;
-            --glass-bg: rgba(15, 20, 25, 0.6); 
-            --panel-glass: rgba(0, 0, 0, 0.4); 
+            --glass-bg: rgba(15, 20, 25, 0.95); 
+            --panel-glass: rgba(0, 0, 0, 0.6); 
             --border: rgba(255, 255, 255, 0.15);
             /* Roulette Specifics */
             --felt: #0f4c34;
             --wood1: #4a2612;
-            --roul-panel: rgba(0,0,0,.35);
+            --roul-panel: rgba(0,0,0,.5);
         }
 
         body { 
@@ -63,7 +63,7 @@
         .auth-error { color: #ff4444; font-size: 14px; margin-top: 15px; font-weight: 700; min-height: 20px; }
 
         /* TOP NAV */
-        .top-nav { width: 95%; max-width: 1600px; display: none; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.6); padding: 10px 20px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border); box-sizing: border-box; }
+        .top-nav { width: 98%; max-width: 1800px; display: none; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.6); padding: 10px 20px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); box-sizing: border-box; flex-shrink: 0; }
         .nav-brand { font-size: 24px; font-weight: 800; letter-spacing: 2px; color: var(--gold); }
         .game-switcher { display: flex; gap: 10px; background: rgba(255,255,255,0.05); padding: 5px; border-radius: 8px; }
         .switch-btn { padding: 8px 20px; background: transparent; border: none; color: #888; font-family: 'Rajdhani'; font-weight: 700; font-size: 16px; cursor: pointer; border-radius: 6px; transition: 0.3s; }
@@ -72,7 +72,7 @@
         .user-stat-bar { display: flex; align-items: center; gap: 15px; font-weight: 700; font-size: 18px; }
 
         /* MAIN LAYOUTS */
-        #gameArea { width: 95%; height: 85vh; max-width: 1600px; position: relative; }
+        #gameArea { width: 98%; height: 88vh; max-width: 1800px; position: relative; }
         .game-view { width: 100%; height: 100%; display: none; }
         .game-view.active { display: block; }
 
@@ -84,7 +84,7 @@
         .pl-item { padding: 5px 10px; font-size: 13px; color: #ccc; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .pl-item i { color: #00C853; margin-right: 5px; font-size: 8px; vertical-align: middle; }
         
-        /* Dice Chat */
+        /* Chat */
         .chat-tabs { display: flex; border-bottom: 1px solid var(--border); }
         .tab-btn { flex: 1; padding: 10px; background: transparent; border: none; color: #888; font-family: 'Rajdhani'; font-weight: bold; cursor: pointer; border-bottom: 2px solid transparent; }
         .tab-btn.active { color: white; border-bottom-color: var(--gold); background: rgba(255,255,255,0.05); }
@@ -112,7 +112,6 @@
         .status-text { font-size: 20px; letter-spacing: 3px; color: #aaa; margin-bottom: 10px; font-weight: 700; }
         .dice-row { display: flex; gap: 20px; }
         .die { width: 90px; height: 90px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 800; border: 3px solid rgba(255,255,255,0.2); background: #222; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        
         .die.RED { background: linear-gradient(135deg, #d32f2f, #b71c1c); color: white; border: 2px solid white; }
         .die.GREEN { background: linear-gradient(135deg, #388e3c, #1b5e20); color: white; border: 2px solid white; }
         .die.BLUE { background: linear-gradient(135deg, #1976d2, #0d47a1); color: white; border: 2px solid white; }
@@ -144,78 +143,119 @@
         .staff-badge { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; background: #333; vertical-align: middle; margin-left: 5px; }
         .badge-ADMIN { background: #FFD700; color: black; } .badge-MOD { background: #00E5FF; color: black; }
 
-        /* --- ROULETTE STYLES --- */
+        /* --- ROULETTE STYLES (NEW LAYOUT) --- */
         .roulette-wrapper {
             width: 100%; height: 100%;
             background: radial-gradient(circle at 50% 40%, #1b2b25, #070d0b 60%, #050807);
             border: 8px solid var(--wood1); 
             border-radius: 12px;
             box-shadow: inset 0 0 100px rgba(0,0,0,0.8);
-            display: flex; align-items: flex-start; justify-content: center;
-            position: relative; overflow: hidden; padding: 20px; box-sizing: border-box; gap: 20px;
+            display: flex; flex-direction: column;
+            overflow: hidden; padding: 10px; box-sizing: border-box; gap: 10px;
         }
-        .r-left-group { display: flex; flex-direction: column; gap: 16px; flex-grow: 1; height: 100%; }
-        .r-upper-row { display: flex; gap: 16px; height: 450px; flex-shrink: 0; }
-        .wheelPanel { flex: 0 0 450px; width: 450px; height: 100%; display:flex; flex-direction:column; align-items:center; justify-content: center; background: var(--roul-panel); padding: 10px; border-radius: 20px; border: 1px solid rgba(255,255,255,.08); position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); box-sizing: border-box; }
-        .stage { position:relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 20px 40px rgba(0,0,0,.7)); }
-        canvas { border-radius: 50%; max-width: 96%; max-height: 96%; object-fit: contain; }
-        .pointer { position:absolute; top: 10px; left:50%; transform: translateX(-50%); width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 40px solid #f0e6d2; z-index: 20; filter: drop-shadow(0 4px 4px rgba(0,0,0,.5)); pointer-events: none; }
-        
-        .r-middle-col { flex: 1; display: flex; flex-direction: column; gap: 16px; height: 100%; }
-        .payout-wrap { background: rgba(5, 20, 15, 0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 16px; flex: 1; display: flex; flex-direction: column; min-height: 0; text-align: left; }
-        .pay-title { color: #c9a44c; font-weight: 700; text-transform: uppercase; font-size: 12px; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; }
-        .payout-grid { display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: #aab; overflow-y: auto; }
-        .pay-item { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.02); padding: 4px 0; }
+
+        .r-upper-section {
+            display: grid; 
+            grid-template-columns: 400px 1fr 1fr 1fr; 
+            gap: 10px;
+            height: 380px; /* Fixed height for upper section */
+            flex-shrink: 0;
+        }
+
+        .r-col-1 { grid-column: 1; } /* Wheel */
+        .r-col-2 { grid-column: 2; } /* Winner/History */
+        .r-col-3 { grid-column: 3; } /* Payouts 1 */
+        .r-col-4 { grid-column: 4; } /* Payouts 2 */
+
+        .wheelPanel {
+            width: 100%; height: 100%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: var(--roul-panel); padding: 5px; border-radius: 20px;
+            border: 1px solid rgba(255,255,255,.08); position: relative; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); box-sizing: border-box;
+        }
+        .stage { position:relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+        canvas { border-radius: 50%; max-width: 98%; max-height: 98%; object-fit: contain; }
+        .pointer { position:absolute; top: 10px; left:50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid #f0e6d2; z-index: 20; filter: drop-shadow(0 4px 4px rgba(0,0,0,.5)); pointer-events: none; }
+        .spin-trigger { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 80px; height: 80px; border-radius: 50%; z-index: 30; cursor: pointer; }
+
+        /* Winner & History Panel */
+        .winner-history-panel {
+            background: rgba(0,0,0,.6); padding: 15px; border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.15); display: flex; flex-direction: column;
+            height: 100%; box-sizing: border-box; justify-content: space-between;
+        }
+        .r-res-top { text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        #resColor { width: 50px; height: 50px; border-radius: 10px; margin-bottom: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        #resNum { font-size: 80px; font-weight: 800; color: #fff; line-height: 1; text-shadow: 0 0 20px rgba(255,255,255,0.2); }
+        .history-bar { margin-top: 15px; display: flex; justify-content: center; gap: 8px; }
+        .hist-ball { width: 40px; height: 40px; border-radius: 50%; font-weight: 800; font-size: 16px; color: #fff; display: flex; align-items: center; justify-content: center; border: 2px solid rgba(255,255,255,0.2); box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .hb-red { background: linear-gradient(135deg, #d32f2f, #9a0007); }
+        .hb-black { background: linear-gradient(135deg, #333, #000); }
+        .hb-green { background: linear-gradient(135deg, #388e3c, #1b5e20); }
+
+        /* Payout Columns */
+        .payout-col {
+            background: rgba(5, 20, 15, 0.4); border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px; padding: 15px; display: flex; flex-direction: column;
+            height: 100%; box-sizing: border-box;
+        }
+        .pay-title { color: #c9a44c; font-weight: 700; text-transform: uppercase; font-size: 14px; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
+        .payout-grid { display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: #aab; overflow-y: auto; }
+        .pay-item { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.02); padding: 5px 0; }
         .pay-val { color: #fff; font-weight: 700; }
+
+        /* Lower Section */
+        .r-lower-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Split evenly? No, betting table matches Wheel+Win width */
+            /* Actually, grid-template-columns should align with top grid. */
+            grid-template-columns: calc(400px + 25% + 10px) 1fr; /* Rough calc to span col 1&2 */
+            gap: 10px;
+            flex-grow: 1; /* Fill remaining height */
+            min-height: 0;
+        }
         
-        .result-history-panel { background: rgba(0,0,0,.6); padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15); display: flex; flex-direction: column; height: 140px; justify-content: center; }
-        .res-top { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; margin-bottom: 12px; }
-        .res-big-box { display: flex; align-items: center; gap: 16px; }
-        #resColor { width: 30px; height: 30px; border-radius: 6px; background: transparent; box-shadow: inset 0 0 0 1px rgba(255,255,255,.2); }
-        #resNum { font-size: 36px; font-weight: 800; color: #fff; line-height: 1; min-width: 50px; text-align: right; }
-        
-        .tableWrap { background: rgba(0,0,0,.25); padding: 8px; border-radius: 12px; border: 1px solid rgba(255,255,255,.08); width: 100%; flex-grow: 1; display: flex; justify-content: center; box-sizing: border-box; }
-        .grid { display:grid; grid-template-columns: repeat(14, 1fr); width: 100%; border-top: 1px solid rgba(255,255,255,0.25); }
-        .cell { display:flex; align-items:center; justify-content:center; border-right: 1px solid rgba(255,255,255,0.25); border-bottom: 1px solid rgba(255,255,255,0.25); cursor:pointer; position:relative; font-size: 14px; font-weight: 700; color: rgba(255,255,255,.9); transition: background 0.1s; user-select: none; text-align: center; }
+        .r-lower-left { display: flex; flex-direction: column; }
+        .r-lower-right { display: flex; flex-direction: column; }
+
+        /* Betting Table */
+        .tableWrap { 
+            background: rgba(0,0,0,.25); padding: 10px; border-radius: 12px; 
+            border: 1px solid rgba(255,255,255,.08); 
+            width: 100%; height: 100%; 
+            display: flex; justify-content: center; box-sizing: border-box; overflow: auto;
+        }
+        .grid { display:grid; grid-template-columns: repeat(14, 1fr); width: 100%; border-top: 1px solid rgba(255,255,255,0.25); height: 100%; }
+        .cell { display:flex; align-items:center; justify-content:center; border-right: 1px solid rgba(255,255,255,0.25); border-bottom: 1px solid rgba(255,255,255,0.25); cursor:pointer; position:relative; font-size: 16px; font-weight: 700; color: rgba(255,255,255,.9); transition: background 0.1s; user-select: none; text-align: center; }
         .cell:hover { background: rgba(255,255,255,.15) !important; }
         .c-red { background: rgba(180, 40, 40, 0.5); } .c-black { background: rgba(20, 20, 20, 0.5); } .c-zero { background: rgba(20, 100, 50, 0.6); }
-        .c-outside { font-size: 12px; letter-spacing: 0.5px; color: #ccc; font-weight: 600; text-transform: uppercase; }
+        .c-outside { font-size: 13px; letter-spacing: 0.5px; color: #ccc; font-weight: 600; text-transform: uppercase; }
         .cell.has-bet { box-shadow: inset 0 0 0 1px rgba(201, 164, 76, 0.9), inset 0 0 8px rgba(201, 164, 76, 0.1); }
-        .indicator-dot { position: absolute; top: 3px; right: 3px; width: 5px; height: 5px; background: #c9a44c; border-radius: 50%; box-shadow: 0 0 4px #c9a44c; pointer-events: none; }
-        
-        .r-sidebar { flex: 0 0 300px; display: flex; flex-direction: column; gap: 16px; height: 100%; }
-        .list-box { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; flex: 1; min-height: 0; text-align: left; }
-        .list-head { color: #c9a44c; font-weight: 700; text-transform: uppercase; font-size: 12px; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; }
-        .list-content { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
-        .list-row { display: grid; grid-template-columns: 14px 1fr auto; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); padding: 6px 8px; border-radius: 4px; font-size: 12px; color: #ddd; }
-        .lr-icon.action-del { width: 8px; height: 8px; background: #666; border-radius: 50%; cursor: pointer; } .lr-icon.action-del:hover { background: #f44; }
+        .indicator-dot { position: absolute; top: 3px; right: 3px; width: 6px; height: 6px; background: #c9a44c; border-radius: 50%; box-shadow: 0 0 4px #c9a44c; pointer-events: none; }
 
-        /* MODALS (Shared & Roulette) */
+        /* MODALS */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 5000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
         .modal-overlay.show { display: flex; animation: fadeIn 0.2s; }
         .win-card { background: #111; border: 2px solid var(--gold); padding: 30px; border-radius: 16px; text-align: center; min-width: 250px; }
         .win-title { font-size: 40px; font-weight: 800; color: var(--gold); margin-bottom: 10px; }
         .win-total { font-size: 30px; font-weight: 700; margin-bottom: 15px; }
-
         .modal-box { background: #1b2b25; border: 2px solid #c9a44c; border-radius: 16px; width: 380px; padding: 30px; text-align: center; box-shadow: 0 30px 80px rgba(0,0,0,0.9); }
         .modal-inp { padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid #444; border-radius: 8px; color: #fff; width: 100%; margin-bottom: 10px; box-sizing: border-box; }
         .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
         .modal-btn { flex: 1; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; border: none; }
         .btn-cancel { background: #444; color: #ccc; } .btn-confirm { background: #c9a44c; color: #2b140a; }
 
-        .spin-trigger { 
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 80px; height: 80px; 
-            border-radius: 50%; z-index: 30; cursor: pointer; 
+        /* Helper for 2-column betting table span */
+        @media (min-width: 1000px) {
+            .r-lower-section { grid-template-columns: 1.6fr 1fr; } /* Rough 60/40 split */
         }
-
         @media (max-width: 1000px) {
-            .dice-layout { display: flex; flex-direction: column; height: auto; }
-            .side-panel { display: none; }
-            .roulette-wrapper { flex-direction: column; overflow-y: auto; }
-            .r-left-group { width: 100%; flex: none; }
-            .r-sidebar { width: 100%; flex: none; height: 300px; }
-            .r-upper-row { flex-direction: column; height: auto; align-items: center; }
-            .wheelPanel { width: 100%; height: 350px; flex: none; }
+            .r-upper-section { display: flex; flex-direction: column; height: auto; }
+            .r-lower-section { display: flex; flex-direction: column; }
+            .roulette-wrapper { overflow-y: auto; }
+            .wheelPanel { height: 350px; }
+            .winner-history-panel { height: 200px; }
         }
     </style>
 </head>
@@ -347,17 +387,17 @@
 
                 <div class="side-panel">
                     <div class="chat-tabs">
-                        <button class="tab-btn active" onclick="switchChat('public')" id="tab-public">PUBLIC</button>
-                        <button class="tab-btn" onclick="switchChat('support')" id="tab-support">SUPPORT</button>
+                        <button class="tab-btn active" onclick="switchChat('public', 'dice')" id="tab-public-dice">PUBLIC</button>
+                        <button class="tab-btn" onclick="switchChat('support', 'dice')" id="tab-support-dice">SUPPORT</button>
                     </div>
-                    <div id="view-public" class="chat-view active">
+                    <div id="view-public-dice" class="chat-view active">
                         <div class="panel-body" id="chatList"></div>
                         <div class="chat-input-area">
                             <input type="text" id="chatInput" class="chat-input" placeholder="Type here...">
                             <button onclick="sendChat()" style="background:var(--gold); border:none; padding:0 15px; font-weight:bold; border-radius:4px;">></button>
                         </div>
                     </div>
-                    <div id="view-support" class="chat-view">
+                    <div id="view-support-dice" class="chat-view">
                         <div class="panel-body" id="supportList"><div style="text-align:center; color:#666; font-size:12px; margin-top:10px;">Direct line to Admin.</div></div>
                         <div class="chat-input-area">
                             <input type="text" id="supportInput" class="chat-input" placeholder="Help me...">
@@ -370,49 +410,97 @@
 
         <div id="view-roulette" class="game-view">
             <div class="roulette-wrapper">
-                <div class="r-left-group">
-                    <div class="r-upper-row">
+                
+                <div class="r-upper-section">
+                    
+                    <div class="r-col-1">
                         <div class="wheelPanel">
                             <div class="stage">
                                 <div class="pointer"></div>
-                                <div class="spin-trigger" onclick="requestRouletteSpin()" title="Click to Spin (Bets Required)"></div>
-                                <canvas id="wheelCanvas" width="450" height="450"></canvas>
-                            </div>
-                        </div>
-                        <div class="r-middle-col">
-                            <div class="payout-wrap">
-                                <div class="pay-title">Payouts</div>
-                                <div class="payout-grid">
-                                    <div class="pay-item"><span>Number</span><span class="pay-val">35:1</span></div>
-                                    <div class="pay-item"><span>Row/Dozen</span><span class="pay-val">2:1</span></div>
-                                    <div class="pay-item"><span>Color/Even/Odd</span><span class="pay-val">1:1</span></div>
-                                </div>
-                            </div>
-                            <div class="result-history-panel">
-                                <div class="res-top">
-                                    <div style="font-size:10px; opacity:0.7">WINNER</div>
-                                    <div class="res-big-box">
-                                        <div id="resColor"></div>
-                                        <div id="resNum">--</div>
-                                    </div>
-                                </div>
-                                <div style="text-align:center; font-size:11px; color:#aaa">Tap Center Wheel to Spin</div>
+                                <div class="spin-trigger" onclick="requestRouletteSpin()" title="Spin"></div>
+                                <canvas id="wheelCanvas" width="380" height="380"></canvas>
                             </div>
                         </div>
                     </div>
-                    <div class="tableWrap">
-                        <div class="grid" id="grid"></div>
+
+                    <div class="r-col-2">
+                        <div class="winner-history-panel">
+                            <div class="r-res-top">
+                                <div style="font-size:11px; opacity:0.6; letter-spacing:2px; margin-bottom:10px">RESULT</div>
+                                <div id="resColor"></div>
+                                <div id="resNum">--</div>
+                            </div>
+                            <div class="history-bar" id="rHistoryBar">
+                                <div class="hist-ball hb-black">?</div>
+                                <div class="hist-ball hb-red">?</div>
+                                <div class="hist-ball hb-green">?</div>
+                                <div class="hist-ball hb-black">?</div>
+                                <div class="hist-ball hb-red">?</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="r-col-3">
+                        <div class="payout-col">
+                            <div class="pay-title">PAYOUTS (I)</div>
+                            <div class="payout-grid">
+                                <div class="pay-item"><span>Straight</span><span class="pay-val">35:1</span></div>
+                                <div class="pay-item"><span>Split</span><span class="pay-val">17:1</span></div>
+                                <div class="pay-item"><span>Street</span><span class="pay-val">11:1</span></div>
+                                <div class="pay-item"><span>Corner</span><span class="pay-val">8:1</span></div>
+                                <div class="pay-item"><span>Six Line</span><span class="pay-val">5:1</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="r-col-4">
+                        <div class="payout-col">
+                            <div class="pay-title">PAYOUTS (II)</div>
+                            <div class="payout-grid">
+                                <div class="pay-item"><span>Column</span><span class="pay-val">2:1</span></div>
+                                <div class="pay-item"><span>Dozen</span><span class="pay-val">2:1</span></div>
+                                <div class="pay-item"><span>Red/Black</span><span class="pay-val">1:1</span></div>
+                                <div class="pay-item"><span>Even/Odd</span><span class="pay-val">1:1</span></div>
+                                <div class="pay-item"><span>1-18/19-36</span><span class="pay-val">1:1</span></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="r-sidebar">
-                    <div class="list-box">
-                        <div class="list-head">Current Bets <button onclick="clearRouletteBets()" style="background:none; border:none; color:#f44; cursor:pointer; font-size:10px;">CLEAR</button></div>
-                        <div class="list-content" id="listCurrent"></div>
+
+                <div class="r-lower-section">
+                    
+                    <div class="r-lower-left">
+                        <div class="tableWrap">
+                            <div class="grid" id="grid"></div>
+                        </div>
                     </div>
-                    <div class="list-box">
-                        <div class="list-head">History</div>
-                        <div class="list-content" id="listHistory"></div>
+
+                    <div class="r-lower-right">
+                        <div class="side-panel" style="height:100%; border:none; background:rgba(0,0,0,0.4);">
+                            <div class="chat-tabs">
+                                <button class="tab-btn active" onclick="switchChat('public', 'roulette')" id="tab-public-roulette">PUBLIC</button>
+                                <button class="tab-btn" onclick="switchChat('support', 'roulette')" id="tab-support-roulette">SUPPORT</button>
+                                <div style="flex:1; text-align:right; padding:10px; font-size:10px; color:#aaa; cursor:pointer" onclick="clearRouletteBets()">CLEAR BETS</div>
+                            </div>
+                            
+                            <div id="view-public-roulette" class="chat-view active">
+                                <div class="panel-body" id="rChatList"></div>
+                                <div class="chat-input-area">
+                                    <input type="text" id="rChatInput" class="chat-input" placeholder="Type here...">
+                                    <button onclick="sendRChat()" style="background:var(--gold); border:none; padding:0 15px; font-weight:bold; border-radius:4px;">></button>
+                                </div>
+                            </div>
+
+                            <div id="view-support-roulette" class="chat-view">
+                                <div class="panel-body" id="rSupportList"><div style="text-align:center; color:#666; font-size:12px; margin-top:10px;">Direct line to Admin.</div></div>
+                                <div class="chat-input-area">
+                                    <input type="text" id="rSupportInput" class="chat-input" placeholder="Help me...">
+                                    <button onclick="sendRSupport()" style="background:var(--cyan); border:none; padding:0 15px; font-weight:bold; border-radius:4px;">></button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -462,7 +550,6 @@
         function placeBet(color) {
             if(document.getElementById(`card-${color}`).classList.contains('locked')) return;
             if(currentBalance < selectedChip) { showToast("No Credits!", 'error'); return; }
-            // Optimistic
             currentBalance -= selectedChip; updateBalanceDisplay();
             if(!diceBets[color]) diceBets[color] = 0; diceBets[color] += selectedChip;
             document.getElementById(`bet-${color}`).innerText = diceBets[color];
@@ -471,7 +558,6 @@
         }
         function undoBet() { socket.emit('undo_bet'); }
         function clearBets() { socket.emit('clear_bets'); }
-        
         socket.on('bet_undone', (data) => { 
             if(diceBets[data.color]) {
                 diceBets[data.color] -= data.amount;
@@ -480,28 +566,10 @@
             }
         });
         socket.on('bets_cleared', () => { diceBets={}; document.querySelectorAll('.bet-card').forEach(c => {c.classList.remove('has-bet');}); document.querySelectorAll('.card-amount').forEach(s=>s.innerText='0'); });
-        
-        socket.on('timer_update', (t) => {
-            document.getElementById('timer').innerText = t; 
-            document.getElementById('diceStatus').innerText = "BETS OPEN";
-            document.querySelectorAll('.bet-card').forEach(b => b.classList.remove('locked'));
-        });
-        socket.on('game_rolling', () => {
-            document.getElementById('timer').innerText = "--"; 
-            document.getElementById('diceStatus').innerText = "ROLLING...";
-            document.querySelectorAll('.bet-card').forEach(b => b.classList.add('locked'));
-            window.diceInt = setInterval(() => { ['die1','die2','die3'].forEach(id => { let el=document.getElementById(id); el.className=`die ${['RED','GREEN','BLUE','YELLOW','PINK','WHITE'][Math.floor(Math.random()*6)]}`; }); }, 100);
-        });
-        socket.on('game_result', (res) => { 
-            clearInterval(window.diceInt); 
-            document.getElementById('die1').className=`die ${res[0]}`; document.getElementById('die2').className=`die ${res[1]}`; document.getElementById('die3').className=`die ${res[2]}`;
-        });
-        socket.on('win_notification', (data) => {
-            document.getElementById('diceWinTotal').innerText = "+" + data.total;
-            let h = ""; data.details.forEach(d => h += `<div>${d.color} x${d.multiplier} = ${d.win}</div>`);
-            document.getElementById('diceWinList').innerHTML = h;
-            document.getElementById('diceWinModal').classList.add('show');
-        });
+        socket.on('timer_update', (t) => { document.getElementById('timer').innerText = t; document.getElementById('diceStatus').innerText = "BETS OPEN"; document.querySelectorAll('.bet-card').forEach(b => b.classList.remove('locked')); });
+        socket.on('game_rolling', () => { document.getElementById('timer').innerText = "--"; document.getElementById('diceStatus').innerText = "ROLLING..."; document.querySelectorAll('.bet-card').forEach(b => b.classList.add('locked')); window.diceInt = setInterval(() => { ['die1','die2','die3'].forEach(id => { let el=document.getElementById(id); el.className=`die ${['RED','GREEN','BLUE','YELLOW','PINK','WHITE'][Math.floor(Math.random()*6)]}`; }); }, 100); });
+        socket.on('game_result', (res) => { clearInterval(window.diceInt); document.getElementById('die1').className=`die ${res[0]}`; document.getElementById('die2').className=`die ${res[1]}`; document.getElementById('die3').className=`die ${res[2]}`; });
+        socket.on('win_notification', (data) => { document.getElementById('diceWinTotal').innerText = "+" + data.total; let h = ""; data.details.forEach(d => h += `<div>${d.color} x${d.multiplier} = ${d.win}</div>`); document.getElementById('diceWinList').innerHTML = h; document.getElementById('diceWinModal').classList.add('show'); });
 
         // --- ROULETTE LOGIC ---
         const WHEEL = ["0","28","9","26","30","11","7","20","32","17","5","22","34","15","3","24","36","13","1","00","27","10","25","29","12","8","19","31","18","6","21","33","16","4","23","35","14","2"];
@@ -512,7 +580,7 @@
         // Canvas Setup
         const canvas = document.getElementById('wheelCanvas');
         const ctx = canvas.getContext('2d');
-        const W = 450, H = 450, CX = 225, CY = 225;
+        const W = 380, H = 380, CX = 190, CY = 190;
         let wheelAngle = 0; 
         
         function isRed(n) { return REDS.includes(parseInt(n)); }
@@ -520,30 +588,37 @@
         
         function drawWheel() {
             ctx.clearRect(0,0,W,H);
-            let grad = ctx.createRadialGradient(CX, CY, 180, CX, CY, 220); grad.addColorStop(0,"#3a1f12"); grad.addColorStop(1,"#000");
-            ctx.beginPath(); ctx.arc(CX, CY, 220, 0, Math.PI*2); ctx.fillStyle=grad; ctx.fill();
-            ctx.beginPath(); ctx.arc(CX, CY, 180, 0, Math.PI*2); ctx.fillStyle="#0a2118"; ctx.fill();
+            let grad = ctx.createRadialGradient(CX, CY, 150, CX, CY, 185); grad.addColorStop(0,"#3a1f12"); grad.addColorStop(1,"#000");
+            ctx.beginPath(); ctx.arc(CX, CY, 185, 0, Math.PI*2); ctx.fillStyle=grad; ctx.fill();
+            ctx.beginPath(); ctx.arc(CX, CY, 150, 0, Math.PI*2); ctx.fillStyle="#0a2118"; ctx.fill();
             ctx.save(); ctx.translate(CX, CY); ctx.rotate(wheelAngle);
             WHEEL.forEach((lbl, i) => {
                 const ang = i * ((Math.PI*2)/WHEEL.length);
-                ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0, 175, ang, ang+((Math.PI*2)/WHEEL.length));
+                ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0, 145, ang, ang+((Math.PI*2)/WHEEL.length));
                 ctx.fillStyle = getLabelColor(lbl); ctx.fill();
                 ctx.strokeStyle="#e0e0e0"; ctx.lineWidth=1; ctx.stroke();
-                ctx.save(); ctx.rotate(ang + ((Math.PI*2)/WHEEL.length)/2); ctx.translate(140, 0); ctx.rotate(Math.PI/2);
-                ctx.fillStyle="#fff"; ctx.font="bold 14px Arial"; ctx.fillText(lbl,0,0); ctx.restore();
+                
+                // FIXED ALIGNMENT: Use correct angle for text center
+                ctx.save(); 
+                ctx.rotate(ang + ((Math.PI*2)/WHEEL.length)/2); 
+                // Move text to radius 125 (center of number band)
+                ctx.translate(125, 0); 
+                // Text is now tangential, rotate 90deg to be upright relative to edge
+                ctx.rotate(Math.PI/2);
+                ctx.fillStyle="#fff"; ctx.font="bold 16px Arial"; ctx.textAlign="center"; ctx.textBaseline="middle"; 
+                ctx.fillText(lbl,0,0); 
+                ctx.restore();
             });
             ctx.restore();
-            ctx.beginPath(); ctx.arc(CX, CY, 40, 0, Math.PI*2); ctx.fillStyle="#333"; ctx.fill(); ctx.strokeStyle="#c9a44c"; ctx.lineWidth=4; ctx.stroke();
+            ctx.beginPath(); ctx.arc(CX, CY, 35, 0, Math.PI*2); ctx.fillStyle="#333"; ctx.fill(); ctx.strokeStyle="#c9a44c"; ctx.lineWidth=4; ctx.stroke();
         }
 
         // Table Builder
         function buildTable() {
             const grid = document.getElementById('grid'); grid.innerHTML = "";
-            // Zeroes
             let z = document.createElement('div'); z.style.gridRow="1/span 3"; z.style.gridColumn="1"; z.style.display="flex"; z.style.flexDirection="column";
             z.innerHTML = `<div class="cell c-zero" onclick="promptRouletteBet('00','00')" style="flex:1">00</div><div class="cell c-zero" onclick="promptRouletteBet('0','0')" style="flex:1; border-top:1px solid rgba(255,255,255,0.2)">0</div>`;
             grid.appendChild(z);
-            // Nums
             const ROWS = [[3,6,9,12,15,18,21,24,27,30,33,36],[2,5,8,11,14,17,20,23,26,29,32,35],[1,4,7,10,13,16,19,22,25,28,31,34]];
             ROWS.forEach((row, rI) => {
                 row.forEach((n, cI) => {
@@ -555,10 +630,8 @@
                 e.style.gridRow=rI+1; e.style.gridColumn=14; e.onclick=()=>promptRouletteBet(["ROW_TOP","ROW_MID","ROW_BOT"][rI], "Row");
                 grid.appendChild(e);
             });
-            // Dozen
             const doz = [[2,"1st 12","1ST12"],[6,"2nd 12","2ND12"],[10,"3rd 12","3RD12"]];
             doz.forEach(d => { let el=document.createElement('div'); el.className="cell c-outside"; el.innerText=d[1]; el.style.gridRow=4; el.style.gridColumn=`${d[0]}/span 4`; el.onclick=()=>promptRouletteBet(d[2],d[1]); grid.appendChild(el); });
-            // Bottom
             const bot = [[2,"1-18","1TO18"],[4,"EVEN","EVEN"],[6,"RED","RED"],[8,"BLACK","BLACK"],[10,"ODD","ODD"],[12,"19-36","19TO36"]];
             bot.forEach(b => { let el=document.createElement('div'); el.className="cell c-outside"; el.innerText=b[1]; if(b[2]=="RED") el.style.background="#800"; if(b[2]=="BLACK") el.style.background="#000"; el.style.gridRow=5; el.style.gridColumn=`${b[0]}/span 2`; el.onclick=()=>promptRouletteBet(b[2],b[1]); grid.appendChild(el); });
         }
@@ -576,34 +649,26 @@
         function submitRouletteBet() {
             const qty = parseInt(document.getElementById('inpQty').value);
             if(!qty || qty <= 0) return;
-            // Optimistic check
             if(currentBalance < qty) { showToast("Insufficient Funds", 'error'); return; }
-            
             rouletteBets.push({ id: pendingRBet.id, label: pendingRBet.label, quantity: qty });
-            renderRouletteBets();
             document.getElementById('betModal').classList.remove('show');
-            
-            // Visual indicator on table
             const cell = document.querySelector(`.cell[data-n="${pendingRBet.id}"]`);
-            if(cell) cell.classList.add('has-bet');
+            if(cell) { cell.classList.add('has-bet'); if(!cell.querySelector('.indicator-dot')) { let dot=document.createElement('div'); dot.className="indicator-dot"; cell.appendChild(dot); } }
+            showToast(`Bet ${qty} on ${pendingRBet.label}`);
         }
 
-        function renderRouletteBets() {
-            const el = document.getElementById('listCurrent'); el.innerHTML = "";
-            rouletteBets.forEach((b, i) => {
-                el.innerHTML += `<div class="list-row"><div class="lr-icon action-del" onclick="remRBet(${i})"></div><div>${b.label}</div><div style="font-weight:bold">${b.quantity}</div></div>`;
-            });
+        function clearRouletteBets() { 
+            if(spinning)return; 
+            rouletteBets=[]; 
+            document.querySelectorAll('.cell').forEach(c=>{ c.classList.remove('has-bet'); let d=c.querySelector('.indicator-dot'); if(d)d.remove(); }); 
+            showToast("Bets Cleared");
         }
-        function remRBet(i) { if(spinning)return; rouletteBets.splice(i,1); renderRouletteBets(); }
-        function clearRouletteBets() { if(spinning)return; rouletteBets=[]; renderRouletteBets(); document.querySelectorAll('.cell').forEach(c=>c.classList.remove('has-bet')); }
 
         function requestRouletteSpin() {
             if(spinning) return;
             if(rouletteBets.length === 0) { showToast("Place bets first!"); return; }
-            // Verify balance total locally
             let total = 0; rouletteBets.forEach(b => total += b.quantity);
             if(total > currentBalance) { showToast("Insufficient Funds", 'error'); return; }
-
             socket.emit('roulette_req_spin', rouletteBets);
         }
 
@@ -612,21 +677,19 @@
         socket.on('roulette_res_spin', (data) => {
             spinning = true;
             document.getElementById('rouletteWinModal').classList.remove('show');
-            // Animate
             let start = null; 
             const duration = 3000; 
             const winningIndex = data.winningIndex;
-            // Calculate target angle to land on index (Counter Clockwise wheel math)
             const slice = (Math.PI*2) / WHEEL.length;
-            const targetAngle = (Math.PI*1.5) - (winningIndex * slice) - (slice/2); // -90deg is top, align center
-            const finalAngle = targetAngle + (Math.PI*10); // 5 spins
+            const targetAngle = (Math.PI*1.5) - (winningIndex * slice) - (slice/2); 
+            const finalAngle = targetAngle + (Math.PI*10); 
             const startAngle = wheelAngle;
 
             function step(timestamp) {
                 if(!start) start = timestamp;
                 const progress = (timestamp - start) / duration;
                 if(progress < 1) {
-                    const ease = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+                    const ease = 1 - Math.pow(1 - progress, 3);
                     wheelAngle = startAngle + (finalAngle - startAngle) * ease;
                     drawWheel();
                     requestAnimationFrame(step);
@@ -640,59 +703,78 @@
             requestAnimationFrame(step);
         });
 
+        // 5-ball history logic
+        let rHistoryArr = [];
         function showRouletteResult(data) {
             document.getElementById('resNum').innerText = data.resultVal;
-            document.getElementById('resColor').style.background = getLabelColor(data.resultVal);
+            const color = getLabelColor(data.resultVal);
+            document.getElementById('resColor').style.background = color;
             
-            // History
-            const hist = document.getElementById('listHistory');
-            hist.innerHTML = `<div class="list-row" style="color:${getLabelColor(data.resultVal)}"><div></div><div>${data.resultVal}</div></div>` + hist.innerHTML;
+            // Update Horizontal History
+            let colorClass = (color === "#165b33") ? 'hb-green' : ((color==="#c03a35") ? 'hb-red' : 'hb-black');
+            rHistoryArr.unshift({ val: data.resultVal, cls: colorClass });
+            if(rHistoryArr.length > 5) rHistoryArr.pop();
+            
+            const histBar = document.getElementById('rHistoryBar');
+            histBar.innerHTML = "";
+            rHistoryArr.forEach(h => {
+                histBar.innerHTML += `<div class="hist-ball ${h.cls}">${h.val}</div>`;
+            });
 
             if(data.totalWin > 0) {
                 document.getElementById('rWinTitle').innerText = "YOU WON!";
                 document.getElementById('rWinTitle').style.color = "var(--gold)";
                 document.getElementById('rWinResult').innerText = data.resultVal;
                 document.getElementById('rWinTotal').innerText = "+" + data.totalWin;
-                
                 let h = "";
-                data.winningEntries.forEach(w => {
-                    h += `<div>${w.label}: +${w.win}</div>`;
-                });
+                data.winningEntries.forEach(w => { h += `<div>${w.label}: +${w.win}</div>`; });
                 document.getElementById('rWinList').innerHTML = h;
                 document.getElementById('rouletteWinModal').classList.add('show');
-            } else {
-                showToast(`Result: ${data.resultVal} (No Win)`);
             }
             clearRouletteBets();
         }
 
-        // --- SHARED UI HELPERS ---
+        // --- SHARED HELPER & CHAT ---
         function showToast(msg, type='info') {
             const b=document.getElementById('toastBox'); const t=document.createElement('div'); t.className=`toast ${type}`; t.innerText=msg;
             b.appendChild(t); setTimeout(()=>t.remove(),3000);
         }
-        function switchChat(type) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.chat-view').forEach(v => v.classList.remove('active'));
-            document.getElementById(`tab-${type}`).classList.add('active');
-            document.getElementById(`view-${type}`).classList.add('active');
+        
+        function switchChat(type, game) {
+            // Hide all views for this game
+            document.getElementById(`view-public-${game}`).classList.remove('active');
+            document.getElementById(`view-support-${game}`).classList.remove('active');
+            document.getElementById(`tab-public-${game}`).classList.remove('active');
+            document.getElementById(`tab-support-${game}`).classList.remove('active');
+            
+            // Show selected
+            document.getElementById(`view-${type}-${game}`).classList.add('active');
+            document.getElementById(`tab-${type}-${game}`).classList.add('active');
         }
+
         function sendChat() { const i=document.getElementById('chatInput'); if(i.value) { socket.emit('chat_msg', i.value); i.value=''; } }
         function sendSupport() { const i=document.getElementById('supportInput'); if(i.value) { socket.emit('support_msg', i.value); i.value=''; } }
         
+        // Roulette Chat Wrappers
+        function sendRChat() { const i=document.getElementById('rChatInput'); if(i.value) { socket.emit('chat_msg', i.value); i.value=''; } }
+        function sendRSupport() { const i=document.getElementById('rSupportInput'); if(i.value) { socket.emit('support_msg', i.value); i.value=''; } }
+
         socket.on('chat_broadcast', (data) => {
+            let color = "white"; 
+            if(data.role === 'ADMIN') color = "var(--gold)"; else if(data.role === 'MOD') color = "var(--cyan)";
+            const msgHtml = `<div class="chat-msg"><b style="color:${color}">${data.user}:</b> ${data.msg}</div>`;
+
             if(data.type === 'public' || data.type === 'public_staff') {
-                const box = document.getElementById('chatList');
-                let color = "white"; 
-                if(data.role === 'ADMIN') color = "var(--gold)"; else if(data.role === 'MOD') color = "var(--cyan)";
-                box.innerHTML += `<div class="chat-msg"><b style="color:${color}">${data.user}:</b> ${data.msg}</div>`;
-                box.scrollTop = box.scrollHeight;
+                const b1 = document.getElementById('chatList'); b1.innerHTML += msgHtml; b1.scrollTop = b1.scrollHeight;
+                const b2 = document.getElementById('rChatList'); b2.innerHTML += msgHtml; b2.scrollTop = b2.scrollHeight;
             } else if (data.type === 'support_reply') {
-                const box = document.getElementById('supportList');
-                box.innerHTML += `<div class="chat-msg"><b style="color:var(--cyan)">ADMIN:</b> ${data.msg}</div>`;
+                const rep = `<div class="chat-msg"><b style="color:var(--cyan)">ADMIN:</b> ${data.msg}</div>`;
+                document.getElementById('supportList').innerHTML += rep;
+                document.getElementById('rSupportList').innerHTML += rep;
             } else if (data.type === 'support_sent') {
-                const box = document.getElementById('supportList');
-                box.innerHTML += `<div class="chat-msg"><b style="color:#888">You:</b> ${data.msg}</div>`;
+                const sent = `<div class="chat-msg"><b style="color:#888">You:</b> ${data.msg}</div>`;
+                document.getElementById('supportList').innerHTML += sent;
+                document.getElementById('rSupportList').innerHTML += sent;
             }
         });
         
@@ -707,8 +789,9 @@
         function adjustTableHeights() {
             const g = document.getElementById('grid');
             if(g && g.children.length > 3) {
-                const w = g.children[2].getBoundingClientRect().width;
-                g.style.gridTemplateRows = `${w}px ${w}px ${w}px ${w}px ${w}px`;
+                // Determine row height based on grid container height to fit 5 rows perfectly
+                const h = (g.clientHeight - 2) / 5; 
+                g.style.gridTemplateRows = `${h}px ${h}px ${h}px ${h}px ${h}px`;
             }
         }
         window.addEventListener('resize', adjustTableHeights);
@@ -716,7 +799,8 @@
         // Init
         buildTable();
         drawWheel();
-        adjustTableHeights();
+        // Delay adjust to ensure DOM render
+        setTimeout(adjustTableHeights, 100);
 
     </script>
 </body>
