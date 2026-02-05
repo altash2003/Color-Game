@@ -8,15 +8,10 @@
     
     <script>
         document.addEventListener('contextmenu', event => event.preventDefault());
-        // Prevent Zooming
         document.addEventListener('keydown', function(e) {
-            if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '-' || e.key === '=')) {
-                e.preventDefault();
-            }
+            if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '-' || e.key === '=')) { e.preventDefault(); }
         });
-        document.addEventListener('wheel', function(e) {
-            if (e.ctrlKey) e.preventDefault();
-        }, { passive: false });
+        document.addEventListener('wheel', function(e) { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
     </script>
 
     <style>
@@ -34,7 +29,7 @@
         body { 
             font-family: 'Rajdhani', sans-serif; margin: 0; color: #e0e0e0; 
             background: url('background.jpg') no-repeat center center fixed; background-size: cover; 
-            height: 100vh; width: 100vw; overflow: hidden; /* STRICT NO SCROLL */
+            height: 100vh; width: 100vw; overflow: hidden; 
             display: flex; flex-direction: column;
         }
         
@@ -47,11 +42,23 @@
         .toast { background: rgba(0,0,0,0.95); border-left: 3px solid var(--gold); padding: 10px 20px; margin-bottom: 5px; font-weight: 700; font-size: 14px; text-transform: uppercase; animation: fadeUp 0.3s forwards; display: flex; align-items: center; gap: 8px; color: white; }
         @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
 
-        /* --- AUTH --- */
+        /* --- AUTH OVERLAY (FIXED) --- */
         #authOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 5000; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
-        .auth-card { width: 320px; background: #111; border: 1px solid var(--gold); padding: 25px; text-align: center; border-radius: 12px; }
+        .auth-card { width: 340px; background: #111; border: 1px solid var(--gold); padding: 25px; text-align: center; border-radius: 12px; box-shadow: 0 0 50px rgba(255, 215, 0, 0.1); }
+        
+        .auth-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
+        .auth-tab { flex: 1; padding: 10px; cursor: pointer; color: #666; font-weight: 700; font-size: 14px; transition: 0.3s; text-transform: uppercase; }
+        .auth-tab.active { color: var(--gold); border-bottom: 2px solid var(--gold); background: rgba(255, 215, 0, 0.05); }
+        
         .auth-inp { width: 100%; padding: 12px; margin-bottom: 10px; background: #222; border: 1px solid #444; color: white; border-radius: 6px; text-align: center; font-family: inherit; font-size: 16px; box-sizing: border-box; }
-        .auth-btn { width: 100%; padding: 12px; background: var(--gold); border: none; font-weight: 800; cursor: pointer; border-radius: 6px; margin-top: 10px; color: #000; }
+        .auth-inp:focus { border-color: var(--gold); outline: none; }
+        
+        .auth-btn { width: 100%; padding: 12px; background: var(--gold); border: none; font-weight: 800; cursor: pointer; border-radius: 6px; margin-top: 10px; color: #000; font-size: 16px; text-transform: uppercase; transition: 0.2s; }
+        .auth-btn:hover { background: #ffe033; transform: scale(1.02); }
+        .auth-btn.secondary { background: transparent; border: 1px solid #444; color: #888; margin-top: 10px; font-size: 12px; }
+        .auth-btn.secondary:hover { border-color: #666; color: #ccc; }
+
+        .auth-error { color: #ff4444; font-size: 12px; margin-top: 10px; min-height: 15px; font-weight: bold; }
 
         /* --- TOP NAV --- */
         .top-nav { 
@@ -67,44 +74,31 @@
 
         /* --- MAIN LAYOUT --- */
         #gameArea { 
-            flex: 1; /* Take remaining height */
-            width: 100%; max-width: 1920px; margin: 0 auto;
-            position: relative; 
-            padding: var(--gap); 
-            box-sizing: border-box;
+            flex: 1; width: 100%; max-width: 1920px; margin: 0 auto;
+            position: relative; padding: var(--gap); box-sizing: border-box;
             display: flex; flex-direction: column; gap: var(--gap);
-            overflow: hidden; /* CRITICAL */
+            overflow: hidden;
         }
 
         .game-view { width: 100%; height: 100%; display: none; flex-direction: column; gap: var(--gap); }
         .game-view.active { display: flex; }
 
-        /* --- UPPER SECTION (Wheel + Stats) --- */
+        /* --- UPPER SECTION --- */
         .r-upper-section {
-            /* Fixed height 28% of screen */
-            height: 28vh; 
-            min-height: 180px; /* Don't squash too small */
-            display: grid;
-            grid-template-columns: 260px 1fr 1fr 1fr;
-            gap: var(--gap);
-            flex-shrink: 0;
+            height: 28vh; min-height: 180px; 
+            display: grid; grid-template-columns: 260px 1fr 1fr 1fr;
+            gap: var(--gap); flex-shrink: 0;
         }
 
         .panel {
-            background: var(--panel-bg);
-            border: var(--panel-border);
-            border-radius: 6px;
-            display: flex; flex-direction: column;
-            overflow: hidden;
-            position: relative;
+            background: var(--panel-bg); border: var(--panel-border); border-radius: 6px;
+            display: flex; flex-direction: column; overflow: hidden; position: relative;
         }
         .panel-head {
-            background: rgba(0,0,0,0.4);
-            padding: 5px 10px;
+            background: rgba(0,0,0,0.4); padding: 5px 10px;
             font-size: 10px; font-weight: 700; letter-spacing: 1px; color: #777;
             border-bottom: 1px solid rgba(255,255,255,0.05);
-            display: flex; justify-content: space-between; align-items: center;
-            text-transform: uppercase; flex-shrink: 0;
+            display: flex; justify-content: space-between; align-items: center; text-transform: uppercase; flex-shrink: 0;
         }
         .panel-body { flex: 1; overflow-y: auto; padding: 0; position: relative; }
 
@@ -128,56 +122,40 @@
         .payout-item span:last-child { color: var(--gold); font-weight: 700; }
         .bet-item { display: flex; justify-content: space-between; padding: 3px 8px; font-size: 10px; background: rgba(255,255,255,0.02); margin-bottom: 1px; color:#ccc; }
 
-        /* --- LOWER SECTION (Table + Chat) --- */
+        /* --- LOWER SECTION --- */
         .r-lower-section {
-            flex: 1; /* CRITICAL: Fills remaining height */
-            display: grid;
-            grid-template-columns: 2.2fr 1fr; /* Table wider than Chat */
-            gap: var(--gap);
-            min-height: 0; /* Prevents grid overflow */
-            overflow: hidden;
+            flex: 1; display: grid; grid-template-columns: 2.2fr 1fr; gap: var(--gap);
+            min-height: 0; overflow: hidden;
         }
 
         .table-panel {
             background: var(--panel-bg); border: var(--panel-border); border-radius: 6px;
-            display: flex; flex-direction: column; 
-            justify-content: center; align-items: center; /* Center Grid */
-            padding: 5px; /* Minimal padding */
-            overflow: hidden;
-            position: relative;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            padding: 5px; overflow: hidden; position: relative;
         }
 
         .chat-panel {
             background: var(--panel-bg); border: var(--panel-border); border-radius: 6px;
-            display: flex; flex-direction: column;
-            overflow: hidden;
+            display: flex; flex-direction: column; overflow: hidden;
         }
 
-        /* The Grid Logic */
         .grid-container {
-            display: grid;
-            grid-template-columns: repeat(14, 1fr); 
-            /* Width/Height set by JS for perfect square fit */
+            display: grid; grid-template-columns: repeat(14, 1fr); 
             border-top: 1px solid rgba(255,255,255,0.2);
         }
         
         .cell {
             display: flex; align-items: center; justify-content: center;
-            border-right: 1px solid rgba(255,255,255,0.15);
-            border-bottom: 1px solid rgba(255,255,255,0.15);
+            border-right: 1px solid rgba(255,255,255,0.15); border-bottom: 1px solid rgba(255,255,255,0.15);
             font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.7);
-            cursor: pointer; position: relative;
-            transition: 0.1s; user-select: none;
+            cursor: pointer; position: relative; transition: 0.1s; user-select: none;
         }
         .cell:hover { background: rgba(255,255,255,0.15); color: white; }
-        .c-r { background: rgba(200, 40, 40, 0.25); }
-        .c-b { background: rgba(20, 20, 20, 0.45); }
-        .c-0 { background: rgba(40, 100, 60, 0.35); }
-        .c-out { font-size: 10px; letter-spacing: 0.5px; color: #999; text-transform: uppercase; }
+        .c-r { background: rgba(200, 40, 40, 0.25); } .c-b { background: rgba(20, 20, 20, 0.45); }
+        .c-0 { background: rgba(40, 100, 60, 0.35); } .c-out { font-size: 10px; letter-spacing: 0.5px; color: #999; text-transform: uppercase; }
         .cell.active { box-shadow: inset 0 0 0 1px var(--gold); background: rgba(255,215,0,0.1); }
         .chip-dot { position: absolute; top: 2px; right: 2px; width: 5px; height: 5px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 5px var(--gold); }
 
-        /* Chat */
         .chat-tabs { display: flex; background: rgba(0,0,0,0.3); border-bottom: 1px solid rgba(255,255,255,0.05); }
         .c-tab { flex: 1; padding: 6px; background: none; border: none; color: #666; font-weight: 700; font-size: 10px; cursor: pointer; }
         .c-tab.active { color: white; border-bottom: 2px solid var(--gold); background: rgba(255,255,255,0.02); }
@@ -186,7 +164,6 @@
         .chat-input-box { padding: 6px; background: rgba(0,0,0,0.2); display: flex; gap: 5px; border-top: 1px solid rgba(255,255,255,0.05); }
         .chat-inp { flex: 1; background: rgba(0,0,0,0.3); border: 1px solid #333; color: white; padding: 6px; border-radius: 4px; outline: none; font-size: 11px; }
 
-        /* Modal */
         .modal-wrap { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:4000; display:none; justify-content:center; align-items:center; }
         .m-box { background: #1a1c20; border: 1px solid var(--gold); padding: 20px; border-radius: 10px; text-align: center; width: 280px; box-shadow: 0 20px 50px #000; }
         .m-btn { flex: 1; padding: 8px; margin-top: 10px; border-radius: 4px; border: none; font-weight: 800; cursor: pointer; width: 100%; }
@@ -203,10 +180,30 @@
 
     <div id="authOverlay">
         <div class="auth-card">
-            <h2 style="color:var(--gold); margin:0 0 20px 0;">CASINO HUB</h2>
-            <input type="text" id="uName" class="auth-inp" placeholder="Username">
-            <input type="password" id="pWord" class="auth-inp" placeholder="Password">
-            <button class="auth-btn" onclick="appLogin()">ENTER</button>
+            <h2 style="color:var(--gold); margin:0 0 15px 0; letter-spacing:2px;">CASINO HUB</h2>
+            
+            <div class="auth-tabs">
+                <div class="auth-tab active" id="tabLogin" onclick="switchAuth('login')">LOGIN</div>
+                <div class="auth-tab" id="tabRegister" onclick="switchAuth('register')">SIGN UP</div>
+            </div>
+
+            <div id="formLogin">
+                <input type="text" id="loginUser" class="auth-inp" placeholder="Username">
+                <input type="password" id="loginPass" class="auth-inp" placeholder="Password">
+                <button class="auth-btn" onclick="appLogin()">ENTER</button>
+            </div>
+
+            <div id="formRegister" style="display:none">
+                <input type="text" id="regUser" class="auth-inp" placeholder="New Username">
+                <input type="password" id="regPass" class="auth-inp" placeholder="New Password">
+                <button class="auth-btn" style="background:var(--cyan)" onclick="appRegister()">CREATE ACCOUNT</button>
+            </div>
+
+            <div style="margin-top:15px; border-top:1px solid #333; padding-top:15px;">
+                <button class="auth-btn secondary" onclick="quickPlay()">PLAY AS GUEST</button>
+            </div>
+
+            <div class="auth-error" id="loginError"></div>
         </div>
     </div>
 
@@ -222,7 +219,6 @@
     </div>
 
     <div id="gameArea">
-        
         <div class="r-upper-section">
             <div class="panel wheelPanel">
                 <div class="wheel-container">
@@ -267,25 +263,22 @@
         </div>
 
         <div class="r-lower-section">
-            
             <div class="table-panel" id="tableContainer">
                 <div class="grid-container" id="grid"></div>
             </div>
-
             <div class="chat-panel" id="chatContainer">
                 <div class="chat-tabs">
                     <button class="c-tab active">PUBLIC</button>
                     <button class="c-tab">SUPPORT</button>
                 </div>
                 <div class="chat-area" id="chatList">
-                    <div class="msg" style="color:#666; text-align:center">Welcome to Fullscreen Roulette.</div>
+                    <div class="msg" style="color:#666; text-align:center">Welcome to the table.</div>
                 </div>
                 <div class="chat-input-box">
                     <input type="text" class="chat-inp" id="chatInp" placeholder="Type...">
                     <button style="background:var(--gold); border:none; padding:0 10px; font-weight:bold; border-radius:4px;" onclick="sendMsg()">></button>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -318,18 +311,42 @@
         let bets = [];
         let spinning = false;
         
-        // --- AUTH ---
+        // --- AUTH LOGIC (RESTORED) ---
+        function switchAuth(type) {
+            document.getElementById('tabLogin').classList.toggle('active', type==='login');
+            document.getElementById('tabRegister').classList.toggle('active', type==='register');
+            document.getElementById('formLogin').style.display = type==='login' ? 'block' : 'none';
+            document.getElementById('formRegister').style.display = type==='register' ? 'block' : 'none';
+            document.getElementById('loginError').innerText = "";
+        }
+
         function appLogin(){
-            const u = document.getElementById('uName').value;
-            const p = document.getElementById('pWord').value;
+            const u = document.getElementById('loginUser').value;
+            const p = document.getElementById('loginPass').value;
             if(u && p) socket.emit('auth_handshake', { type:'player', username:u, password:p });
         }
+
+        function appRegister(){
+            const u = document.getElementById('regUser').value;
+            const p = document.getElementById('regPass').value;
+            if(u && p) socket.emit('register', { username:u, password:p });
+        }
+
+        function quickPlay(){
+            const rnd = Math.floor(Math.random() * 9999);
+            socket.emit('register', { username: `Guest_${rnd}`, password: 'guest' });
+        }
+
         socket.on('login_success', data => {
             document.getElementById('authOverlay').style.display = 'none';
             document.getElementById('dispUser').innerText = data.username;
             balance = data.balance;
             document.getElementById('dispBal').innerText = balance;
             initGame();
+        });
+
+        socket.on('login_error', msg => {
+            document.getElementById('loginError').innerText = msg;
         });
 
         // --- GAME INIT ---
@@ -340,36 +357,20 @@
             setTimeout(fitLayout, 100);
         }
 
-        // --- SAFE-FIT LAYOUT ENGINE (Fixes the "Cannot Access" issue) ---
         function fitLayout(){
             const grid = document.getElementById('grid');
             const tableCont = document.getElementById('tableContainer');
             const chatCont = document.getElementById('chatContainer');
             
             if(grid && tableCont){
-                // 1. Get available space in the table container
-                // We subtract padding (10px) to prevent touching edges
                 const availWidth = tableCont.clientWidth - 10;
                 const availHeight = tableCont.clientHeight - 10;
-                
-                // 2. Calculate cell size based on WIDTH constraint (14 cols)
                 const sizeByWidth = availWidth / 14;
-                
-                // 3. Calculate cell size based on HEIGHT constraint (5 rows)
                 const sizeByHeight = availHeight / 5;
-                
-                // 4. USE THE SMALLER VALUE (This prevents overflow)
-                // This ensures it fits both vertically and horizontally
                 const cellSize = Math.min(sizeByWidth, sizeByHeight);
-                
-                // 5. Apply
-                grid.style.width = `${cellSize * 14}px`; // Force grid width
+                grid.style.width = `${cellSize * 14}px`;
                 grid.style.gridTemplateRows = `${cellSize}px ${cellSize}px ${cellSize}px ${cellSize}px ${cellSize}px`;
-                
-                // 6. Force Chat to match Table container height exactly
-                if(chatCont) {
-                    chatCont.style.height = tableCont.offsetHeight + 'px';
-                }
+                if(chatCont) { chatCont.style.height = tableCont.offsetHeight + 'px'; }
             }
         }
 
@@ -382,23 +383,19 @@
         function drawWheel(){
             const W = 300, H = 300, CX = 150, CY = 150;
             ctx.clearRect(0,0,W,H);
-            
             let g = ctx.createRadialGradient(CX, CY, 135, CX, CY, 145);
             g.addColorStop(0, '#2b140a'); g.addColorStop(1, '#000');
             ctx.beginPath(); ctx.arc(CX,CY,145,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
-            
             ctx.save(); ctx.translate(CX,CY); ctx.rotate(angle);
             WHEEL.forEach((n,i)=>{
                 let a = i*((Math.PI*2)/WHEEL.length);
                 ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,135,a,a+((Math.PI*2)/WHEEL.length));
                 ctx.fillStyle = (n=="0"||n=="00")?'#1b5e20':(REDS.includes(parseInt(n))?'#b71c1c':'#111');
                 ctx.fill(); ctx.stroke();
-                
                 ctx.save(); ctx.rotate(a+((Math.PI*2)/WHEEL.length)/2); ctx.translate(120,0); ctx.rotate(Math.PI/2);
                 ctx.fillStyle="#fff"; ctx.font="bold 10px Arial"; ctx.textAlign="center"; ctx.fillText(n,0,3); ctx.restore();
             });
             ctx.restore();
-            
             ctx.beginPath(); ctx.arc(CX,CY,25,0,Math.PI*2); ctx.fillStyle="#222"; ctx.fill(); 
             ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--gold'); ctx.lineWidth=2; ctx.stroke();
         }
@@ -406,12 +403,10 @@
         // --- GRID ---
         function buildGrid(){
             const g = document.getElementById('grid'); g.innerHTML='';
-            
             let z = document.createElement('div');
             z.style.gridRow="1/span 3"; z.style.gridColumn="1"; z.style.display="flex"; z.style.flexDirection="column";
             z.innerHTML = `<div class="cell c-0" onclick="preBet('00','00')" style="flex:1">00</div><div class="cell c-0" onclick="preBet('0','0')" style="flex:1;border-top:1px solid rgba(255,255,255,0.1)">0</div>`;
             g.appendChild(z);
-
             const rows = [[3,6,9,12,15,18,21,24,27,30,33,36],[2,5,8,11,14,17,20,23,26,29,32,35],[1,4,7,10,13,16,19,22,25,28,31,34]];
             rows.forEach((row, ri)=>{
                 row.forEach((n, ci)=>{
@@ -426,13 +421,11 @@
                 rb.style.gridRow=ri+1; rb.style.gridColumn=14; rb.onclick=()=>preBet('ROW'+ri, "Row");
                 g.appendChild(rb);
             });
-
             [[2,"1st 12"],[6,"2nd 12"],[10,"3rd 12"]].forEach(d=>{
                 let el=document.createElement('div'); el.className="cell c-out"; el.innerText=d[1];
                 el.style.gridRow=4; el.style.gridColumn=`${d[0]}/span 4`; el.onclick=()=>preBet('DOZ'+d[0], d[1]);
                 g.appendChild(el);
             });
-
             [[2,"1-18"],[4,"EVEN"],[6,"RED"],[8,"BLACK"],[10,"ODD"],[12,"19-36"]].forEach(b=>{
                 let el=document.createElement('div'); el.className="cell c-out"; el.innerText=b[1];
                 if(b[1]=="RED") el.style.background="rgba(200,40,40,0.4)";
