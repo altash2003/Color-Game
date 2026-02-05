@@ -112,7 +112,7 @@
             pointer-events: none; z-index: 5; background: transparent;
         }
 
-        /* POINTER HIDDEN (Ball logic handles landing) */
+        /* POINTER HIDDEN */
         .pointer { 
             position: absolute; top: 10px; width: 0; height: 0; 
             border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid #f0e6d2; 
@@ -179,7 +179,6 @@
         .list-head { color: var(--gold); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
         .list-content { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; padding-right: 4px; }
         .list-row { display: flex; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 5px 8px; border-radius: 4px; font-size: 11px; color: #ddd; align-items: center; }
-        
         .chat-row { text-align: left; background: rgba(255,255,255,0.02); padding: 4px 8px; border-radius: 4px; font-size: 11px; margin-bottom: 4px; word-wrap: break-word; color: #ccc; }
         .chat-input-row { display: flex; gap: 5px; margin-top: 10px; }
         .chat-inp { flex: 1; background: rgba(0,0,0,0.3); border: 1px solid #444; color: white; border-radius: 4px; padding: 6px; font-family: inherit; font-size: 12px; text-align: left; }
@@ -502,24 +501,23 @@
             spinning=true; 
             let start=null; const dur=6000;
             
-            // RANDOM WHEEL STOP (Clockwise)
+            // Random Wheel Stop
             const randomOffset = Math.random() * Math.PI * 2;
-            const wheelRotations = Math.PI * 12; 
+            const wheelRotations = Math.PI * 12; // 6 spins CW
             const finalWheelA = angle + wheelRotations + randomOffset;
             const startA = angle;
 
             // BALL TARGET (Center of Pocket)
-            // pocketCenter is relative to wheel start (0)
             const slice = (Math.PI*2)/WHEEL.length;
-            const pocketCenter = (data.winningIndex * slice) + (slice/2);
+            const pocketCenterOffset = (data.winningIndex * slice) + (slice/2);
             
             ball.active = true;
             ball.r = 350; 
             
             // 3. BALL COUNTER-ROTATION LOGIC
             const totalBallLaps = 8; // Laps relative to wheel surface
-            const startRelAngle = pocketCenter + (Math.PI * 2 * totalBallLaps);
-            const endRelAngle = pocketCenter;
+            const startRelAngle = pocketCenterOffset + (Math.PI * 2 * totalBallLaps);
+            const endRelAngle = pocketCenterOffset;
 
             function anim(t){
                 if(!start)start=t; const p=(t-start)/dur;
@@ -532,14 +530,18 @@
                     // 2. Ball Relative Motion (Friction simulation)
                     const currentRelAngle = startRelAngle + (endRelAngle - startRelAngle) * e;
                     
-                    // 3. Smooth Drop Logic (No Wobble)
-                    if(p > 0.6) {
-                        let dropP = (p-0.6)/0.4;
-                        // Power curve for "slowly pulled" gravity effect
+                    // 3. PHYSICS DROP (New "Early Spiral" Logic)
+                    // Start dropping at 20% (p=0.2)
+                    // Radius: 350 (Rim) -> 280 (Pocket)
+                    // Curve: Quadratic/Cubic Ease-In (Slow start, fast finish)
+                    
+                    if (p > 0.2) {
+                        let dropP = (p - 0.2) / 0.8; // Normalized 0.0 -> 1.0
+                        // Quadratic Gravity Curve
                         let dropEase = dropP * dropP; 
                         ball.r = 350 - (70 * dropEase);
                     } else {
-                        ball.r = 350;
+                        ball.r = 350; // Hold rim
                     }
                     
                     // 4. Update Ball World Angle
@@ -550,7 +552,7 @@
                 } else {
                     // Final State
                     angle = finalWheelA;
-                    ball.a = finalWheelA + pocketCenter;
+                    ball.a = finalWheelA + pocketCenterOffset;
                     ball.r = 280;
                     drawWheel();
                     spinning = false; 
