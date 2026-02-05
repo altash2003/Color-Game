@@ -112,7 +112,7 @@
             pointer-events: none; z-index: 5; background: transparent;
         }
 
-        /* POINTER HIDDEN */
+        /* POINTER HIDDEN (Ball logic handles landing) */
         .pointer { 
             position: absolute; top: 10px; width: 0; height: 0; 
             border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid #f0e6d2; 
@@ -514,8 +514,8 @@
             ball.active = true;
             ball.r = 350; 
             
-            // 3. BALL COUNTER-ROTATION LOGIC
-            const totalBallLaps = 8; // Laps relative to wheel surface
+            // BALL COUNTER-ROTATION LOGIC
+            const totalBallLaps = 12; // High speed
             const startRelAngle = pocketCenterOffset + (Math.PI * 2 * totalBallLaps);
             const endRelAngle = pocketCenterOffset;
 
@@ -530,18 +530,15 @@
                     // 2. Ball Relative Motion (Friction simulation)
                     const currentRelAngle = startRelAngle + (endRelAngle - startRelAngle) * e;
                     
-                    // 3. PHYSICS DROP (New "Early Spiral" Logic)
-                    // Start dropping at 20% (p=0.2)
-                    // Radius: 350 (Rim) -> 280 (Pocket)
-                    // Curve: Quadratic/Cubic Ease-In (Slow start, fast finish)
-                    
-                    if (p > 0.2) {
-                        let dropP = (p - 0.2) / 0.8; // Normalized 0.0 -> 1.0
-                        // Quadratic Gravity Curve
-                        let dropEase = dropP * dropP; 
-                        ball.r = 350 - (70 * dropEase);
+                    // 3. PHYSICS DROP (Rim -> Spiral -> Pocket)
+                    if (p < 0.6) {
+                        // PHASE 1: SPINNING ON RIM (Hold)
+                        ball.r = 350;
                     } else {
-                        ball.r = 350; // Hold rim
+                        // PHASE 2: DROPPING (Spiral)
+                        // Drop 350 -> 280 over the last 40% of the time
+                        let dropP = (p - 0.6) / 0.4;
+                        ball.r = 350 - (70 * dropP); 
                     }
                     
                     // 4. Update Ball World Angle
