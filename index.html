@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <title>Fantasy Gaming Hub</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script>
@@ -15,186 +16,196 @@
     </script>
 
     <style>
-        /* --- ASH THEME INTEGRATION --- */
+        /* --- CORE THEME --- */
         :root {
-            --bg-color: #070d0b;
-            --panel-bg: rgba(0,0,0,.35);
-            --text-color: #eaf3ef;
-            --gold: #c9a44c;
+            --gold: #FFD700;
             --cyan: #00E5FF;
-            --border-color: rgba(255,255,255,0.25);
-            
-            /* Ash Layout Dimensions */
-            --upper-h: 450px;       
-            --result-h: 140px;      
-            --gap: 16px;            
-            --col-w: 300px;
+            --green: #00FF88;
+            --bg-dark: #0a0c10;
+            --panel-bg: rgba(18, 20, 24, 0.9); 
+            --panel-border: 1px solid rgba(255, 255, 255, 0.1);
+            --gap: 8px;
         }
 
         body { 
-            font-family: 'Rajdhani', sans-serif; margin: 0; 
-            color: var(--text-color); 
-            background: #000; /* Fallback */
-            background-image: url('background.jpg');
-            background-size: cover; background-position: center;
+            font-family: 'Rajdhani', sans-serif; margin: 0; color: #e0e0e0; 
+            background: url('background.jpg') no-repeat center center fixed; background-size: cover; 
             height: 100vh; width: 100vw; overflow: hidden; 
             display: flex; flex-direction: column;
         }
         
-        /* SCROLLBARS */
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
 
-        /* --- AUTH & MODALS --- */
+        /* --- UTILS --- */
+        #toastBox { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); z-index: 9999; pointer-events: none; }
+        .toast { background: rgba(0,0,0,0.95); border-left: 3px solid var(--gold); padding: 10px 20px; margin-bottom: 5px; font-weight: 700; font-size: 14px; text-transform: uppercase; animation: fadeUp 0.3s forwards; display: flex; align-items: center; gap: 8px; color: white; }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+        /* --- AUTH OVERLAY --- */
         #authOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 5000; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
-        .auth-card { width: 340px; background: #111; border: 2px solid var(--gold); padding: 30px; text-align: center; border-radius: 16px; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
-        .auth-inp { width: 100%; padding: 12px; margin-bottom: 10px; background: #222; border: 1px solid #444; color: white; border-radius: 6px; text-align: center; font-size: 16px; box-sizing: border-box; }
-        .auth-btn { width: 100%; padding: 12px; background: var(--gold); border: none; font-weight: 800; cursor: pointer; border-radius: 6px; margin-top: 10px; color: #000; text-transform: uppercase; }
+        .auth-card { width: 340px; background: #111; border: 1px solid var(--gold); padding: 25px; text-align: center; border-radius: 12px; box-shadow: 0 0 50px rgba(255, 215, 0, 0.1); }
         .auth-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
-        .auth-tab { flex: 1; padding: 10px; cursor: pointer; color: #666; font-weight: 700; transition: 0.3s; }
-        .auth-tab.active { color: var(--gold); border-bottom: 2px solid var(--gold); }
+        .auth-tab { flex: 1; padding: 10px; cursor: pointer; color: #666; font-weight: 700; font-size: 14px; transition: 0.3s; text-transform: uppercase; }
+        .auth-tab.active { color: var(--gold); border-bottom: 2px solid var(--gold); background: rgba(255, 215, 0, 0.05); }
+        .auth-inp { width: 100%; padding: 12px; margin-bottom: 10px; background: #222; border: 1px solid #444; color: white; border-radius: 6px; text-align: center; font-family: inherit; font-size: 16px; box-sizing: border-box; }
+        .auth-btn { width: 100%; padding: 12px; background: var(--gold); border: none; font-weight: 800; cursor: pointer; border-radius: 6px; margin-top: 10px; color: #000; font-size: 16px; text-transform: uppercase; }
+        .auth-btn.secondary { background: transparent; border: 1px solid #444; color: #888; margin-top: 10px; font-size: 12px; }
+        .auth-error { color: #ff4444; font-size: 12px; margin-top: 10px; font-weight: bold; }
 
         /* --- TOP NAV --- */
         .top-nav { 
-            height: 50px; flex-shrink: 0; width: 100%; 
-            background: rgba(0,0,0,0.9); border-bottom: 1px solid var(--border-color);
-            display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-sizing: border-box;
+            height: 45px; flex-shrink: 0; width: 100%; 
+            background: rgba(0,0,0,0.9); border-bottom: var(--panel-border);
+            display: flex; justify-content: space-between; align-items: center; padding: 0 15px; box-sizing: border-box;
         }
-        .nav-brand { font-size: 20px; font-weight: 800; letter-spacing: 2px; color: var(--gold); }
-        .game-switcher { display: flex; gap: 10px; }
-        .switch-btn { padding: 6px 16px; background: transparent; border: 1px solid #333; color: #888; font-weight: 700; cursor: pointer; border-radius: 4px; transition: 0.2s; }
-        .switch-btn.active { background: var(--gold); color: black; border-color: var(--gold); }
-        .user-stat { font-weight: 700; font-size: 16px; display: flex; gap: 15px; align-items: center; }
+        .nav-logo { font-size: 18px; font-weight: 800; letter-spacing: 2px; color: var(--gold); }
+        .game-tabs { display: flex; gap: 5px; }
+        .g-tab { padding: 5px 15px; font-size: 12px; font-weight: 700; color: #666; border: none; background: transparent; cursor: pointer; border-radius: 4px; transition: 0.2s; }
+        .g-tab.active { background: var(--gold); color: #000; }
+        .user-info { font-weight: 700; font-size: 14px; display: flex; gap: 15px; }
 
         /* --- MAIN LAYOUT --- */
         #gameArea { 
-            flex: 1; width: 100%; position: relative; 
-            overflow: hidden; display: flex; justify-content: center;
+            flex: 1; width: 100%; max-width: 1920px; margin: 0 auto;
+            position: relative; padding: var(--gap); box-sizing: border-box;
+            display: flex; flex-direction: column; gap: var(--gap);
+            overflow: hidden;
         }
-        .game-view { width: 100%; height: 100%; display: none; overflow-y: auto; padding: 20px; box-sizing: border-box; }
-        .game-view.active { display: block; }
 
-        /* ======================== */
-        /* === ROULETTE (ASH UI) === */
-        /* ======================== */
+        .game-view { width: 100%; height: 100%; display: none; flex-direction: column; gap: var(--gap); }
+        .game-view.active { display: flex; }
+
+        /* --- SHARED PANEL STYLES --- */
+        .panel {
+            background: var(--panel-bg); border: var(--panel-border); border-radius: 6px;
+            display: flex; flex-direction: column; overflow: hidden; position: relative;
+        }
+        .panel-head {
+            background: rgba(0,0,0,0.4); padding: 6px 10px;
+            font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #777;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex; justify-content: space-between; align-items: center; text-transform: uppercase; flex-shrink: 0;
+        }
+        .panel-body { flex: 1; overflow-y: auto; padding: 0; position: relative; }
+
+        /* --- DICE SPECIFIC STYLES --- */
+        .dice-layout { display: grid; grid-template-columns: 240px 1fr 240px; gap: var(--gap); height: 100%; min-height: 0; }
         
-        .roulette-container {
-            display: flex;
-            flex-direction: row;
-            gap: var(--gap);
-            align-items: flex-start;
-            max-width: 1300px;
-            margin: 0 auto;
-        }
-
-        /* LEFT GROUP: Wheel + Middle + Table */
-        .left-group {
-            display: flex; flex-direction: column; gap: var(--gap); flex: 1;
-        }
-
-        /* UPPER ROW: Wheel + Middle Col */
-        .upper-row {
-            display: flex; gap: var(--gap); height: var(--upper-h); flex-shrink: 0;
-        }
-
-        /* WHEEL PANEL (Fixed Size) */
-        .wheelPanel {
-            flex: 0 0 480px; width: 480px; height: 100%;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: var(--panel-bg); border-radius: 20px; border: 1px solid var(--border-color);
-            position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        .stage { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; }
-        canvas { border-radius: 50%; max-width: 96%; max-height: 96%; object-fit: contain; }
-        .pointer { position: absolute; top: 10px; width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-top: 40px solid #f0e6d2; z-index: 20; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.5)); }
-        .spin-trigger { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 80px; height: 80px; border-radius: 50%; z-index: 30; cursor: pointer; }
-
-        /* MIDDLE COLUMN (Payouts + Result) */
-        .middle-col {
-            flex: 0 0 var(--col-w); width: var(--col-w);
-            display: flex; flex-direction: column; gap: var(--gap); height: 100%;
-        }
-        .payout-wrap {
-            background: rgba(5, 20, 15, 0.4); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px;
-            flex: 1; display: flex; flex-direction: column; min-height: 0;
-        }
-        .pay-title { color: var(--gold); font-weight: 700; text-transform: uppercase; font-size: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 10px; }
-        .payout-grid { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: #aab; }
-        .pay-item { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.02); padding: 4px 0; }
+        .dice-center { display: flex; flex-direction: column; gap: var(--gap); height: 100%; }
+        .dice-hud { flex: 1; background: var(--panel-bg); border: var(--panel-border); border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
         
-        .result-panel {
-            background: rgba(0,0,0,.6); padding: 12px; border-radius: 12px; border: 1px solid var(--border-color);
-            flex: 0 0 var(--result-h); display: flex; flex-direction: column; justify-content: center;
-        }
-        .res-top { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; margin-bottom: 12px; }
-        .res-box { display: flex; align-items: center; gap: 16px; }
-        #resColor { width: 30px; height: 30px; border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.2); }
-        #resNum { font-size: 36px; font-weight: 800; color: #fff; line-height: 1; }
-        .history-row { display: flex; gap: 10px; justify-content: center; }
-        .hist-ball { width: 36px; height: 36px; border-radius: 50%; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.2); }
-        .hb-red { background: #c03a35; } .hb-black { background: #111; } .hb-green { background: #165b33; } .hb-empty { border: 1px dashed #555; }
+        #timer { font-size: 100px; font-weight: 800; text-shadow: 0 0 30px rgba(0,255,255,0.3); line-height: 1; margin-bottom: 10px; }
+        .status-text { font-size: 20px; letter-spacing: 3px; color: #aaa; margin-bottom: 20px; font-weight: 700; }
+        .dice-row { display: flex; gap: 20px; }
+        .die { width: 90px; height: 90px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 800; border: 3px solid rgba(255,255,255,0.2); background: #222; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        /* Dice Colors */
+        .die.RED { background: linear-gradient(135deg, #d32f2f, #b71c1c); color: white; border: 2px solid white; }
+        .die.GREEN { background: linear-gradient(135deg, #388e3c, #1b5e20); color: white; border: 2px solid white; }
+        .die.BLUE { background: linear-gradient(135deg, #1976d2, #0d47a1); color: white; border: 2px solid white; }
+        .die.PINK { background: linear-gradient(135deg, #f06292, #c2185b); color: white; border: 2px solid white; }
+        .die.WHITE { background: linear-gradient(135deg, #f5f5f5, #bdbdbd); color: black; border: 2px solid black; }
+        .die.YELLOW { background: linear-gradient(135deg, #fbc02d, #f57f17); color: black; border: 2px solid black; }
 
-        /* BETTING TABLE */
-        .tableWrap {
-            background: rgba(0,0,0,.25); padding: 8px; border-radius: 12px;
-            border: 1px solid var(--border-color); width: 100%;
-            display: flex; justify-content: center;
+        .betting-controls { height: 180px; background: var(--panel-bg); border: var(--panel-border); border-radius: 6px; padding: 15px; display: flex; flex-direction: column; justify-content: center; }
+        .chip-row { display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; }
+        .chip { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #444; background: #1a1a1a; color: #888; font-weight: 700; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .chip.active { border-color: var(--gold); color: var(--gold); background: rgba(255, 215, 0, 0.1); transform: scale(1.1); box-shadow: 0 0 10px rgba(255, 215, 0, 0.3); }
+        
+        .bet-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; height: 100%; }
+        .bet-card { border-radius: 6px; cursor: pointer; position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: 0.1s; border: 1px solid rgba(255,255,255,0.1); }
+        .bet-card:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .bet-card.locked { opacity: 0.5; filter: grayscale(1); pointer-events: none; }
+        .bet-card.has-bet { border-color: white; box-shadow: 0 0 15px rgba(255,255,255,0.3); }
+        
+        /* Card Colors */
+        .bg-RED { background: linear-gradient(135deg, #d32f2f, #b71c1c); color: white; }
+        .bg-GREEN { background: linear-gradient(135deg, #388e3c, #1b5e20); color: white; }
+        .bg-BLUE { background: linear-gradient(135deg, #1976d2, #0d47a1); color: white; }
+        .bg-PINK { background: linear-gradient(135deg, #f06292, #c2185b); color: white; }
+        .bg-WHITE { background: linear-gradient(135deg, #f5f5f5, #bdbdbd); color: black; }
+        .bg-YELLOW { background: linear-gradient(135deg, #fbc02d, #f57f17); color: black; }
+
+        /* --- ROULETTE SPECIFIC STYLES --- */
+        .r-upper-section {
+            height: 28vh; min-height: 180px; 
+            display: grid; grid-template-columns: 260px 1fr 1fr 1fr;
+            gap: var(--gap); flex-shrink: 0;
         }
-        .grid { display: grid; grid-template-columns: repeat(14, 1fr); width: 100%; border-top: 1px solid var(--border-color); }
+
+        /* Wheel Panel */
+        .wheel-container { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); }
+        .wheel-stage { width: 90%; height: 90%; position: relative; display: flex; align-items: center; justify-content: center; }
+        canvas { max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5)); }
+        .pointer { position: absolute; top: -5px; width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 15px solid #fff; z-index: 10; filter: drop-shadow(0 2px 2px #000); pointer-events: none; }
+        .spin-btn { position: absolute; width: 30%; height: 30%; border-radius: 50%; cursor: pointer; z-index: 20; }
+
+        /* Result Panel */
+        .res-big { flex: 1; display: flex; align-items: center; justify-content: center; gap: 15px; }
+        #resColorBox { width: 36px; height: 36px; border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2); }
+        #resNumTxt { font-size: 50px; font-weight: 800; line-height: 1; color:white; }
+        .history-row { height: 26px; display: flex; justify-content: center; gap: 4px; padding-bottom: 6px; }
+        .hist-dot { width: 22px; height: 22px; border-radius: 50%; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1); color:white; }
+        .bg-red { background: #b71c1c; } .bg-black { background: #111; } .bg-green { background: #1b5e20; }
+
+        .payout-item { display: flex; justify-content: space-between; padding: 3px 8px; font-size: 10px; border-bottom: 1px solid rgba(255,255,255,0.03); color: #aaa; }
+        .payout-item span:last-child { color: var(--gold); font-weight: 700; }
+        .bet-item { display: flex; justify-content: space-between; padding: 3px 8px; font-size: 10px; background: rgba(255,255,255,0.02); margin-bottom: 1px; color:#ccc; }
+
+        .r-lower-section {
+            flex: 1; display: grid; grid-template-columns: 2.2fr 1fr; gap: var(--gap);
+            min-height: 0; overflow: hidden;
+        }
+
+        .table-panel {
+            background: var(--panel-bg); border: var(--panel-border); border-radius: 6px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            padding: 5px; overflow: hidden; position: relative;
+        }
+
+        .chat-panel {
+            background: var(--panel-bg); border: var(--panel-border); border-radius: 6px;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        .grid-container {
+            display: grid; grid-template-columns: repeat(14, 1fr); 
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+        
         .cell {
             display: flex; align-items: center; justify-content: center;
-            border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);
-            cursor: pointer; position: relative; font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.9);
-            transition: 0.1s; user-select: none;
+            border-right: 1px solid rgba(255,255,255,0.15); border-bottom: 1px solid rgba(255,255,255,0.15);
+            font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.7);
+            cursor: pointer; position: relative; transition: 0.1s; user-select: none;
         }
-        .cell:hover { background: rgba(255,255,255,0.15) !important; }
-        .c-red { background: rgba(180, 40, 40, 0.5); } .c-black { background: rgba(20, 20, 20, 0.5); } .c-zero { background: rgba(20, 100, 50, 0.6); }
-        .c-out { font-size: 11px; color: #ccc; text-transform: uppercase; }
-        .cell.has-bet { box-shadow: inset 0 0 0 1px var(--gold), inset 0 0 8px rgba(201, 164, 76, 0.2); }
-        .indicator { position: absolute; top: 3px; right: 3px; width: 6px; height: 6px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 4px var(--gold); }
+        .cell:hover { background: rgba(255,255,255,0.15); color: white; }
+        .c-r { background: rgba(200, 40, 40, 0.25); } .c-b { background: rgba(20, 20, 20, 0.45); }
+        .c-0 { background: rgba(40, 100, 60, 0.35); } .c-out { font-size: 10px; letter-spacing: 0.5px; color: #999; text-transform: uppercase; }
+        .cell.active { box-shadow: inset 0 0 0 1px var(--gold); background: rgba(255,215,0,0.1); }
+        .chip-dot { position: absolute; top: 2px; right: 2px; width: 5px; height: 5px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 5px var(--gold); }
 
-        /* RIGHT SIDEBAR (Synced Height) */
-        .stats-sidebar {
-            flex: 0 0 var(--col-w); width: var(--col-w);
-            display: flex; flex-direction: column; gap: var(--gap);
-            /* Height set by JS */
-        }
-        .list-box {
-            background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px;
-            display: flex; flex-direction: column; flex: 1; overflow: hidden;
-        }
-        .list-head { color: var(--gold); font-weight: 700; text-transform: uppercase; font-size: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; }
-        .list-content { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
-        .list-row { display: flex; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 6px 8px; border-radius: 4px; font-size: 12px; color: #ddd; align-items: center; }
-        .chat-input-row { display: flex; gap: 5px; margin-top: 10px; }
-        .chat-inp { flex: 1; background: rgba(0,0,0,0.3); border: 1px solid #444; color: white; border-radius: 4px; padding: 6px; }
+        /* SHARED CHAT COMPONENTS */
+        .chat-tabs { display: flex; background: rgba(0,0,0,0.3); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .c-tab { flex: 1; padding: 6px; background: none; border: none; color: #666; font-weight: 700; font-size: 10px; cursor: pointer; }
+        .c-tab.active { color: white; border-bottom: 2px solid var(--gold); background: rgba(255,255,255,0.02); }
+        .chat-area { flex: 1; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 4px; }
+        .msg { font-size: 11px; padding: 4px 6px; background: rgba(255,255,255,0.03); border-radius: 4px; text-align: left; word-break: break-word; }
+        .chat-input-box { padding: 6px; background: rgba(0,0,0,0.2); display: flex; gap: 5px; border-top: 1px solid rgba(255,255,255,0.05); }
+        .chat-inp { flex: 1; background: rgba(0,0,0,0.3); border: 1px solid #333; color: white; padding: 6px; border-radius: 4px; outline: none; font-size: 11px; }
 
-        /* ======================== */
-        /* === DICE STYLES === */
-        /* ======================== */
-        .dice-layout { display: grid; grid-template-columns: 260px 1fr 260px; gap: 20px; height: 100%; }
-        .dice-panel { background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); border-radius: 12px; display: flex; flex-direction: column; padding: 15px; }
-        .dice-center { display: flex; flex-direction: column; gap: 20px; justify-content: center; align-items: center; }
-        .die { width: 80px; height: 80px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 800; border: 2px solid white; background: #222; }
-        .die.RED { background: #d32f2f; } .die.GREEN { background: #388e3c; } .die.BLUE { background: #1976d2; }
-        .die.PINK { background: #e91e63; } .die.WHITE { background: #f5f5f5; color: black; border-color: #999; } .die.YELLOW { background: #fbc02d; color: black; border-color: #f57f17; }
-        .bet-grid-dice { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; width: 100%; }
-        .bet-card { height: 80px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.1s; }
-        .bet-card:hover { transform: translateY(-2px); filter: brightness(1.2); }
+        /* MODALS */
+        .modal-wrap { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:4000; display:none; justify-content:center; align-items:center; }
+        .m-box { background: #1a1c20; border: 1px solid var(--gold); padding: 20px; border-radius: 10px; text-align: center; width: 280px; box-shadow: 0 20px 50px #000; }
+        .m-btn { flex: 1; padding: 8px; margin-top: 10px; border-radius: 4px; border: none; font-weight: 800; cursor: pointer; width: 100%; }
         
-        /* MODAL */
-        #betModal { display: none; }
-        .modal-box { background: #1b2b25; border: 2px solid var(--gold); border-radius: 16px; width: 350px; padding: 30px; text-align: center; }
-        
-        /* Responsive */
-        @media(max-width: 1100px) {
-            .roulette-container { flex-direction: column; align-items: center; }
-            .left-group, .stats-sidebar { width: 100%; }
-            .upper-row { flex-direction: column; height: auto; align-items: center; }
-            .wheelPanel { width: 100%; height: 350px; flex: none; }
-            .middle-col { width: 100%; flex: none; flex-direction: row; height: 250px; }
-            .stats-sidebar { height: 300px !important; }
+        @media (max-width: 1000px) {
+            .dice-layout { display: flex; flex-direction: column; }
+            .r-upper-section { grid-template-columns: 1fr 1fr; height: auto; }
+            .wheelPanel { grid-column: span 2; height: 200px; }
+            .r-lower-section { display: flex; flex-direction: column; }
+            #gameArea { overflow-y: auto; display: block; }
         }
     </style>
 </head>
@@ -202,10 +213,10 @@
 
     <div id="authOverlay">
         <div class="auth-card">
-            <h2 style="color:var(--gold); margin:0 0 20px 0; letter-spacing:2px;">CASINO HUB</h2>
+            <h2 style="color:var(--gold); margin:0 0 15px 0; letter-spacing:2px;">CASINO HUB</h2>
             <div class="auth-tabs">
                 <div class="auth-tab active" id="tabLogin" onclick="switchAuth('login')">LOGIN</div>
-                <div class="auth-tab" id="tabRegister" onclick="switchAuth('register')">SIGNUP</div>
+                <div class="auth-tab" id="tabRegister" onclick="switchAuth('register')">SIGN UP</div>
             </div>
             <div id="formLogin">
                 <input type="text" id="loginUser" class="auth-inp" placeholder="Username">
@@ -217,18 +228,20 @@
                 <input type="password" id="regPass" class="auth-inp" placeholder="New Password">
                 <button class="auth-btn" style="background:var(--cyan)" onclick="appRegister()">CREATE ACCOUNT</button>
             </div>
-            <button class="auth-btn" style="background:transparent; border:1px solid #444; color:#888; margin-top:15px; font-size:12px;" onclick="quickPlay()">PLAY AS GUEST</button>
-            <div id="authError" style="color:#f44; font-size:12px; margin-top:10px;"></div>
+            <div style="margin-top:15px; border-top:1px solid #333; padding-top:15px;">
+                <button class="auth-btn secondary" onclick="quickPlay()">PLAY AS GUEST</button>
+            </div>
+            <div class="auth-error" id="loginError"></div>
         </div>
     </div>
 
     <div class="top-nav">
-        <div class="nav-brand">FANTASY<span style="color:white">HUB</span></div>
-        <div class="game-switcher">
-            <button class="switch-btn" id="btn-dice" onclick="switchGame('dice')">DICE</button>
-            <button class="switch-btn active" id="btn-roulette" onclick="switchGame('roulette')">ROULETTE</button>
+        <div class="nav-logo">FANTASY<span style="color:white">HUB</span></div>
+        <div class="game-tabs">
+            <button class="g-tab" id="btn-dice" onclick="switchGame('dice')">DICE</button>
+            <button class="g-tab active" id="btn-roulette" onclick="switchGame('roulette')">ROULETTE</button>
         </div>
-        <div class="user-stat">
+        <div class="user-info">
             <span id="dispUser">Guest</span>
             <span style="color:var(--gold)">$ <span id="dispBal">0</span></span>
         </div>
@@ -238,107 +251,138 @@
         
         <div id="view-dice" class="game-view">
             <div class="dice-layout">
-                <div class="dice-panel">
-                    <div style="color:var(--gold); font-weight:800; margin-bottom:10px;">PLAYERS</div>
-                    <div id="dicePlayerList"></div>
+                <div class="panel">
+                    <div class="panel-head">PLAYERS</div>
+                    <div class="panel-body" id="dicePlayerList"></div>
                 </div>
                 <div class="dice-center">
-                    <div style="font-size:80px; font-weight:800;" id="diceTimer">20</div>
-                    <div class="dice-row"><div id="d1" class="die">?</div><div id="d2" class="die">?</div><div id="d3" class="die">?</div></div>
-                    <div class="bet-grid-dice">
-                        <div class="bet-card die RED" onclick="placeDiceBet('RED')"></div>
-                        <div class="bet-card die GREEN" onclick="placeDiceBet('GREEN')"></div>
-                        <div class="bet-card die BLUE" onclick="placeDiceBet('BLUE')"></div>
-                        <div class="bet-card die PINK" onclick="placeDiceBet('PINK')"></div>
-                        <div class="bet-card die WHITE" onclick="placeDiceBet('WHITE')"></div>
-                        <div class="bet-card die YELLOW" onclick="placeDiceBet('YELLOW')"></div>
+                    <div class="dice-hud">
+                        <div class="status-text" id="diceStatus">BETS OPEN</div>
+                        <div id="timer">20</div>
+                        <div class="dice-row">
+                            <div id="die1" class="die">?</div><div id="die2" class="die">?</div><div id="die3" class="die">?</div>
+                        </div>
+                    </div>
+                    <div class="betting-controls">
+                        <div class="chip-row">
+                            <div class="chip active" onclick="selDiceChip(50, this)">50</div>
+                            <div class="chip" onclick="selDiceChip(100, this)">100</div>
+                            <div class="chip" onclick="selDiceChip(1000, this)">1K</div>
+                            <div class="chip" onclick="selDiceChip(10000, this)">10K</div>
+                        </div>
+                        <div class="bet-grid">
+                            <div class="bet-card bg-RED" onclick="placeDiceBet('RED')">RED</div>
+                            <div class="bet-card bg-GREEN" onclick="placeDiceBet('GREEN')">GRN</div>
+                            <div class="bet-card bg-BLUE" onclick="placeDiceBet('BLUE')">BLU</div>
+                            <div class="bet-card bg-PINK" onclick="placeDiceBet('PINK')">PNK</div>
+                            <div class="bet-card bg-WHITE" onclick="placeDiceBet('WHITE')">WHT</div>
+                            <div class="bet-card bg-YELLOW" onclick="placeDiceBet('YELLOW')">YEL</div>
+                        </div>
                     </div>
                 </div>
-                <div class="dice-panel">
-                    <div style="color:var(--gold); font-weight:800; margin-bottom:10px;">CHAT</div>
-                    <div id="diceChat" style="flex:1; overflow-y:auto;"></div>
-                    <input class="auth-inp" placeholder="Chat..." onchange="sendDiceChat(this)">
+                <div class="panel">
+                    <div class="chat-tabs">
+                        <button class="c-tab active">PUBLIC</button>
+                    </div>
+                    <div class="chat-area" id="diceChatList"></div>
+                    <div class="chat-input-box">
+                        <input type="text" class="chat-inp" id="diceChatInp" placeholder="Type...">
+                        <button style="background:var(--gold); border:none; padding:0 10px; font-weight:bold; border-radius:4px;" onclick="sendDiceMsg()">></button>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div id="view-roulette" class="game-view active">
-            <div class="roulette-container">
-                
-                <div class="left-group" id="leftGroup">
-                    
-                    <div class="upper-row">
-                        <div class="wheelPanel">
-                            <div class="stage">
-                                <div class="pointer"></div>
-                                <div class="spin-trigger" onclick="reqSpin()"></div>
-                                <canvas id="wheelCanvas" width="800" height="800"></canvas>
-                            </div>
-                        </div>
-
-                        <div class="middle-col">
-                            <div class="payout-wrap">
-                                <div class="pay-title">Game Payouts</div>
-                                <div class="payout-grid">
-                                    <div class="pay-item"><span>Single</span><span>35:1</span></div>
-                                    <div class="pay-item"><span>Split</span><span>17:1</span></div>
-                                    <div class="pay-item"><span>Corner</span><span>8:1</span></div>
-                                    <div class="pay-item"><span>Street</span><span>11:1</span></div>
-                                    <div class="pay-item"><span>Dozens</span><span>2:1</span></div>
-                                    <div class="pay-item"><span>Colors</span><span>1:1</span></div>
-                                </div>
-                            </div>
-                            <div class="result-panel">
-                                <div class="res-top">
-                                    <div style="font-size:11px; font-weight:700; opacity:0.7;">WINNER</div>
-                                    <div class="res-box">
-                                        <div id="resColor"></div>
-                                        <div id="resNum">--</div>
-                                    </div>
-                                </div>
-                                <div class="history-row" id="historyBar"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="tableWrap">
-                        <div class="grid" id="grid"></div>
-                    </div>
-                </div>
-
-                <div class="stats-sidebar" id="statsSidebar">
-                    <div class="list-box" style="flex:0 0 180px;">
-                        <div class="list-head">
-                            <span>BETS</span>
-                            <i class="fas fa-trash" style="cursor:pointer; color:#f44;" onclick="clearBets()"></i>
-                        </div>
-                        <div class="list-content" id="betsList">
-                            <div style="text-align:center; color:#666; font-size:11px; margin-top:10px;">No Bets</div>
-                        </div>
-                    </div>
-                    <div class="list-box">
-                        <div class="list-head">CHAT</div>
-                        <div class="list-content" id="chatList"></div>
-                        <div class="chat-input-row">
-                            <input class="chat-inp" id="chatInput" placeholder="Type here...">
-                            <button class="switch-btn" style="padding:4px 8px; border-color:#444;" onclick="sendChat()">></button>
+            <div class="r-upper-section">
+                <div class="panel wheelPanel">
+                    <div class="wheel-container">
+                        <div class="wheel-stage">
+                            <div class="pointer"></div>
+                            <div class="spin-btn" onclick="reqSpin()"></div>
+                            <canvas id="wheelCanvas" width="300" height="300"></canvas>
                         </div>
                     </div>
                 </div>
+                <div class="panel">
+                    <div class="panel-head">LAST RESULT</div>
+                    <div style="flex:1; display:flex; flex-direction:column; justify-content:center;">
+                        <div class="res-big">
+                            <div id="resColorBox"></div>
+                            <div id="resNumTxt">--</div>
+                        </div>
+                        <div class="history-row" id="histRow"></div>
+                    </div>
+                </div>
+                <div class="panel">
+                    <div class="panel-head">PAYOUTS</div>
+                    <div class="panel-body">
+                        <div class="payout-item"><span>Straight</span> <span>35:1</span></div>
+                        <div class="payout-item"><span>Split</span> <span>17:1</span></div>
+                        <div class="payout-item"><span>Street</span> <span>11:1</span></div>
+                        <div class="payout-item"><span>Corner</span> <span>8:1</span></div>
+                        <div class="payout-item"><span>Line</span> <span>5:1</span></div>
+                        <div class="payout-item"><span>Doz/Col</span> <span>2:1</span></div>
+                        <div class="payout-item"><span>Even</span> <span>1:1</span></div>
+                    </div>
+                </div>
+                <div class="panel">
+                    <div class="panel-head">
+                        <span>BETS</span>
+                        <i class="fas fa-trash" style="cursor:pointer; color:#f44" onclick="clearBets()"></i>
+                    </div>
+                    <div class="panel-body" id="betsList">
+                        <div style="text-align:center; color:#444; font-size:10px; margin-top:10px;">Empty</div>
+                    </div>
+                </div>
+            </div>
 
+            <div class="r-lower-section">
+                <div class="table-panel" id="tableContainer">
+                    <div class="grid-container" id="grid"></div>
+                </div>
+                <div class="chat-panel" id="chatContainer">
+                    <div class="chat-tabs">
+                        <button class="c-tab active">PUBLIC</button>
+                        <button class="c-tab">SUPPORT</button>
+                    </div>
+                    <div class="chat-area" id="chatList">
+                        <div class="msg" style="color:#666; text-align:center">Welcome to Fullscreen Roulette.</div>
+                    </div>
+                    <div class="chat-input-box">
+                        <input type="text" class="chat-inp" id="chatInp" placeholder="Type...">
+                        <button style="background:var(--gold); border:none; padding:0 10px; font-weight:bold; border-radius:4px;" onclick="sendMsg()">></button>
+                    </div>
+                </div>
             </div>
         </div>
-
     </div>
 
-    <div id="betModal" class="authOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:6000; align-items:center; justify-content:center;">
-        <div class="modal-box" style="background:#1b2b25; padding:20px; border-radius:10px; border:2px solid var(--gold); text-align:center;">
-            <h3 style="color:var(--gold); margin-top:0;">PLACE BET</h3>
+    <div id="betModal" class="modal-wrap">
+        <div class="m-box">
+            <h3 style="color:var(--gold); margin:0 0 10px 0">PLACE BET</h3>
             <input type="number" id="betAmt" class="auth-inp" placeholder="Amount" value="100">
-            <div style="display:flex; gap:10px; margin-top:10px;">
-                <button class="auth-btn" style="background:#444; color:#ccc;" onclick="closeModal()">CANCEL</button>
-                <button class="auth-btn" onclick="confirmBet()">BET</button>
+            <div style="display:flex; gap:10px">
+                <button class="m-btn" style="background:#333; color:#ccc" onclick="closeModal('betModal')">CANCEL</button>
+                <button class="m-btn" style="background:var(--gold)" onclick="confirmBet()">BET</button>
             </div>
+        </div>
+    </div>
+
+    <div id="winModal" class="modal-wrap">
+        <div class="m-box" style="border-color:var(--green)">
+            <h3 style="color:var(--green); margin:0">WINNER</h3>
+            <h1 style="font-size:50px; margin:10px 0; color:white;" id="winNum">--</h1>
+            <div style="color:var(--gold); font-size:20px; font-weight:bold" id="winAmt">+0</div>
+            <button class="m-btn" style="background:var(--green)" onclick="closeModal('winModal')">NICE</button>
+        </div>
+    </div>
+
+    <div id="diceWinModal" class="modal-wrap">
+        <div class="m-box" style="border-color:var(--gold)">
+            <h3 style="color:var(--gold)">DICE WIN</h3>
+            <div id="diceWinTotal" style="font-size:30px; font-weight:bold; color:white">+0</div>
+            <button class="m-btn" style="background:var(--gold); color:black;" onclick="closeModal('diceWinModal')">OK</button>
         </div>
     </div>
 
@@ -350,176 +394,284 @@
         let balance = 0;
         let bets = [];
         let spinning = false;
+        let diceChip = 50;
+        let activeGame = 'roulette';
         
-        // --- AUTH ---
+        // --- AUTH LOGIC ---
         function switchAuth(type) {
             document.getElementById('tabLogin').classList.toggle('active', type==='login');
             document.getElementById('tabRegister').classList.toggle('active', type==='register');
             document.getElementById('formLogin').style.display = type==='login' ? 'block' : 'none';
             document.getElementById('formRegister').style.display = type==='register' ? 'block' : 'none';
+            document.getElementById('loginError').innerText = "";
         }
-        function appLogin(){ socket.emit('auth_handshake', { type:'player', username: document.getElementById('loginUser').value, password: document.getElementById('loginPass').value }); }
-        function appRegister(){ socket.emit('register', { username: document.getElementById('regUser').value, password: document.getElementById('regPass').value }); }
-        function quickPlay(){ socket.emit('register', { username: `Guest_${Math.floor(Math.random()*9999)}`, password: 'guest' }); }
-        
-        socket.on('login_success', d => {
-            document.getElementById('authOverlay').style.display='none';
-            document.getElementById('dispUser').innerText=d.username;
-            balance = d.balance; document.getElementById('dispBal').innerText=balance;
+
+        function appLogin(){
+            const u = document.getElementById('loginUser').value;
+            const p = document.getElementById('loginPass').value;
+            if(u && p) socket.emit('auth_handshake', { type:'player', username:u, password:p });
+        }
+
+        function appRegister(){
+            const u = document.getElementById('regUser').value;
+            const p = document.getElementById('regPass').value;
+            if(u && p) socket.emit('register', { username:u, password:p });
+        }
+
+        function quickPlay(){
+            const rnd = Math.floor(Math.random() * 9999);
+            socket.emit('register', { username: `Guest_${rnd}`, password: 'guest' });
+        }
+
+        socket.on('login_success', data => {
+            document.getElementById('authOverlay').style.display = 'none';
+            document.getElementById('dispUser').innerText = data.username;
+            balance = data.balance;
+            document.getElementById('dispBal').innerText = balance;
             initGame();
         });
-        socket.on('login_error', m => document.getElementById('authError').innerText=m);
-        socket.on('update_balance', b => { balance=b; document.getElementById('dispBal').innerText=balance; });
 
-        // --- GAME LOGIC ---
+        socket.on('login_error', msg => { document.getElementById('loginError').innerText = msg; });
+        socket.on('update_balance', b => { balance = b; document.getElementById('dispBal').innerText = balance; });
+
+        // --- GAME SWITCHER ---
         function switchGame(g) {
+            activeGame = g;
             document.querySelectorAll('.game-view').forEach(v => v.classList.remove('active'));
-            document.querySelectorAll('.switch-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.g-tab').forEach(b => b.classList.remove('active'));
             document.getElementById(`view-${g}`).classList.add('active');
             document.getElementById(`btn-${g}`).classList.add('active');
             if(g==='roulette') setTimeout(fitLayout, 100);
         }
 
-        function initGame(){ buildGrid(); drawWheel(); window.addEventListener('resize', fitLayout); setTimeout(fitLayout, 100); }
+        // --- GAME INIT ---
+        function initGame(){
+            buildGrid();
+            drawWheel();
+            window.addEventListener('resize', fitLayout);
+            setTimeout(fitLayout, 100);
+        }
 
-        // --- UNIFORMITY ENGINE (FROM ASH UI) ---
-        function fitLayout() {
-            // 1. Force Sidebar Height to match Left Group
-            const left = document.getElementById('leftGroup');
-            const right = document.getElementById('statsSidebar');
-            if(left && right) right.style.height = `${left.offsetHeight}px`;
-
-            // 2. Force Table Cells to be Square
+        function fitLayout(){
             const grid = document.getElementById('grid');
-            if(grid && grid.children.length > 2) {
-                // Get width of a standard cell (3rd child is first number)
-                const cellW = grid.children[2].getBoundingClientRect().width;
-                if(cellW > 10) grid.style.gridTemplateRows = `${cellW}px ${cellW}px ${cellW}px ${cellW}px ${cellW}px`;
+            const tableCont = document.getElementById('tableContainer');
+            const chatCont = document.getElementById('chatContainer');
+            
+            if(grid && tableCont){
+                const availWidth = tableCont.clientWidth - 10;
+                const availHeight = tableCont.clientHeight - 10;
+                const sizeByWidth = availWidth / 14;
+                const sizeByHeight = availHeight / 5;
+                const cellSize = Math.min(sizeByWidth, sizeByHeight);
+                grid.style.width = `${cellSize * 14}px`;
+                grid.style.gridTemplateRows = `${cellSize}px ${cellSize}px ${cellSize}px ${cellSize}px ${cellSize}px`;
+                if(chatCont) { chatCont.style.height = tableCont.offsetHeight + 'px'; }
             }
         }
 
-        // --- WHEEL DRAWING ---
+        // --- DICE LOGIC ---
+        function selDiceChip(amt, el){ 
+            diceChip = amt; 
+            document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active')); 
+            el.classList.add('active'); 
+        }
+        function placeDiceBet(color){
+            if(balance < diceChip) { alert("No Funds"); return; }
+            balance -= diceChip; document.getElementById('dispBal').innerText = balance;
+            socket.emit('place_bet', { color: color, amount: diceChip });
+        }
+        function sendDiceMsg(){ const m=document.getElementById('diceChatInp').value; if(m) { socket.emit('chat_msg', m); document.getElementById('diceChatInp').value=''; } }
+        
+        socket.on('timer_update', t => document.getElementById('timer').innerText = t);
+        socket.on('game_rolling', () => {
+            document.getElementById('diceStatus').innerText = "ROLLING...";
+            document.getElementById('timer').innerText = "--";
+            window.diceInt = setInterval(() => { ['die1','die2','die3'].forEach(id => { let el=document.getElementById(id); el.className=`die ${['RED','GREEN','BLUE','YELLOW','PINK','WHITE'][Math.floor(Math.random()*6)]}`; }); }, 100);
+        });
+        socket.on('game_result', r => { 
+            clearInterval(window.diceInt); 
+            document.getElementById('diceStatus').innerText = "BETS OPEN";
+            document.getElementById('die1').className=`die ${r[0]}`; document.getElementById('die2').className=`die ${r[1]}`; document.getElementById('die3').className=`die ${r[2]}`;
+        });
+        socket.on('win_notification', d => {
+            document.getElementById('diceWinTotal').innerText = "+"+d.total;
+            document.getElementById('diceWinModal').style.display='flex';
+        });
+
+        // --- ROULETTE LOGIC ---
         const WHEEL = ["0","28","9","26","30","11","7","20","32","17","5","22","34","15","3","24","36","13","1","00","27","10","25","29","12","8","19","31","18","6","21","33","16","4","23","35","14","2"];
         const REDS = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
         const ctx = document.getElementById('wheelCanvas').getContext('2d');
         let angle = 0;
 
         function drawWheel(){
-            const W = 800, H = 800, CX = 400, CY = 400;
+            const W = 300, H = 300, CX = 150, CY = 150;
             ctx.clearRect(0,0,W,H);
-            let g = ctx.createRadialGradient(CX, CY, 330, CX, CY, 380);
+            let g = ctx.createRadialGradient(CX, CY, 135, CX, CY, 145);
             g.addColorStop(0, '#2b140a'); g.addColorStop(1, '#000');
-            ctx.beginPath(); ctx.arc(CX,CY,380,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
-            ctx.beginPath(); ctx.arc(CX,CY,330,0,Math.PI*2); ctx.fillStyle="#0a2118"; ctx.fill();
-            
+            ctx.beginPath(); ctx.arc(CX,CY,145,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
             ctx.save(); ctx.translate(CX,CY); ctx.rotate(angle);
             WHEEL.forEach((n,i)=>{
                 let a = i*((Math.PI*2)/WHEEL.length);
-                ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,320,a,a+((Math.PI*2)/WHEEL.length));
-                ctx.fillStyle = (n=="0"||n=="00")?'#165b33':(REDS.includes(parseInt(n))?'#c03a35':'#111');
+                ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,135,a,a+((Math.PI*2)/WHEEL.length));
+                ctx.fillStyle = (n=="0"||n=="00")?'#1b5e20':(REDS.includes(parseInt(n))?'#b71c1c':'#111');
                 ctx.fill(); ctx.stroke();
-                ctx.save(); ctx.rotate(a+((Math.PI*2)/WHEEL.length)/2); ctx.translate(280,0); ctx.rotate(Math.PI/2);
-                ctx.fillStyle="#fff"; ctx.font="bold 24px Arial"; ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.fillText(n,0,0); ctx.restore();
+                ctx.save(); ctx.rotate(a+((Math.PI*2)/WHEEL.length)/2); ctx.translate(120,0); ctx.rotate(Math.PI/2);
+                ctx.fillStyle="#fff"; ctx.font="bold 10px Arial"; ctx.textAlign="center"; ctx.fillText(n,0,3); ctx.restore();
             });
             ctx.restore();
-            ctx.beginPath(); ctx.arc(CX,CY,90,0,Math.PI*2); ctx.fillStyle="#222"; ctx.fill(); 
-            ctx.strokeStyle="#c9a44c"; ctx.lineWidth=4; ctx.stroke();
+            ctx.beginPath(); ctx.arc(CX,CY,25,0,Math.PI*2); ctx.fillStyle="#222"; ctx.fill(); 
+            ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--gold'); ctx.lineWidth=2; ctx.stroke();
         }
 
-        // --- GRID BUILDING ---
+        // --- GRID ---
         function buildGrid(){
             const g = document.getElementById('grid'); g.innerHTML='';
-            // 0 & 00
-            let z = document.createElement('div'); z.style.gridRow="1/span 3"; z.style.display="flex"; z.style.flexDirection="column";
-            z.innerHTML = `<div class="cell c-zero" onclick="preBet('00','00')" style="flex:1">00</div><div class="cell c-zero" onclick="preBet('0','0')" style="flex:1; border-top:1px solid rgba(255,255,255,0.2)">0</div>`;
+            let z = document.createElement('div');
+            z.style.gridRow="1/span 3"; z.style.gridColumn="1"; z.style.display="flex"; z.style.flexDirection="column";
+            z.innerHTML = `<div class="cell c-0" onclick="preBet('00','00')" style="flex:1">00</div><div class="cell c-0" onclick="preBet('0','0')" style="flex:1;border-top:1px solid rgba(255,255,255,0.1)">0</div>`;
             g.appendChild(z);
-            // Numbers
             const rows = [[3,6,9,12,15,18,21,24,27,30,33,36],[2,5,8,11,14,17,20,23,26,29,32,35],[1,4,7,10,13,16,19,22,25,28,31,34]];
-            rows.forEach((r,ri)=>{
-                r.forEach((n,ci)=>{
-                    let d = document.createElement('div'); d.className = `cell ${REDS.includes(n)?'c-red':'c-black'}`; d.innerText=n; d.dataset.id=n;
-                    d.style.gridRow=ri+1; d.style.gridColumn=ci+2; d.onclick=()=>preBet(n.toString(),n); g.appendChild(d);
+            rows.forEach((row, ri)=>{
+                row.forEach((n, ci)=>{
+                    let d=document.createElement('div'); 
+                    d.className=`cell ${REDS.includes(n)?'c-r':'c-b'}`; 
+                    d.innerText=n; d.dataset.id=n;
+                    d.style.gridRow=ri+1; d.style.gridColumn=ci+2; 
+                    d.onclick=()=>preBet(n.toString(), n);
+                    g.appendChild(d);
                 });
-                let end = document.createElement('div'); end.className='cell c-out'; end.innerText="2:1"; end.style.gridRow=ri+1; end.style.gridColumn=14; end.onclick=()=>preBet('ROW'+ri, "Row"); g.appendChild(end);
+                let rb=document.createElement('div'); rb.className="cell c-out"; rb.innerText="2:1";
+                rb.style.gridRow=ri+1; rb.style.gridColumn=14; rb.onclick=()=>preBet('ROW'+ri, "Row");
+                g.appendChild(rb);
             });
-            // Dozens
             [[2,"1st 12"],[6,"2nd 12"],[10,"3rd 12"]].forEach(d=>{
-                let el=document.createElement('div'); el.className="cell c-out"; el.innerText=d[1]; el.style.gridRow=4; el.style.gridColumn=`${d[0]}/span 4`; el.onclick=()=>preBet('DOZ'+d[0], d[1]); g.appendChild(el);
+                let el=document.createElement('div'); el.className="cell c-out"; el.innerText=d[1];
+                el.style.gridRow=4; el.style.gridColumn=`${d[0]}/span 4`; el.onclick=()=>preBet('DOZ'+d[0], d[1]);
+                g.appendChild(el);
             });
-            // Bottom
             [[2,"1-18"],[4,"EVEN"],[6,"RED"],[8,"BLACK"],[10,"ODD"],[12,"19-36"]].forEach(b=>{
-                let el=document.createElement('div'); el.className="cell c-out"; el.innerText=b[1]; 
-                if(b[1]=="RED") el.style.background="rgba(180,40,40,0.5)"; if(b[1]=="BLACK") el.style.background="rgba(20,20,20,0.5)";
-                el.style.gridRow=5; el.style.gridColumn=`${b[0]}/span 2`; el.onclick=()=>preBet(b[1], b[1]); g.appendChild(el);
+                let el=document.createElement('div'); el.className="cell c-out"; el.innerText=b[1];
+                if(b[1]=="RED") el.style.background="rgba(200,40,40,0.4)";
+                if(b[1]=="BLACK") el.style.background="rgba(0,0,0,0.6)";
+                el.style.gridRow=5; el.style.gridColumn=`${b[0]}/span 2`; el.onclick=()=>preBet(b[1], b[1]);
+                g.appendChild(el);
             });
         }
 
         // --- BETTING ---
-        let tempBet=null;
-        function preBet(id, lbl) { if(spinning)return; tempBet={id,lbl}; document.getElementById('betModal').style.display='flex'; document.getElementById('betAmt').focus(); }
-        function closeModal(){ document.getElementById('betModal').style.display='none'; }
+        let tempBet = null;
+        function preBet(id, lbl){
+            if(spinning) return;
+            tempBet = { id, lbl };
+            document.getElementById('betModal').style.display='flex';
+            document.getElementById('betAmt').focus();
+        }
+        function closeModal(id){ 
+            if(id) document.getElementById(id).style.display='none';
+            else document.querySelectorAll('.modal-wrap').forEach(m => m.style.display='none');
+        }
+        
         function confirmBet(){
             const amt = parseInt(document.getElementById('betAmt').value);
-            if(amt>0 && amt<=balance){
-                balance-=amt; document.getElementById('dispBal').innerText=balance;
-                bets.push({...tempBet, amt}); closeModal();
-                const cell = document.querySelector(`.cell[data-id="${tempBet.id}"]`) || document.querySelector(`.cell`);
-                if(cell){ cell.classList.add('has-bet'); if(!cell.querySelector('.indicator')) cell.innerHTML+=`<div class="indicator"></div>`; }
-                renderBets(); fitLayout(); // Sync sidebar height as bets add up
-            } else alert("Invalid Funds");
+            if(amt > 0 && amt <= balance){
+                // FIX: Use 'quantity' instead of 'amt' to match server expectation
+                bets.push({ ...tempBet, quantity: amt });
+                balance -= amt; document.getElementById('dispBal').innerText=balance;
+                renderBets();
+                closeModal();
+                
+                const c = document.querySelector(`.cell[data-id="${tempBet.id}"]`) || document.querySelector(`.cell`); 
+                if(c && tempBet.id.length <= 2) c.classList.add('active'); 
+                if(tempBet.id.length <= 2) {
+                   let el = document.querySelector(`div[data-id='${tempBet.id}']`);
+                   if(el && !el.querySelector('.chip-dot')) el.innerHTML += `<div class='chip-dot'></div>`;
+                }
+            } else { alert("Invalid Amount"); }
         }
+
         function renderBets(){
-            const l = document.getElementById('betsList'); l.innerHTML="";
-            if(bets.length===0) l.innerHTML='<div style="text-align:center; color:#666; font-size:11px; margin-top:10px;">No Bets</div>';
-            bets.forEach((b,i)=>{ l.innerHTML+=`<div class="list-row"><span>${b.lbl}</span> <span>${b.amt}</span></div>`; });
+            const l = document.getElementById('betsList'); l.innerHTML='';
+            bets.forEach((b,i)=>{
+                l.innerHTML += `<div class="bet-item"><span>${b.lbl}</span> <span>${b.quantity}</span></div>`;
+            });
         }
-        function clearBets(){ if(spinning)return; balance+=bets.reduce((a,b)=>a+b.amt,0); bets=[]; renderBets(); updateBalance(); document.querySelectorAll('.has-bet').forEach(c=>{c.classList.remove('has-bet'); c.querySelector('.indicator')?.remove();}); }
-        function updateBalance(){ document.getElementById('dispBal').innerText=balance; }
+        function clearBets(){ 
+            if(spinning)return; 
+            balance += bets.reduce((a,b)=>a+b.quantity,0); 
+            bets=[]; renderBets(); document.getElementById('dispBal').innerText=balance;
+            document.querySelectorAll('.cell').forEach(c=>{ c.classList.remove('active'); let d=c.querySelector('.chip-dot'); if(d)d.remove(); });
+        }
 
         // --- SPIN ---
-        function reqSpin(){ if(spinning || bets.length==0) return; socket.emit('roulette_req_spin', bets); }
+        function reqSpin(){
+            if(spinning || bets.length==0) return;
+            socket.emit('roulette_req_spin', bets);
+        }
+
         socket.on('roulette_res_spin', data => {
-            spinning=true; let start=null; const dur=3000;
+            spinning = true;
+            let start = null; const dur = 3000;
             const target = (Math.PI*1.5) - (data.winningIndex * (Math.PI*2)/WHEEL.length) - ((Math.PI*2)/WHEEL.length)/2;
-            const end = target + (Math.PI*10); const startA = angle;
+            const endAngle = target + (Math.PI*10);
+            const startAngle = angle;
+
             function anim(t){
-                if(!start)start=t; const p=(t-start)/dur;
-                if(p<1){ angle=startA+(end-startA)*(1-Math.pow(1-p,3)); drawWheel(); requestAnimationFrame(anim); }
-                else { angle=target; drawWheel(); spinning=false; finish(data); }
+                if(!start) start=t;
+                const p = (t-start)/dur;
+                if(p<1){
+                    const e = 1 - Math.pow(1-p, 3);
+                    angle = startAngle + (endAngle-startAngle)*e;
+                    drawWheel();
+                    requestAnimationFrame(anim);
+                } else {
+                    angle = target; drawWheel();
+                    spinning = false;
+                    finishSpin(data);
+                }
             }
             requestAnimationFrame(anim);
         });
-        function finish(data){
-            document.getElementById('resNum').innerText=data.resultVal;
-            document.getElementById('resColor').style.background = (data.resultVal=="0"||data.resultVal=="00")?'#165b33':(REDS.includes(parseInt(data.resultVal))?'#c03a35':'#111');
-            const h = document.getElementById('historyBar');
-            let cls = (data.resultVal=="0"||data.resultVal=="00")?'hb-green':(REDS.includes(parseInt(data.resultVal))?'hb-red':'hb-black');
-            h.innerHTML=`<div class="hist-ball ${cls}">${data.resultVal}</div>`+h.innerHTML;
-            if(h.children.length>5) h.lastChild.remove();
-            if(data.totalWin>0) { balance+=data.totalWin; updateBalance(); showToast(`WON +${data.totalWin}`); }
-            bets=[]; renderBets(); document.querySelectorAll('.has-bet').forEach(c=>{c.classList.remove('has-bet'); c.querySelector('.indicator')?.remove();});
+
+        function finishSpin(data){
+            document.getElementById('resNumTxt').innerText = data.resultVal;
+            document.getElementById('resColorBox').className = 
+                (data.resultVal=="0"||data.resultVal=="00")?'bg-green':(REDS.includes(parseInt(data.resultVal))?'bg-red':'bg-black');
+            
+            const h = document.getElementById('histRow');
+            let cls = (data.resultVal=="0"||data.resultVal=="00")?'bg-green':(REDS.includes(parseInt(data.resultVal))?'bg-red':'bg-black');
+            h.innerHTML = `<div class="hist-dot ${cls}">${data.resultVal}</div>` + h.innerHTML;
+            if(h.children.length > 6) h.lastChild.remove();
+
+            if(data.totalWin > 0){
+                document.getElementById('winNum').innerText = data.resultVal;
+                document.getElementById('winAmt').innerText = "+"+data.totalWin;
+                document.getElementById('winModal').style.display='flex';
+                balance += data.totalWin; document.getElementById('dispBal').innerText=balance;
+            }
+            bets=[]; renderBets();
+            document.querySelectorAll('.cell').forEach(c=>{ c.classList.remove('active'); let d=c.querySelector('.chip-dot'); if(d)d.remove(); });
         }
 
-        // --- CHAT & TOAST ---
-        function sendChat(){ const i=document.getElementById('chatInput'); if(i.value){ socket.emit('chat_msg', i.value); i.value=''; } }
-        socket.on('chat_broadcast', d=>{
-            const b = document.getElementById('chatList');
-            b.innerHTML+=`<div class="list-row"><b style="color:${d.role=='ADMIN'?'var(--gold)':'white'}">${d.user}:</b> ${d.msg}</div>`;
-            b.scrollTop=b.scrollHeight;
-        });
-        function showToast(msg){ 
-            const b=document.getElementById('toastBox'); const d=document.createElement('div'); d.className='toast'; d.innerText=msg; 
-            b.appendChild(d); setTimeout(()=>d.remove(), 3000); 
+        // --- CHAT ---
+        function sendMsg(){
+            const m = document.getElementById('chatInp').value;
+            if(m) { socket.emit('chat_msg', m); document.getElementById('chatInp').value=''; }
         }
-
-        // --- DICE ---
-        function placeDiceBet(color){ if(balance>=50){ balance-=50; updateBalance(); socket.emit('place_bet', {color, amount:50}); } else alert("Low funds"); }
-        socket.on('game_rolling', ()=>{ document.getElementById('diceTimer').innerText="--"; });
-        socket.on('game_result', r=>{ 
-            document.getElementById('d1').className=`die ${r[0]}`; document.getElementById('d2').className=`die ${r[1]}`; document.getElementById('d3').className=`die ${r[2]}`; 
-            document.getElementById('diceTimer').innerText="20";
+        socket.on('chat_broadcast', d => {
+            const b = (activeGame === 'dice') ? document.getElementById('diceChatList') : document.getElementById('chatList');
+            b.innerHTML += `<div class="msg"><b style="color:${d.role=='ADMIN'?'var(--gold)':'white'}">${d.user}:</b> ${d.msg}</div>`;
+            b.scrollTop = b.scrollHeight;
         });
-        socket.on('timer_update', t=>document.getElementById('diceTimer').innerText=t);
+        
+        socket.on('active_players_update', (list) => {
+            const el = document.getElementById('dicePlayerList'); el.innerHTML = "";
+            list.forEach(u => {
+                let color = "#ccc"; if(u.role === 'ADMIN') color = "var(--gold)";
+                el.innerHTML += `<div class="pl-item" style="color:${color}"><i class="fas fa-circle"></i> ${u.username}</div>`;
+            });
+        });
+
     </script>
 </body>
 </html>
