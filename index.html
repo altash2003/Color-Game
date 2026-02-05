@@ -7,71 +7,44 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { font-family: 'Rajdhani', sans-serif; background: #050505 url('background.jpg') center/cover fixed; color: white; margin: 0; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .lobby-container { text-align: center; background: rgba(0,0,0,0.8); padding: 40px; border-radius: 20px; border: 1px solid #333; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
-        h1 { font-size: 50px; margin: 0 0 40px 0; color: #FFD700; text-shadow: 0 0 20px rgba(255, 215, 0, 0.4); letter-spacing: 2px; }
-        
-        .games-grid { display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; }
-        
-        .game-card {
-            width: 250px; height: 320px;
-            background: #111; border: 2px solid #333; border-radius: 15px;
-            display: flex; flex-direction: column; align-items: center; justify-content: space-between;
-            padding: 20px; transition: 0.3s; cursor: pointer; text-decoration: none; color: white;
-            position: relative; overflow: hidden;
-        }
-        .game-card:hover { transform: translateY(-10px); border-color: #FFD700; box-shadow: 0 10px 30px rgba(255,215,0,0.2); }
-        
-        .game-icon { font-size: 60px; margin-top: 30px; color: #555; transition: 0.3s; }
-        .game-card:hover .game-icon { color: #fff; transform: scale(1.1); }
-        
-        .game-title { font-size: 24px; font-weight: 800; text-transform: uppercase; margin-top: 20px; }
-        
-        .player-count {
-            background: #222; padding: 8px 15px; border-radius: 20px; font-size: 14px;
-            color: #aaa; border: 1px solid #333; display: flex; align-items: center; gap: 8px;
-        }
-        .live-dot { width: 8px; height: 8px; background: #00ff00; border-radius: 50%; box-shadow: 0 0 5px #00ff00; }
-        
-        .bg-color { background: linear-gradient(180deg, rgba(20,20,20,1) 0%, rgba(50,20,20,1) 100%); }
-        .bg-roulette { background: linear-gradient(180deg, rgba(20,20,20,1) 0%, rgba(20,40,20,1) 100%); }
+        .lobby-box { background: rgba(0,0,0,0.85); padding: 50px; border-radius: 20px; border: 1px solid #333; box-shadow: 0 0 50px rgba(0,0,0,0.8); text-align: center; }
+        h1 { font-size: 60px; margin: 0 0 40px 0; color: #FFD700; text-shadow: 0 0 20px rgba(255, 215, 0, 0.4); letter-spacing: 4px; }
+        .grid { display: flex; gap: 40px; justify-content: center; flex-wrap: wrap; }
+        .card { width: 220px; height: 300px; background: #111; border: 2px solid #333; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 20px; cursor: pointer; text-decoration: none; color: white; transition: 0.3s; }
+        .card:hover { transform: translateY(-10px); border-color: #FFD700; box-shadow: 0 10px 30px rgba(255,215,0,0.2); }
+        .icon { font-size: 80px; margin-top: 30px; color: #555; transition: 0.3s; }
+        .card:hover .icon { color: #fff; transform: scale(1.1); }
+        .title { font-size: 24px; font-weight: 800; text-transform: uppercase; margin-top: 20px; }
+        .stat { background: #222; padding: 8px 15px; border-radius: 20px; font-size: 14px; color: #aaa; border: 1px solid #333; display: flex; align-items: center; gap: 8px; }
+        .dot { width: 8px; height: 8px; background: #00ff00; border-radius: 50%; box-shadow: 0 0 5px #00ff00; }
+        .c-red { background: linear-gradient(180deg, #1a0505 0%, #330000 100%); }
+        .c-green { background: linear-gradient(180deg, #051a0a 0%, #003311 100%); }
     </style>
 </head>
 <body>
-
-    <div class="lobby-container">
+    <div class="lobby-box">
         <h1>CASINO LOBBY</h1>
-        
-        <div class="games-grid">
-            <a href="/color" class="game-card bg-color">
-                <i class="fas fa-dice game-icon" style="color:#ff4444"></i>
-                <div class="game-title">Color Game</div>
-                <div class="player-count">
-                    <div class="live-dot"></div> <span id="count-color">0</span> Playing
-                </div>
+        <div class="grid">
+            <a href="/color" class="card c-red">
+                <i class="fas fa-dice icon" style="color:#ff4444"></i>
+                <div class="title">Color Game</div>
+                <div class="stat"><div class="dot"></div> <span id="s-color">0</span> Playing</div>
             </a>
-
-            <a href="/roulette" class="game-card bg-roulette">
-                <i class="fas fa-bullseye game-icon" style="color:#00E5FF"></i>
-                <div class="game-title">Roulette</div>
-                <div class="player-count">
-                    <div class="live-dot"></div> <span id="count-roulette">0</span> Playing
-                </div>
+            <a href="/roulette" class="card c-green">
+                <i class="fas fa-bullseye icon" style="color:#00E5FF"></i>
+                <div class="title">Roulette</div>
+                <div class="stat"><div class="dot"></div> <span id="s-roulette">0</span> Playing</div>
             </a>
         </div>
     </div>
-
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
-        
-        // Identify as being in the lobby
         socket.emit('enter_room', 'lobby');
-
-        socket.on('lobby_stats', (counts) => {
-            document.getElementById('count-color').innerText = counts.color;
-            document.getElementById('count-roulette').innerText = counts.roulette;
+        socket.on('lobby_stats', (s) => {
+            document.getElementById('s-color').innerText = s.color;
+            document.getElementById('s-roulette').innerText = s.roulette;
         });
     </script>
-
 </body>
 </html>
