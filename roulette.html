@@ -3,31 +3,127 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Roulette</title>
+<title>American Roulette</title>
 <style>
-    /* Add this to your existing CSS */
-    .home-btn { position: absolute; top: 10px; left: 10px; background: #c9a44c; color: #000; padding: 8px 15px; border-radius: 4px; text-decoration: none; font-weight: bold; z-index: 9999; border: 1px solid #fff; }
+  /* [PASTE YOUR ORIGINAL CSS HERE] */
+  :root{ --bg:#070d0b; --panel:rgba(0,0,0,.35); --txt:#eaf3ef; --gold:#c9a44c; --gap: 16px; }
+  body{ margin:0; font-family: sans-serif; color:var(--txt); background: #000; height: 100vh; overflow: hidden; }
+  
+  /* HOME BUTTON */
+  .home-btn { position: fixed; top: 10px; left: 10px; z-index: 9999; background: #c9a44c; color: #000; padding: 8px 15px; text-decoration: none; font-weight: bold; border-radius: 4px; border:1px solid #fff; }
+
+  /* AUTH OVERLAY (Added for Roulette) */
+  #authOverlay { position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:10000; display:flex; align-items:center; justify-content:center; }
+  .auth-box { border: 1px solid var(--gold); padding: 30px; border-radius: 10px; background:#111; text-align:center; }
+  
+  /* [Keep original wheel/grid styles...] */
+  .frame { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
+  .game-container { display: flex; gap: 20px; }
+  .wheelPanel { width: 400px; height: 400px; position: relative; }
+  canvas { width: 100%; height: 100%; }
+  .tableWrap { margin-top: 20px; }
+  .grid { display: grid; grid-template-columns: repeat(14, 1fr); border: 1px solid #555; }
+  .cell { border: 1px solid #333; padding: 10px; cursor: pointer; text-align: center; }
+  .c-red { background: #800; } .c-black { background: #111; } .has-bet { box-shadow: inset 0 0 0 2px gold; }
 </style>
 </head>
 <body>
 
 <a href="/" class="home-btn">← LOBBY</a>
 
+<div id="authOverlay">
+    <div class="auth-box">
+        <h2 style="color:#c9a44c">ROULETTE LOGIN</h2>
+        <input id="uName" placeholder="Username"><input id="pWord" type="password" placeholder="Password">
+        <br><br>
+        <button onclick="login()">LOGIN</button> <button onclick="reg()">REGISTER</button>
+        <div id="err" style="color:red"></div>
+    </div>
+</div>
+
+<div class="frame">
+  <div class="game-container">
+    <div class="left-group">
+      <div style="text-align:center; margin-bottom:10px;">
+          <span id="gameStatus" style="font-size:20px; font-weight:bold; color:#c9a44c;">WAITING</span>
+          <br>TIMER: <span id="timer">--</span> | BAL: <span id="balance">0</span>
+      </div>
+      
+      <div class="wheelPanel">
+          <canvas id="wheelCanvas" width="800" height="800"></canvas>
+          <div style="position:absolute; top:0; left:50%; transform:translateX(-50%); width:0; height:0; border-left:15px solid transparent; border-right:15px solid transparent; border-top:30px solid gold;"></div>
+      </div>
+      
+      <div class="tableWrap">
+          <div class="grid" id="grid"></div> 
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="/socket.io/socket.io.js"></script>
 <script>
-    const socket = io();
-    
-    // CRITICAL: TELL SERVER WE ARE IN ROULETTE
-    socket.emit('enter_room', 'roulette');
+const socket = io();
+socket.emit('enter_room', 'roulette');
 
-    // ... [KEEP YOUR EXISTING JS LOGIC] ...
+// AUTH
+function login() { socket.emit('auth_handshake', {type:'player', username:document.getElementById('uName').value, password:document.getElementById('pWord').value}); }
+function reg() { socket.emit('register', {username:document.getElementById('uName').value, password:document.getElementById('pWord').value}); }
+socket.on('login_success', (data) => { document.getElementById('authOverlay').style.display='none'; document.getElementById('balance').innerText=data.balance; });
+socket.on('update_balance', (b) => document.getElementById('balance').innerText=b);
+
+// GAME LOGIC
+const canvas = document.getElementById('wheelCanvas');
+const ctx = canvas.getContext('2d');
+const WHEEL = ["0","28","9","26","30","11","7","20","32","17","5","22","34","15","3","24","36","13","1","00","27","10","25","29","12","8","19","31","18","6","21","33","16","4","23","35","14","2"];
+let angle = 0;
+
+function drawWheel() {
+    ctx.clearRect(0,0,800,800);
+    ctx.save(); ctx.translate(400,400); ctx.rotate(angle);
+    const step = (Math.PI*2)/WHEEL.length;
+    WHEEL.forEach((val, i) => {
+        ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,380, i*step, (i+1)*step);
+        ctx.fillStyle = (i%2==0)?'#111':'#800'; if(val=="0"||val=="00") ctx.fillStyle='#060';
+        ctx.fill();
+        ctx.save(); ctx.rotate(i*step + step/2); ctx.fillStyle='#fff'; ctx.font='30px Arial'; ctx.fillText(val, 300, 10); ctx.restore();
+    });
+    ctx.restore();
+}
+drawWheel();
+
+// SERVER EVENTS
+socket.on('roulette_timer', (t) => { document.getElementById('timer').innerText=t; document.getElementById('gameStatus').innerText="BETTING OPEN"; });
+
+socket.on('roulette_spin', (data) => {
+    document.getElementById('gameStatus').innerText="SPINNING...";
+    let start = Date.now();
+    let dur = 9500; 
+    let targetIndex = data.winIndex;
+    // Calculate target angle
+    const step = (Math.PI*2)/WHEEL.length;
+    // We want the target index to be at -90 degrees (top)
+    // current pos of index i is i*step. We want rotation such that i*step + rot = -PI/2
+    let targetAngle = -Math.PI/2 - (targetIndex * step) - (step/2);
+    let finalAngle = targetAngle + (Math.PI*2 * 5); // 5 spins
     
-    // Login Logic
-    function login() { socket.emit('auth_handshake', { type: 'player', username: document.getElementById('uName').value, password: document.getElementById('pWord').value }); }
-    
-    // Game Logic
-    socket.on('roulette_timer', (t) => document.getElementById('timer').innerText = t);
-    // ... etc
+    let anim = setInterval(() => {
+        let p = (Date.now() - start) / dur;
+        if(p>=1) { clearInterval(anim); angle = finalAngle % (Math.PI*2); drawWheel(); return; }
+        let ease = 1 - Math.pow(1 - p, 3);
+        angle = finalAngle * ease;
+        drawWheel();
+    }, 16);
+});
+
+socket.on('roulette_reset', (history) => { document.getElementById('gameStatus').innerText="RESULT SHOWN"; });
+
+// BETTING INTEGRATION
+// Use your existing 'buildTable' logic here. When a cell is clicked:
+function placeBet(id, amt) {
+    socket.emit('roulette_place_bet', { betId: id, amount: amt, item: id });
+}
+// You need to replace your local 'activeBets' logic with this emit.
 </script>
 </body>
 </html>
