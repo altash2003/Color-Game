@@ -73,7 +73,7 @@
         .game-view { width: 100%; height: 100%; display: none; flex-direction: column; }
         .game-view.active { display: flex; }
 
-        /* --- DICE GAME STYLES (Unchanged) --- */
+        /* --- DICE GAME STYLES --- */
         .dice-layout { display: grid; grid-template-columns: 260px 1fr 260px; gap: 15px; height: 100%; min-height: 0; }
         .side-panel { background: var(--panel-glass); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; }
         .panel-header { padding: 10px; font-weight: 700; color: var(--gold); border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.5); text-align: center; letter-spacing: 1px; font-size: 13px; text-transform: uppercase; }
@@ -108,7 +108,6 @@
         .dice-row { display: flex; gap: 20px; }
         .die { width: 80px; height: 80px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 800; border: 3px solid rgba(255,255,255,0.2); background: #222; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .die.RED { background: linear-gradient(135deg, #d32f2f, #b71c1c); color: white; border: 2px solid white; }
-        /* ... (Other dice colors same as before) ... */
         .die.GREEN { background: linear-gradient(135deg, #388e3c, #1b5e20); color: white; border: 2px solid white; }
         .die.BLUE { background: linear-gradient(135deg, #1976d2, #0d47a1); color: white; border: 2px solid white; }
         .die.PINK { background: linear-gradient(135deg, #f06292, #c2185b); color: white; border: 2px solid white; }
@@ -128,7 +127,6 @@
         .bet-card:hover { transform: translateY(-2px); filter: brightness(1.1); }
         .bet-card.locked { opacity: 0.5; filter: grayscale(1); pointer-events: none; }
         .bg-RED { background: linear-gradient(135deg, #d32f2f, #b71c1c); color: white; }
-        /* ... (Other bg-colors same) ... */
         .bg-GREEN { background: linear-gradient(135deg, #388e3c, #1b5e20); color: white; }
         .bg-BLUE { background: linear-gradient(135deg, #1976d2, #0d47a1); color: white; }
         .bg-PINK { background: linear-gradient(135deg, #f06292, #c2185b); color: white; }
@@ -138,24 +136,24 @@
         .card-amount { font-size: 18px; font-weight: 800; text-align: center; }
         .bet-card.has-bet { border-color: white; box-shadow: 0 0 10px rgba(255,255,255,0.3); }
 
-        /* --- ROULETTE STYLES (PRO UI) --- */
+        /* --- ROULETTE STYLES --- */
         .roulette-wrapper {
             width: 100%; height: 100%;
             background: radial-gradient(circle at 50% 40%, #1a1e26, #0d0f13 70%);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 8px;
             display: flex; flex-direction: column;
-            overflow: hidden; padding: 10px; box-sizing: border-box; gap: 8px;
+            overflow: hidden; padding: 10px; box-sizing: border-box; gap: 10px;
         }
 
-        /* UPPER SECTION: Compact Height */
+        /* UPPER SECTION: Adjusted height for balance */
         .r-upper-section {
             display: grid; 
-            /* Wheel gets 40%, Middle 20%, Right 40% */
+            /* Optimized columns: Wheel (Fixed), Result, Payouts, Bets */
             grid-template-columns: 280px 1fr 1fr 1fr; 
             gap: 5px;
-            height: 28vh; /* Reduced height for content focus */
-            min-height: 250px;
+            height: 30vh; /* Set to 30vh per requirements */
+            min-height: 240px;
             flex-shrink: 0;
         }
 
@@ -183,7 +181,7 @@
         }
         .spin-trigger { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 80px; height: 80px; border-radius: 50%; z-index: 30; cursor: pointer; }
 
-        /* Panels: Darker, cleaner */
+        /* Panels: Clean & Compact */
         .pro-panel {
             background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05);
             border-radius: 6px; padding: 6px; display: flex; flex-direction: column;
@@ -195,7 +193,7 @@
             display: flex; justify-content: space-between; align-items: center;
         }
 
-        /* Result Panel (Compact) */
+        /* Result Panel */
         .r-res-top { 
             flex: 1; display: flex; flex-direction: row; gap: 15px; 
             align-items: center; justify-content: center; 
@@ -221,30 +219,53 @@
         .win-row-head { color: var(--green); font-size: 11px; font-weight: bold; text-align: center; border-bottom: 1px dashed rgba(0,255,0,0.2); padding-bottom: 2px; }
         .win-row-item { font-size: 10px; color: #ccc; display: flex; justify-content: space-between; padding: 2px 4px; background: rgba(0,255,0,0.05); border-radius: 2px; }
 
-        /* LOWER SECTION */
+        /* LOWER SECTION: Columns for Table & Chat */
         .r-lower-section {
             display: grid;
             grid-template-columns: 2.2fr 1.2fr; 
-            gap: 5px;
+            gap: 10px;
             flex-grow: 1; 
             min-height: 0;
             overflow: hidden;
+            /* Align content to center vertically */
+            align-items: center;
         }
         
-        .r-lower-left { display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
-        .r-lower-right { display: flex; flex-direction: column; height: 100%; overflow: hidden; border-radius: 8px; }
+        .r-lower-left { 
+            display: flex; flex-direction: column; 
+            justify-content: center; align-items: center; 
+            overflow: hidden; 
+            background: rgba(0,0,0,0.2); 
+            border-radius: 8px; 
+            border: 1px solid rgba(255,255,255,0.05); 
+            height: 100%;
+            /* Allow internal grid centering */
+            position: relative;
+        }
+        
+        /* Chat Panel Wrapper - Height controlled by JS */
+        .r-lower-right { 
+            display: flex; flex-direction: column; 
+            overflow: hidden; 
+            border-radius: 8px; 
+            /* Default to full height, JS will override for exact pixel match */
+            height: 100%;
+        }
 
         /* BETTING TABLE */
         .tableWrap { 
-            padding: 0; width: 100%; 
+            padding: 0; width: 100%; height: 100%;
             display: flex; align-items: center; justify-content: center; 
             box-sizing: border-box; overflow: hidden;
         }
+        
+        /* THE GRID: Reduced Width to 85% for scaling down */
         .grid { 
             display:grid; grid-template-columns: repeat(14, 1fr); 
-            width: 96%; 
+            width: 85%; /* Reduced from 96% to scale down table */
             border-top: 1px solid rgba(255,255,255,0.15); 
         }
+        
         .cell { 
             display:flex; align-items:center; justify-content:center; 
             border-right: 1px solid rgba(255,255,255,0.15); 
@@ -496,7 +517,7 @@
                         </div>
                     </div>
 
-                    <div class="r-lower-right">
+                    <div class="r-lower-right" id="rChatPanel">
                         <div class="side-panel" style="height:100%; border:none; border-radius:8px; background:rgba(0,0,0,0.3);">
                             <div class="chat-tabs">
                                 <button class="tab-btn active" onclick="switchChat('public', 'roulette')" id="tab-public-roulette">PUBLIC</button>
@@ -830,9 +851,21 @@
         function adjustTableHeights() {
             const grid = document.getElementById('grid');
             if(grid) {
+                // 1. Calculate cell width (for square cells)
                 const colWidth = grid.clientWidth / 14;
                 if(colWidth > 5) {
                     grid.style.gridTemplateRows = `${colWidth}px ${colWidth}px ${colWidth}px ${colWidth}px ${colWidth}px`;
+                }
+                
+                // 2. Calculate Total Table Height (5 rows * height per row)
+                const totalTableHeight = colWidth * 5;
+                
+                // 3. Force Chat Panel to MATCH this height
+                const chatPanel = document.getElementById('rChatPanel');
+                if(chatPanel) {
+                    chatPanel.style.height = `${totalTableHeight}px`;
+                    // Optional: Center chat vertically if container is taller, but here we sync size
+                    chatPanel.style.flex = "none"; // Disable flex grow
                 }
             }
         }
