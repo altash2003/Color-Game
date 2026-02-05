@@ -499,23 +499,23 @@
         
         socket.on('roulette_res_spin', data => {
             spinning=true; 
-            let start=null; const dur=6000;
+            let start=null; const dur=8000; // Longer duration for physics phases
             
             // Random Wheel Stop
             const randomOffset = Math.random() * Math.PI * 2;
-            const wheelRotations = Math.PI * 12; // 6 spins CW
+            const wheelRotations = Math.PI * 16; 
             const finalWheelA = angle + wheelRotations + randomOffset;
             const startA = angle;
 
-            // BALL TARGET (Center of Pocket)
+            // Target Pocket
             const slice = (Math.PI*2)/WHEEL.length;
             const pocketCenterOffset = (data.winningIndex * slice) + (slice/2);
             
             ball.active = true;
             ball.r = 350; 
             
-            // BALL COUNTER-ROTATION LOGIC
-            const totalBallLaps = 12; // High speed
+            // Ball Counter-Rotation
+            const totalBallLaps = 12; 
             const startRelAngle = pocketCenterOffset + (Math.PI * 2 * totalBallLaps);
             const endRelAngle = pocketCenterOffset;
 
@@ -523,25 +523,38 @@
                 if(!start)start=t; const p=(t-start)/dur;
                 
                 if(p<1){
-                    // 1. Wheel Ease Out (Quintic)
+                    // 1. Wheel Ease Out
                     const e = 1 - Math.pow(1-p, 5);
                     angle = startA + (finalWheelA - startA)*e;
 
-                    // 2. Ball Relative Motion (Friction simulation)
+                    // 2. Ball Relative Motion
                     const currentRelAngle = startRelAngle + (endRelAngle - startRelAngle) * e;
                     
-                    // 3. PHYSICS DROP (Rim -> Spiral -> Pocket)
-                    if (p < 0.6) {
-                        // PHASE 1: SPINNING ON RIM (Hold)
+                    // 3. MULTI-STAGE PHYSICS
+                    if(p < 0.5) {
+                        // PHASE 1: RIM SPIN (0-50%)
+                        // High speed, stays on track
                         ball.r = 350;
+                    } else if(p < 0.75) {
+                        // PHASE 2: SLOW FALL (50-75%)
+                        // Slowly spirals inward: 350 -> 310
+                        let spiralP = (p-0.5)/0.25;
+                        ball.r = 350 - (40 * spiralP); // Linear drift
+                    } else if(p < 0.9) {
+                        // PHASE 3: INNER SPIN (75-90%)
+                        // Rolling on numbers: 310 -> 290
+                        // Add jitter/bounce here
+                        let innerP = (p-0.75)/0.15;
+                        let jitter = Math.sin(innerP * Math.PI * 10) * 3;
+                        ball.r = 310 - (20 * innerP) + jitter; 
                     } else {
-                        // PHASE 2: DROPPING (Spiral)
-                        // Drop 350 -> 280 over the last 40% of the time
-                        let dropP = (p - 0.6) / 0.4;
-                        ball.r = 350 - (70 * dropP); 
+                        // PHASE 4: SETTLE (90-100%)
+                        // Lock into pocket: 290 -> 280
+                        let settleP = (p-0.9)/0.1;
+                        ball.r = 290 - (10 * settleP);
                     }
                     
-                    // 4. Update Ball World Angle
+                    // 4. Update Angle
                     ball.a = angle + currentRelAngle;
 
                     drawWheel();
