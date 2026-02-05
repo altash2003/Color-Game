@@ -3,7 +3,7 @@
 <head>
     <title>Fantasy Gaming Hub</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script>
@@ -15,66 +15,61 @@
     </script>
 
     <style>
-        /* --- CORE THEME --- */
+        /* --- PRO THEME --- */
         :root {
             --gold: #FFD700;
+            --gold-glow: rgba(255, 215, 0, 0.4);
             --cyan: #00E5FF;
-            --green: #00FF88;
+            --green: #00e676;
             --bg-dark: #0a0c10;
-            --panel-bg: rgba(18, 20, 24, 0.85); 
-            --panel-border: 1px solid rgba(255, 255, 255, 0.1);
+            
+            /* Glassmorphism Panels */
+            --panel-bg: rgba(18, 22, 28, 0.7); 
+            --panel-border: 1px solid rgba(255, 255, 255, 0.08);
+            --felt-bg: radial-gradient(circle at center, #1b3a2b 0%, #0d1f16 100%);
+            
+            /* Table Colors */
+            --cell-red: #d32f2f;
+            --cell-black: #111;
+            --cell-green: #2e7d32;
+            --cell-hover: rgba(255, 255, 255, 0.2);
+            
             --gap: 8px;
         }
 
         body { 
-            font-family: 'Rajdhani', sans-serif; margin: 0; color: #e0e0e0; 
+            font-family: 'Inter', sans-serif; margin: 0; color: #e0e0e0; 
             background: url('background.jpg') no-repeat center center fixed; background-size: cover; 
             height: 100vh; width: 100vw; overflow: hidden; 
             display: flex; flex-direction: column;
+            backdrop-filter: blur(5px); /* Soften BG image */
         }
         
+        /* --- UTILS --- */
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
-
-        /* --- UTILS --- */
-        #toastBox { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); z-index: 9999; pointer-events: none; }
-        .toast { background: rgba(0,0,0,0.95); border-left: 3px solid var(--gold); padding: 10px 20px; margin-bottom: 5px; font-weight: 700; font-size: 14px; text-transform: uppercase; animation: fadeUp 0.3s forwards; display: flex; align-items: center; gap: 8px; color: white; }
+        
+        #toastBox { position: fixed; top: 100px; left: 50%; transform: translateX(-50%); z-index: 9999; pointer-events: none; }
+        .toast { background: rgba(0,0,0,0.95); border-left: 3px solid var(--gold); padding: 12px 24px; margin-bottom: 5px; font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; animation: fadeUp 0.3s forwards; color: white; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
         @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
 
-        /* --- AUTH OVERLAY (FIXED) --- */
-        #authOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 5000; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
-        .auth-card { width: 340px; background: #111; border: 1px solid var(--gold); padding: 25px; text-align: center; border-radius: 12px; box-shadow: 0 0 50px rgba(255, 215, 0, 0.1); }
-        
-        .auth-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
-        .auth-tab { flex: 1; padding: 10px; cursor: pointer; color: #666; font-weight: 700; font-size: 14px; transition: 0.3s; text-transform: uppercase; }
-        .auth-tab.active { color: var(--gold); border-bottom: 2px solid var(--gold); background: rgba(255, 215, 0, 0.05); }
-        
-        .auth-inp { width: 100%; padding: 12px; margin-bottom: 10px; background: #222; border: 1px solid #444; color: white; border-radius: 6px; text-align: center; font-family: inherit; font-size: 16px; box-sizing: border-box; }
-        .auth-inp:focus { border-color: var(--gold); outline: none; }
-        
-        .auth-btn { width: 100%; padding: 12px; background: var(--gold); border: none; font-weight: 800; cursor: pointer; border-radius: 6px; margin-top: 10px; color: #000; font-size: 16px; text-transform: uppercase; transition: 0.2s; }
-        .auth-btn:hover { background: #ffe033; transform: scale(1.02); }
-        .auth-btn.secondary { background: transparent; border: 1px solid #444; color: #888; margin-top: 10px; font-size: 12px; }
-        .auth-btn.secondary:hover { border-color: #666; color: #ccc; }
-
-        .auth-error { color: #ff4444; font-size: 12px; margin-top: 10px; min-height: 15px; font-weight: bold; }
-
-        /* --- TOP NAV --- */
+        /* --- UI COMPONENTS --- */
         .top-nav { 
             height: 40px; flex-shrink: 0; width: 100%; 
-            background: rgba(0,0,0,0.9); border-bottom: var(--panel-border);
-            display: flex; justify-content: space-between; align-items: center; padding: 0 15px; box-sizing: border-box;
+            background: rgba(8, 10, 14, 0.9); border-bottom: var(--panel-border);
+            display: flex; justify-content: space-between; align-items: center; padding: 0 20px; box-sizing: border-box;
         }
-        .nav-logo { font-size: 16px; font-weight: 800; letter-spacing: 2px; color: var(--gold); }
-        .game-tabs { display: flex; gap: 5px; }
-        .g-tab { padding: 4px 12px; font-size: 11px; font-weight: 700; color: #666; border: none; background: transparent; cursor: pointer; border-radius: 4px; transition: 0.2s; }
-        .g-tab.active { background: var(--gold); color: #000; }
-        .user-info { font-weight: 700; font-size: 13px; display: flex; gap: 15px; }
+        .nav-logo { font-size: 16px; font-weight: 900; letter-spacing: 1px; color: var(--gold); text-transform: uppercase; }
+        .game-tabs { display: flex; gap: 4px; background: rgba(255,255,255,0.03); padding: 3px; border-radius: 6px; }
+        .g-tab { padding: 4px 16px; font-size: 11px; font-weight: 700; color: #666; border: none; background: transparent; cursor: pointer; border-radius: 4px; transition: 0.2s; letter-spacing: 0.5px; }
+        .g-tab.active { background: var(--gold); color: #000; box-shadow: 0 0 10px var(--gold-glow); }
+        .user-info { font-weight: 700; font-size: 13px; display: flex; gap: 20px; color: #aaa; }
+        .bal-txt { color: var(--gold); font-weight: 800; }
 
         /* --- MAIN LAYOUT --- */
         #gameArea { 
-            flex: 1; width: 100%; max-width: 1920px; margin: 0 auto;
+            flex: 1; width: 100%; max-width: 1800px; margin: 0 auto;
             position: relative; padding: var(--gap); box-sizing: border-box;
             display: flex; flex-direction: column; gap: var(--gap);
             overflow: hidden;
@@ -84,43 +79,58 @@
         .game-view.active { display: flex; }
 
         /* --- UPPER SECTION --- */
+        /* Fixed height for stability, grid optimized */
         .r-upper-section {
-            height: 28vh; min-height: 180px; 
-            display: grid; grid-template-columns: 260px 1fr 1fr 1fr;
+            height: 28vh; min-height: 220px; 
+            display: grid; 
+            /* Wheel (Larger) | Result (Compact) | Payouts | Bets */
+            grid-template-columns: 320px 220px 1fr 1fr;
             gap: var(--gap); flex-shrink: 0;
         }
 
         .panel {
-            background: var(--panel-bg); border: var(--panel-border); border-radius: 6px;
+            background: var(--panel-bg); border: var(--panel-border); border-radius: 8px;
             display: flex; flex-direction: column; overflow: hidden; position: relative;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3); backdrop-filter: blur(10px);
         }
         .panel-head {
-            background: rgba(0,0,0,0.4); padding: 5px 10px;
-            font-size: 10px; font-weight: 700; letter-spacing: 1px; color: #777;
+            background: rgba(255,255,255,0.02); padding: 8px 12px;
+            font-size: 10px; font-weight: 800; letter-spacing: 1px; color: #666;
             border-bottom: 1px solid rgba(255,255,255,0.05);
             display: flex; justify-content: space-between; align-items: center; text-transform: uppercase; flex-shrink: 0;
         }
         .panel-body { flex: 1; overflow-y: auto; padding: 0; position: relative; }
 
-        /* Wheel Panel */
-        .wheel-container { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); }
-        .wheel-stage { width: 90%; height: 90%; position: relative; display: flex; align-items: center; justify-content: center; }
-        canvas { max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5)); }
-        .pointer { position: absolute; top: -5px; width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 15px solid #fff; z-index: 10; filter: drop-shadow(0 2px 2px #000); pointer-events: none; }
-        .spin-btn { position: absolute; width: 30%; height: 30%; border-radius: 50%; cursor: pointer; z-index: 20; }
+        /* Wheel */
+        .wheelPanel { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,215,0,0.1); }
+        .wheel-container { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; }
+        .wheel-stage { width: 95%; height: 95%; position: relative; display: flex; align-items: center; justify-content: center; }
+        canvas { max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 0 15px rgba(0,0,0,0.8)); }
+        .pointer { position: absolute; top: -5px; width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 22px solid #fff; z-index: 10; filter: drop-shadow(0 2px 4px #000); pointer-events: none; }
+        .spin-btn { position: absolute; width: 80px; height: 80px; border-radius: 50%; cursor: pointer; z-index: 20; } /* Invisible trigger */
 
         /* Result Panel */
-        .res-big { flex: 1; display: flex; align-items: center; justify-content: center; gap: 15px; }
-        #resColorBox { width: 36px; height: 36px; border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2); }
-        #resNumTxt { font-size: 50px; font-weight: 800; line-height: 1; color:white; }
-        .history-row { height: 26px; display: flex; justify-content: center; gap: 4px; padding-bottom: 6px; }
-        .hist-dot { width: 22px; height: 22px; border-radius: 50%; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1); color:white; }
-        .bg-red { background: #b71c1c; } .bg-black { background: #111; } .bg-green { background: #1b5e20; }
+        .res-display { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; }
+        .res-big-box { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
+        #resColorBox { width: 40px; height: 40px; border-radius: 8px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2); }
+        #resNumTxt { font-size: 64px; font-weight: 900; line-height: 1; color: white; text-shadow: 0 0 30px rgba(255,255,255,0.1); }
+        
+        .history-track { display: flex; gap: 6px; justify-content: center; padding-bottom: 12px; }
+        .hist-chip { width: 28px; height: 28px; border-radius: 50%; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 2px solid rgba(255,255,255,0.1); color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        .bg-red { background: linear-gradient(135deg, #d32f2f, #8e0000); } 
+        .bg-black { background: linear-gradient(135deg, #333, #000); } 
+        .bg-green { background: linear-gradient(135deg, #2e7d32, #1b5e20); }
 
-        /* Lists */
-        .payout-item { display: flex; justify-content: space-between; padding: 3px 8px; font-size: 10px; border-bottom: 1px solid rgba(255,255,255,0.03); color: #aaa; }
-        .payout-item span:last-child { color: var(--gold); font-weight: 700; }
-        .bet-item { display: flex; justify-content: space-between; padding: 3px 8px; font-size: 10px; background: rgba(255,255,255,0.02); margin-bottom: 1px; color:#ccc; }
+        /* Payouts */
+        .payout-list { padding: 5px; display: flex; flex-direction: column; gap: 2px; }
+        .pay-row { display: flex; justify-content: space-between; padding: 4px 8px; font-size: 11px; color: #888; border-radius: 4px; }
+        .pay-row:nth-child(even) { background: rgba(255,255,255,0.02); }
+        .pay-row span:last-child { color: var(--gold); font-weight: 700; }
+
+        /* Bets List */
+        .bet-list { padding: 5px; display: flex; flex-direction: column; gap: 2px; }
+        .bet-row { display: flex; justify-content: space-between; padding: 4px 8px; font-size: 11px; background: rgba(255,255,255,0.03); border-radius: 4px; color: #ccc; }
+        .empty-state { text-align: center; color: #444; font-size: 11px; margin-top: 20px; font-style: italic; }
 
         /* --- LOWER SECTION --- */
         .r-lower-section {
@@ -128,82 +138,109 @@
             min-height: 0; overflow: hidden;
         }
 
+        /* Betting Table Container */
         .table-panel {
-            background: var(--panel-bg); border: var(--panel-border); border-radius: 6px;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            padding: 5px; overflow: hidden; position: relative;
+            background: var(--felt-bg); /* Felt Texture */
+            border: 4px solid #2b140a; /* Wood Border */
+            border-radius: 8px;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+            display: flex; flex-direction: column; 
+            justify-content: center; align-items: center;
+            overflow: hidden; position: relative;
         }
 
         .chat-panel {
-            background: var(--panel-bg); border: var(--panel-border); border-radius: 6px;
+            background: var(--panel-bg); border: var(--panel-border); border-radius: 8px;
             display: flex; flex-direction: column; overflow: hidden;
         }
 
+        /* GRID SYSTEM (The "Tight" Table) */
         .grid-container {
-            display: grid; grid-template-columns: repeat(14, 1fr); 
-            border-top: 1px solid rgba(255,255,255,0.2);
+            display: grid; 
+            grid-template-columns: 40px repeat(12, 1fr) 40px; /* 0/00 | Numbers | Rows */
+            /* Width controlled by JS to fit container */
+            border-top: 1px solid rgba(255,255,255,0.3);
+            border-left: 1px solid rgba(255,255,255,0.3);
         }
         
         .cell {
             display: flex; align-items: center; justify-content: center;
-            border-right: 1px solid rgba(255,255,255,0.15); border-bottom: 1px solid rgba(255,255,255,0.15);
-            font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.7);
-            cursor: pointer; position: relative; transition: 0.1s; user-select: none;
+            border-right: 1px solid rgba(255,255,255,0.3); 
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            font-size: 14px; font-weight: 800; color: rgba(255,255,255,0.9);
+            cursor: pointer; position: relative; 
+            transition: 0.1s; user-select: none;
         }
-        .cell:hover { background: rgba(255,255,255,0.15); color: white; }
-        .c-r { background: rgba(200, 40, 40, 0.25); } .c-b { background: rgba(20, 20, 20, 0.45); }
-        .c-0 { background: rgba(40, 100, 60, 0.35); } .c-out { font-size: 10px; letter-spacing: 0.5px; color: #999; text-transform: uppercase; }
-        .cell.active { box-shadow: inset 0 0 0 1px var(--gold); background: rgba(255,215,0,0.1); }
-        .chip-dot { position: absolute; top: 2px; right: 2px; width: 5px; height: 5px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 5px var(--gold); }
-
-        .chat-tabs { display: flex; background: rgba(0,0,0,0.3); border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .c-tab { flex: 1; padding: 6px; background: none; border: none; color: #666; font-weight: 700; font-size: 10px; cursor: pointer; }
-        .c-tab.active { color: white; border-bottom: 2px solid var(--gold); background: rgba(255,255,255,0.02); }
-        .chat-area { flex: 1; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 4px; }
-        .msg { font-size: 11px; padding: 4px 6px; background: rgba(255,255,255,0.03); border-radius: 4px; text-align: left; word-break: break-word; }
-        .chat-input-box { padding: 6px; background: rgba(0,0,0,0.2); display: flex; gap: 5px; border-top: 1px solid rgba(255,255,255,0.05); }
-        .chat-inp { flex: 1; background: rgba(0,0,0,0.3); border: 1px solid #333; color: white; padding: 6px; border-radius: 4px; outline: none; font-size: 11px; }
-
-        .modal-wrap { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:4000; display:none; justify-content:center; align-items:center; }
-        .m-box { background: #1a1c20; border: 1px solid var(--gold); padding: 20px; border-radius: 10px; text-align: center; width: 280px; box-shadow: 0 20px 50px #000; }
-        .m-btn { flex: 1; padding: 8px; margin-top: 10px; border-radius: 4px; border: none; font-weight: 800; cursor: pointer; width: 100%; }
         
-        @media (max-width: 1000px) {
-            .r-upper-section { grid-template-columns: 1fr 1fr; height: auto; }
-            .wheelPanel { grid-column: span 2; height: 200px; }
-            .r-lower-section { display: flex; flex-direction: column; }
-            #gameArea { overflow-y: auto; display: block; }
+        /* Grid Colors (Authentic) */
+        .c-red { background-color: var(--cell-red); }
+        .c-black { background-color: var(--cell-black); }
+        .c-green { background-color: var(--cell-green); }
+        .c-out { background: transparent; font-size: 11px; color: #ccc; letter-spacing: 0.5px; text-transform: uppercase; font-weight: 700; }
+        
+        /* Interactions */
+        .cell:hover { filter: brightness(1.3); z-index: 2; box-shadow: 0 0 15px rgba(255,255,255,0.3); border-color: white; }
+        .cell.active { box-shadow: inset 0 0 0 2px var(--gold); }
+        
+        /* Chip Styling */
+        .chip-marker { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 24px; height: 24px; 
+            background: url('https://www.svgrepo.com/show/404948/poker-chip.svg') no-repeat center/contain;
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.6));
+            pointer-events: none; z-index: 5;
+        }
+
+        /* Chat */
+        .chat-tabs { display: flex; background: rgba(0,0,0,0.3); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .c-tab { flex: 1; padding: 10px; background: none; border: none; color: #666; font-weight: 800; font-size: 11px; cursor: pointer; border-bottom: 2px solid transparent; transition: 0.2s; }
+        .c-tab.active { color: white; border-bottom-color: var(--gold); background: rgba(255,255,255,0.02); }
+        
+        .chat-area { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+        .msg { font-size: 12px; padding: 6px 10px; background: rgba(255,255,255,0.03); border-radius: 6px; text-align: left; line-height: 1.4; }
+        
+        .chat-input-box { padding: 10px; background: rgba(0,0,0,0.2); display: flex; gap: 8px; border-top: 1px solid rgba(255,255,255,0.05); }
+        .chat-inp { flex: 1; background: rgba(0,0,0,0.3); border: 1px solid #333; color: white; padding: 8px; border-radius: 4px; outline: none; font-size: 12px; font-family: 'Inter'; }
+        .chat-send { background: var(--gold); border: none; padding: 0 15px; border-radius: 4px; font-weight: 900; cursor: pointer; color: #000; }
+
+        /* AUTH & MODALS */
+        .modal-wrap { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:5000; display:flex; justify-content:center; align-items:center; }
+        .m-box { background: #1a1c20; border: 1px solid var(--gold); padding: 30px; border-radius: 12px; text-align: center; width: 320px; box-shadow: 0 30px 80px #000; position: relative; }
+        .auth-inp { width: 100%; padding: 12px; margin-bottom: 10px; background: #111; border: 1px solid #333; color: white; border-radius: 6px; text-align: center; font-family: inherit; font-size: 16px; box-sizing: border-box; }
+        .auth-inp:focus { border-color: var(--gold); outline: none; }
+        .m-btn { width: 100%; padding: 12px; margin-top: 10px; border-radius: 6px; border: none; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 14px; transition: 0.2s; }
+        .btn-gold { background: var(--gold); color: #000; } .btn-gold:hover { transform: scale(1.02); background: #ffe033; }
+        .btn-sec { background: transparent; border: 1px solid #444; color: #888; } .btn-sec:hover { border-color: #fff; color: #fff; }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .r-upper-section { grid-template-columns: 260px 1fr 1fr; } /* Hide Bets col slightly */
+            .wheelPanel { grid-column: 1; }
         }
     </style>
 </head>
 <body>
 
-    <div id="authOverlay">
-        <div class="auth-card">
-            <h2 style="color:var(--gold); margin:0 0 15px 0; letter-spacing:2px;">CASINO HUB</h2>
+    <div id="authOverlay" class="modal-wrap">
+        <div class="m-box">
+            <h2 style="color:var(--gold); margin:0 0 20px 0; letter-spacing:2px; font-weight:900;">CASINO HUB</h2>
             
-            <div class="auth-tabs">
-                <div class="auth-tab active" id="tabLogin" onclick="switchAuth('login')">LOGIN</div>
-                <div class="auth-tab" id="tabRegister" onclick="switchAuth('register')">SIGN UP</div>
+            <div id="loginView">
+                <input type="text" id="uName" class="auth-inp" placeholder="USERNAME">
+                <input type="password" id="pWord" class="auth-inp" placeholder="PASSWORD">
+                <button class="m-btn btn-gold" onclick="appLogin()">LOG IN</button>
+                <button class="m-btn btn-sec" onclick="quickPlay()">PLAY AS GUEST</button>
+                <div style="margin-top:15px; font-size:11px; color:#666; cursor:pointer;" onclick="toggleAuth()">New here? Create Account</div>
             </div>
 
-            <div id="formLogin">
-                <input type="text" id="loginUser" class="auth-inp" placeholder="Username">
-                <input type="password" id="loginPass" class="auth-inp" placeholder="Password">
-                <button class="auth-btn" onclick="appLogin()">ENTER</button>
+            <div id="regView" style="display:none">
+                <input type="text" id="regUser" class="auth-inp" placeholder="NEW USERNAME">
+                <input type="password" id="regPass" class="auth-inp" placeholder="NEW PASSWORD">
+                <button class="m-btn btn-gold" onclick="appRegister()">SIGN UP</button>
+                <div style="margin-top:15px; font-size:11px; color:#666; cursor:pointer;" onclick="toggleAuth()">Back to Login</div>
             </div>
-
-            <div id="formRegister" style="display:none">
-                <input type="text" id="regUser" class="auth-inp" placeholder="New Username">
-                <input type="password" id="regPass" class="auth-inp" placeholder="New Password">
-                <button class="auth-btn" style="background:var(--cyan)" onclick="appRegister()">CREATE ACCOUNT</button>
-            </div>
-
-            <div style="margin-top:15px; border-top:1px solid #333; padding-top:15px;">
-                <button class="auth-btn secondary" onclick="quickPlay()">PLAY AS GUEST</button>
-            </div>
-
-            <div class="auth-error" id="loginError"></div>
+            
+            <div id="authError" style="color:#f44; font-size:12px; margin-top:15px; font-weight:700;"></div>
         </div>
     </div>
 
@@ -214,91 +251,99 @@
         </div>
         <div class="user-info">
             <span id="dispUser">Guest</span>
-            <span style="color:var(--gold)">$ <span id="dispBal">0</span></span>
+            <span class="bal-txt">$ <span id="dispBal">0</span></span>
         </div>
     </div>
 
     <div id="gameArea">
+        
         <div class="r-upper-section">
+            
             <div class="panel wheelPanel">
                 <div class="wheel-container">
                     <div class="wheel-stage">
                         <div class="pointer"></div>
                         <div class="spin-btn" onclick="reqSpin()"></div>
-                        <canvas id="wheelCanvas" width="300" height="300"></canvas>
+                        <canvas id="wheelCanvas" width="400" height="400"></canvas>
                     </div>
                 </div>
             </div>
+
             <div class="panel">
                 <div class="panel-head">LAST RESULT</div>
-                <div style="flex:1; display:flex; flex-direction:column; justify-content:center;">
-                    <div class="res-big">
+                <div class="res-display">
+                    <div class="res-big-box">
                         <div id="resColorBox"></div>
                         <div id="resNumTxt">--</div>
                     </div>
-                    <div class="history-row" id="histRow"></div>
+                    <div class="history-track" id="histRow"></div>
                 </div>
             </div>
+
             <div class="panel">
                 <div class="panel-head">PAYOUTS</div>
-                <div class="panel-body">
-                    <div class="payout-item"><span>Straight</span> <span>35:1</span></div>
-                    <div class="payout-item"><span>Split</span> <span>17:1</span></div>
-                    <div class="payout-item"><span>Street</span> <span>11:1</span></div>
-                    <div class="payout-item"><span>Corner</span> <span>8:1</span></div>
-                    <div class="payout-item"><span>Line</span> <span>5:1</span></div>
-                    <div class="payout-item"><span>Doz/Col</span> <span>2:1</span></div>
-                    <div class="payout-item"><span>Even</span> <span>1:1</span></div>
+                <div class="payout-list">
+                    <div class="pay-row"><span>Straight</span> <span>35:1</span></div>
+                    <div class="pay-row"><span>Split</span> <span>17:1</span></div>
+                    <div class="pay-row"><span>Street</span> <span>11:1</span></div>
+                    <div class="pay-row"><span>Corner</span> <span>8:1</span></div>
+                    <div class="pay-row"><span>Line</span> <span>5:1</span></div>
+                    <div class="pay-row"><span>Column</span> <span>2:1</span></div>
+                    <div class="pay-row"><span>Even/Odd</span> <span>1:1</span></div>
                 </div>
             </div>
+
             <div class="panel">
                 <div class="panel-head">
-                    <span>BETS</span>
-                    <i class="fas fa-trash" style="cursor:pointer; color:#f44" onclick="clearBets()"></i>
+                    <span>CURRENT BETS</span>
+                    <i class="fas fa-trash" style="cursor:pointer; color:#f44; font-size:12px;" onclick="clearBets()" title="Clear All"></i>
                 </div>
-                <div class="panel-body" id="betsList">
-                    <div style="text-align:center; color:#444; font-size:10px; margin-top:10px;">Empty</div>
+                <div class="bet-list" id="betsList">
+                    <div class="empty-state">No active bets</div>
                 </div>
             </div>
         </div>
 
         <div class="r-lower-section">
+            
             <div class="table-panel" id="tableContainer">
                 <div class="grid-container" id="grid"></div>
             </div>
+
             <div class="chat-panel" id="chatContainer">
                 <div class="chat-tabs">
-                    <button class="c-tab active">PUBLIC</button>
+                    <button class="c-tab active">PUBLIC CHAT</button>
                     <button class="c-tab">SUPPORT</button>
                 </div>
                 <div class="chat-area" id="chatList">
-                    <div class="msg" style="color:#666; text-align:center">Welcome to the table.</div>
+                    <div class="msg" style="color:#666; text-align:center; margin-top:20px;">Welcome to the table.<br>Good luck!</div>
                 </div>
                 <div class="chat-input-box">
-                    <input type="text" class="chat-inp" id="chatInp" placeholder="Type...">
-                    <button style="background:var(--gold); border:none; padding:0 10px; font-weight:bold; border-radius:4px;" onclick="sendMsg()">></button>
+                    <input type="text" class="chat-inp" id="chatInp" placeholder="Say something...">
+                    <button class="chat-send" onclick="sendMsg()">SEND</button>
                 </div>
             </div>
+
         </div>
     </div>
 
-    <div id="betModal" class="modal-wrap">
+    <div id="betModal" class="modal-wrap" style="display:none;">
         <div class="m-box">
-            <h3 style="color:var(--gold); margin:0 0 10px 0">PLACE BET</h3>
+            <h3 style="color:var(--gold); margin:0 0 15px 0">PLACE BET</h3>
             <input type="number" id="betAmt" class="auth-inp" placeholder="Amount" value="100">
             <div style="display:flex; gap:10px">
-                <button class="m-btn" style="background:#333; color:#ccc" onclick="closeModal('betModal')">CANCEL</button>
-                <button class="m-btn" style="background:var(--gold)" onclick="confirmBet()">BET</button>
+                <button class="m-btn btn-sec" onclick="closeModal('betModal')">CANCEL</button>
+                <button class="m-btn btn-gold" onclick="confirmBet()">CONFIRM</button>
             </div>
         </div>
     </div>
 
-    <div id="winModal" class="modal-wrap">
+    <div id="winModal" class="modal-wrap" style="display:none;">
         <div class="m-box" style="border-color:var(--green)">
-            <h3 style="color:var(--green); margin:0">WINNER</h3>
-            <h1 style="font-size:50px; margin:10px 0; color:white;" id="winNum">--</h1>
-            <div style="color:var(--gold); font-size:20px; font-weight:bold" id="winAmt">+0</div>
-            <button class="m-btn" style="background:var(--green)" onclick="closeModal('winModal')">NICE</button>
+            <h3 style="color:var(--green); margin:0 0 10px 0; font-size:24px;">VICTORY</h3>
+            <h1 style="font-size:60px; margin:0; color:white; font-weight:900;" id="winNum">--</h1>
+            <div style="color:var(--gold); font-size:24px; font-weight:bold; margin-bottom:15px;" id="winAmt">+0</div>
+            <button class="m-btn btn-gold" style="background:var(--green)" onclick="closeModal('winModal')">CONTINUE</button>
         </div>
     </div>
 
@@ -311,18 +356,18 @@
         let bets = [];
         let spinning = false;
         
-        // --- AUTH LOGIC (RESTORED) ---
-        function switchAuth(type) {
-            document.getElementById('tabLogin').classList.toggle('active', type==='login');
-            document.getElementById('tabRegister').classList.toggle('active', type==='register');
-            document.getElementById('formLogin').style.display = type==='login' ? 'block' : 'none';
-            document.getElementById('formRegister').style.display = type==='register' ? 'block' : 'none';
-            document.getElementById('loginError').innerText = "";
+        // --- AUTH ---
+        function toggleAuth() {
+            const login = document.getElementById('loginView');
+            const reg = document.getElementById('regView');
+            if(login.style.display === 'none') { login.style.display='block'; reg.style.display='none'; }
+            else { login.style.display='none'; reg.style.display='block'; }
+            document.getElementById('authError').innerText = "";
         }
 
         function appLogin(){
-            const u = document.getElementById('loginUser').value;
-            const p = document.getElementById('loginPass').value;
+            const u = document.getElementById('uName').value;
+            const p = document.getElementById('pWord').value;
             if(u && p) socket.emit('auth_handshake', { type:'player', username:u, password:p });
         }
 
@@ -345,9 +390,8 @@
             initGame();
         });
 
-        socket.on('login_error', msg => {
-            document.getElementById('loginError').innerText = msg;
-        });
+        socket.on('login_error', msg => { document.getElementById('authError').innerText = msg; });
+        socket.on('update_balance', b => { balance = b; document.getElementById('dispBal').innerText = balance; });
 
         // --- GAME INIT ---
         function initGame(){
@@ -363,14 +407,22 @@
             const chatCont = document.getElementById('chatContainer');
             
             if(grid && tableCont){
-                const availWidth = tableCont.clientWidth - 10;
-                const availHeight = tableCont.clientHeight - 10;
-                const sizeByWidth = availWidth / 14;
-                const sizeByHeight = availHeight / 5;
-                const cellSize = Math.min(sizeByWidth, sizeByHeight);
-                grid.style.width = `${cellSize * 14}px`;
-                grid.style.gridTemplateRows = `${cellSize}px ${cellSize}px ${cellSize}px ${cellSize}px ${cellSize}px`;
-                if(chatCont) { chatCont.style.height = tableCont.offsetHeight + 'px'; }
+                const availWidth = tableCont.clientWidth - 20; // Padding
+                const availHeight = tableCont.clientHeight - 20;
+                
+                // Logic: 14 cols x 5 rows. Find limiting dimension.
+                const sizeW = availWidth / 14;
+                const sizeH = availHeight / 5;
+                const cell = Math.min(sizeW, sizeH);
+                
+                // Apply strict sizing
+                grid.style.width = `${cell * 14}px`;
+                grid.style.gridTemplateRows = `${cell}px ${cell}px ${cell}px ${cell}px ${cell}px`;
+                
+                // Sync Chat Height
+                requestAnimationFrame(() => {
+                    if(chatCont) chatCont.style.height = tableCont.offsetHeight + 'px';
+                });
             }
         }
 
@@ -381,37 +433,47 @@
         let angle = 0;
 
         function drawWheel(){
-            const W = 300, H = 300, CX = 150, CY = 150;
+            const W = 400, H = 400, CX = 200, CY = 200;
             ctx.clearRect(0,0,W,H);
-            let g = ctx.createRadialGradient(CX, CY, 135, CX, CY, 145);
+            
+            let g = ctx.createRadialGradient(CX, CY, 180, CX, CY, 195);
             g.addColorStop(0, '#2b140a'); g.addColorStop(1, '#000');
-            ctx.beginPath(); ctx.arc(CX,CY,145,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
+            ctx.beginPath(); ctx.arc(CX,CY,195,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
+            
             ctx.save(); ctx.translate(CX,CY); ctx.rotate(angle);
             WHEEL.forEach((n,i)=>{
                 let a = i*((Math.PI*2)/WHEEL.length);
-                ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,135,a,a+((Math.PI*2)/WHEEL.length));
+                ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,180,a,a+((Math.PI*2)/WHEEL.length));
                 ctx.fillStyle = (n=="0"||n=="00")?'#1b5e20':(REDS.includes(parseInt(n))?'#b71c1c':'#111');
                 ctx.fill(); ctx.stroke();
-                ctx.save(); ctx.rotate(a+((Math.PI*2)/WHEEL.length)/2); ctx.translate(120,0); ctx.rotate(Math.PI/2);
-                ctx.fillStyle="#fff"; ctx.font="bold 10px Arial"; ctx.textAlign="center"; ctx.fillText(n,0,3); ctx.restore();
+                
+                ctx.save(); ctx.rotate(a+((Math.PI*2)/WHEEL.length)/2); ctx.translate(160,0); ctx.rotate(Math.PI/2);
+                ctx.fillStyle="#fff"; ctx.font="bold 12px Inter"; ctx.textAlign="center"; ctx.fillText(n,0,4); ctx.restore();
             });
             ctx.restore();
-            ctx.beginPath(); ctx.arc(CX,CY,25,0,Math.PI*2); ctx.fillStyle="#222"; ctx.fill(); 
-            ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--gold'); ctx.lineWidth=2; ctx.stroke();
+            
+            ctx.beginPath(); ctx.arc(CX,CY,35,0,Math.PI*2); ctx.fillStyle="#222"; ctx.fill(); 
+            ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--gold'); ctx.lineWidth=3; ctx.stroke();
         }
 
-        // --- GRID ---
+        // --- GRID BUILDING (FIXED STRUCTURE) ---
         function buildGrid(){
             const g = document.getElementById('grid'); g.innerHTML='';
+            
+            // 0 & 00 Column (Cleaned up)
             let z = document.createElement('div');
             z.style.gridRow="1/span 3"; z.style.gridColumn="1"; z.style.display="flex"; z.style.flexDirection="column";
-            z.innerHTML = `<div class="cell c-0" onclick="preBet('00','00')" style="flex:1">00</div><div class="cell c-0" onclick="preBet('0','0')" style="flex:1;border-top:1px solid rgba(255,255,255,0.1)">0</div>`;
+            z.innerHTML = `
+                <div class="cell c-green" onclick="preBet('00','00')" style="flex:1; border-bottom:1px solid rgba(255,255,255,0.3)">00</div>
+                <div class="cell c-green" onclick="preBet('0','0')" style="flex:1">0</div>
+            `;
             g.appendChild(z);
+
             const rows = [[3,6,9,12,15,18,21,24,27,30,33,36],[2,5,8,11,14,17,20,23,26,29,32,35],[1,4,7,10,13,16,19,22,25,28,31,34]];
             rows.forEach((row, ri)=>{
                 row.forEach((n, ci)=>{
                     let d=document.createElement('div'); 
-                    d.className=`cell ${REDS.includes(n)?'c-r':'c-b'}`; 
+                    d.className=`cell ${REDS.includes(n)?'c-red':'c-black'}`; 
                     d.innerText=n; d.dataset.id=n;
                     d.style.gridRow=ri+1; d.style.gridColumn=ci+2; 
                     d.onclick=()=>preBet(n.toString(), n);
@@ -421,15 +483,17 @@
                 rb.style.gridRow=ri+1; rb.style.gridColumn=14; rb.onclick=()=>preBet('ROW'+ri, "Row");
                 g.appendChild(rb);
             });
+
             [[2,"1st 12"],[6,"2nd 12"],[10,"3rd 12"]].forEach(d=>{
                 let el=document.createElement('div'); el.className="cell c-out"; el.innerText=d[1];
                 el.style.gridRow=4; el.style.gridColumn=`${d[0]}/span 4`; el.onclick=()=>preBet('DOZ'+d[0], d[1]);
                 g.appendChild(el);
             });
+
             [[2,"1-18"],[4,"EVEN"],[6,"RED"],[8,"BLACK"],[10,"ODD"],[12,"19-36"]].forEach(b=>{
                 let el=document.createElement('div'); el.className="cell c-out"; el.innerText=b[1];
-                if(b[1]=="RED") el.style.background="rgba(200,40,40,0.4)";
-                if(b[1]=="BLACK") el.style.background="rgba(0,0,0,0.6)";
+                if(b[1]=="RED") el.classList.add('c-red');
+                if(b[1]=="BLACK") el.classList.add('c-black');
                 el.style.gridRow=5; el.style.gridColumn=`${b[0]}/span 2`; el.onclick=()=>preBet(b[1], b[1]);
                 g.appendChild(el);
             });
@@ -453,26 +517,27 @@
                 renderBets();
                 closeModal('betModal');
                 
+                // Visual Chip
                 const c = document.querySelector(`.cell[data-id="${tempBet.id}"]`) || document.querySelector(`.cell`); 
-                if(c && tempBet.id.length <= 2) c.classList.add('active'); 
-                if(tempBet.id.length <= 2) {
-                   let el = document.querySelector(`div[data-id='${tempBet.id}']`);
-                   if(el && !el.querySelector('.chip-dot')) el.innerHTML += `<div class='chip-dot'></div>`;
+                if(c && tempBet.id.length <= 2) {
+                   if(!c.querySelector('.chip-marker')) c.innerHTML += `<div class='chip-marker'></div>`;
+                   c.classList.add('active');
                 }
-            } else { alert("Invalid Amount"); }
+            } else { alert("Insufficient Funds"); }
         }
 
         function renderBets(){
             const l = document.getElementById('betsList'); l.innerHTML='';
+            if(bets.length===0) l.innerHTML='<div class="empty-state">No active bets</div>';
             bets.forEach((b,i)=>{
-                l.innerHTML += `<div class="bet-item"><span>${b.lbl}</span> <span>${b.amt}</span></div>`;
+                l.innerHTML += `<div class="bet-row"><span>${b.lbl}</span> <span>${b.amt}</span></div>`;
             });
         }
         function clearBets(){ 
             if(spinning)return; 
             balance += bets.reduce((a,b)=>a+b.amt,0); 
             bets=[]; renderBets(); document.getElementById('dispBal').innerText=balance;
-            document.querySelectorAll('.cell').forEach(c=>{ c.classList.remove('active'); let d=c.querySelector('.chip-dot'); if(d)d.remove(); });
+            document.querySelectorAll('.cell').forEach(c=>{ c.classList.remove('active'); let d=c.querySelector('.chip-marker'); if(d)d.remove(); });
         }
 
         // --- SPIN ---
@@ -508,11 +573,11 @@
         function finishSpin(data){
             document.getElementById('resNumTxt').innerText = data.resultVal;
             document.getElementById('resColorBox').className = 
-                (data.resultVal=="0"||data.resultVal=="00")?'bg-green':(REDS.includes(parseInt(data.resultVal))?'bg-red':'bg-black');
+                (data.resultVal=="0"||data.resultVal=="00")?'c-green':(REDS.includes(parseInt(data.resultVal))?'c-red':'c-black');
             
             const h = document.getElementById('histRow');
             let cls = (data.resultVal=="0"||data.resultVal=="00")?'bg-green':(REDS.includes(parseInt(data.resultVal))?'bg-red':'bg-black');
-            h.innerHTML = `<div class="hist-dot ${cls}">${data.resultVal}</div>` + h.innerHTML;
+            h.innerHTML = `<div class="hist-chip ${cls}">${data.resultVal}</div>` + h.innerHTML;
             if(h.children.length > 6) h.lastChild.remove();
 
             if(data.totalWin > 0){
@@ -522,7 +587,7 @@
                 balance += data.totalWin; document.getElementById('dispBal').innerText=balance;
             }
             bets=[]; renderBets();
-            document.querySelectorAll('.cell').forEach(c=>{ c.classList.remove('active'); let d=c.querySelector('.chip-dot'); if(d)d.remove(); });
+            document.querySelectorAll('.cell').forEach(c=>{ c.classList.remove('active'); let d=c.querySelector('.chip-marker'); if(d)d.remove(); });
         }
 
         // --- CHAT ---
