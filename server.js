@@ -9,7 +9,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-app.use(express.json()); 
+app.use(express.json());
 
 // --- DATABASE & INIT ---
 const DB_FILE = 'database.json';
@@ -20,7 +20,7 @@ function loadDatabase() {
         try {
             const raw = fs.readFileSync(DB_FILE);
             dbData = JSON.parse(raw);
-            if (!dbData.admins) dbData.admins = {}; 
+            if (!dbData.admins) dbData.admins = {};
         } catch (e) { console.error("DB Load Error:", e); }
     }
 }
@@ -33,30 +33,39 @@ loadDatabase();
 
 // --- SEED DEFAULT ADMIN ---
 if (Object.keys(dbData.admins).length === 0) {
-    const hash = bcrypt.hashSync("admin123", 10); 
+    const hash = bcrypt.hashSync("admin123", 10);
     dbData.admins["admin"] = { password: hash, role: "ADMIN", created: Date.now() };
     saveDatabase();
     console.log("⚠️  DEFAULT ADMIN CREATED: User: 'admin' | Pass: 'admin123'");
 }
 
 // --- GLOBAL STATE ---
-let activeSockets = {}; 
-let adminSessions = {}; 
-let loginAttempts = {}; 
+let activeSockets = {};
+let adminSessions = {};
+let loginAttempts = {};
 let supportHistory = [];
-let musicState = { playing: false, trackUrl: '', title: 'Waiting for DJ...', artist: '', timestamp: 0, lastUpdate: Date.now() };
-let globalColorBets = { RED:0, GREEN:0, BLUE:0, PINK:0, WHITE:0, YELLOW:0 };
-let roundBets = [];
-let gameState = 'BETTING';
-let timeLeft = 20;
 let chatCooldowns = {};
 
-// --- GAME LOOP ---
+// COLOR GAME STATE
+let gameState = 'BETTING';
+let timeLeft = 20;
+let roundBets = [];
+let globalColorBets = { RED:0, GREEN:0, BLUE:0, PINK:0, WHITE:0, YELLOW:0 };
+
+// ROULETTE STATE
+let rouletteState = 'BETTING';
+let rouletteTime = 25;
+let rouletteBets = []; // { uid, socketId, username, betId, amount, timestamp }
+let rouletteHistory = [];
+const ROULETTE_WHEEL = ["0","28","9","26","30","11","7","20","32","17","5","22","34","15","3","24","36","13","1","00","27","10","25","29","12","8","19","31","18","6","21","33","16","4","23","35","14","2"];
+const ROULETTE_REDS = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
+
+// --- GAME LOOPS ---
+
+// 1. COLOR GAME LOOP
 setInterval(() => {
     if (gameState === 'BETTING') {
         timeLeft--;
-        if (timeLeft <= 3 && timeLeft > 0) io.emit('countdown_beep', timeLeft);
-        
         if (timeLeft <= 0) {
             gameState = 'ROLLING';
             const COLORS = ['RED', 'GREEN', 'BLUE', 'YELLOW', 'PINK', 'WHITE'];
@@ -65,7 +74,7 @@ setInterval(() => {
             
             setTimeout(() => {
                 io.emit('game_result', result);
-                processWinners(result);
+                processColorWinners(result);
                 
                 roundBets = [];
                 globalColorBets = { RED:0, GREEN:0, BLUE:0, PINK:0, WHITE:0, YELLOW:0 };
@@ -83,7 +92,98 @@ setInterval(() => {
     }
 }, 1000);
 
-function processWinners(diceResult) {
+// 2. ROULETTE GAME LOOP
+setInterval(() => {
+    if (rouletteState === 'BETTING') {
+        rouletteTime--;
+        
+        if (rouletteTime <= 0) {
+            rouletteState = 'SPINNING';
+            // Pick winner
+            const winIndex = Math.floor(Math.random() * ROULETTE_WHEEL.length);
+            const winVal = ROULETTE_WHEEL[winIndex];
+            
+            io.emit('roulette_state', { state: 'SPINNING', winIndex: winIndex, winVal: winVal });
+            
+            // Spin duration matches client animation (approx 10s)
+            setTimeout(() => {
+                processRouletteWinners(winVal);
+                
+                rouletteHistory.unshift(winVal);
+                if(rouletteHistory.length > 10) rouletteHistory.pop();
+                
+                rouletteBets = [];
+                rouletteState = 'BETTING';
+                rouletteTime = 25;
+                
+                io.emit('roulette_state', { state: 'BETTING', history: rouletteHistory });
+                io.emit('roulette_bets_update', rouletteBets);
+            }, 10000); 
+        } else {
+            io.emit('roulette_timer', rouletteTime);
+        }
+    }
+}, 1000);
+
+
+// --- LOGIC HELPER: ROULETTE PAYOUTS ---
+function getRouletteMultiplier(betId, resultVal) {
+    const n = parseInt(resultVal);
+    const isZero = (resultVal === "0" || resultVal === "00");
+    
+    if (betId === resultVal) return 36; // Straight up (35:1 + stake = 36x)
+
+    if (isZero) return 0; // If 0/00, outside bets lose
+
+    // Outside Bets
+    if (betId === "1ST12" && n >= 1 && n <= 12) return 3;
+    if (betId === "2ND12" && n >= 13 && n <= 24) return 3;
+    if (betId === "3RD12" && n >= 25 && n <= 36) return 3;
+    
+    if (betId === "ROW_BOT" && n % 3 === 1) return 3;
+    if (betId === "ROW_MID" && n % 3 === 2) return 3;
+    if (betId === "ROW_TOP" && n % 3 === 0) return 3;
+
+    if (betId === "1TO18" && n >= 1 && n <= 18) return 2;
+    if (betId === "19TO36" && n >= 19 && n <= 36) return 2;
+    
+    if (betId === "EVEN" && n % 2 === 0) return 2;
+    if (betId === "ODD" && n % 2 !== 0) return 2;
+
+    const isRed = ROULETTE_REDS.includes(n);
+    if (betId === "RED" && isRed) return 2;
+    if (betId === "BLACK" && !isRed) return 2;
+
+    return 0;
+}
+
+function processRouletteWinners(winVal) {
+    let winners = [];
+    
+    rouletteBets.forEach(bet => {
+        const mult = getRouletteMultiplier(bet.betId, winVal);
+        if (mult > 0) {
+            const payout = bet.amount * mult;
+            if(dbData.users[bet.username]) {
+                dbData.users[bet.username].balance += payout;
+                logHistory(bet.username, `ROULETTE WIN +${payout} on ${bet.betId}`, dbData.users[bet.username].balance);
+                
+                // Notify user
+                const sock = activeSockets[bet.socketId]; // Check if still connected
+                if(activeSockets[bet.socketId]) {
+                    io.to(bet.socketId).emit('update_balance', dbData.users[bet.username].balance);
+                    io.to(bet.socketId).emit('notification', { msg: `WIN: +${payout} TC`, duration: 4000 });
+                }
+                winners.push({ username: bet.username, amount: payout, betId: bet.betId });
+            }
+        }
+    });
+    
+    saveDatabase();
+    if(winners.length > 0) io.emit('roulette_winners', winners);
+}
+
+function processColorWinners(diceResult) {
     let winnersList = [];
     let userBets = {}; 
 
@@ -107,16 +207,18 @@ function processWinners(diceResult) {
                 winDetails.push({ color, bet: amount, multiplier, win: winAmount });
                 if(dbData.users[username]) {
                     dbData.users[username].balance += winAmount;
-                    logHistory(username, `WIN +${winAmount}`, dbData.users[username].balance);
+                    logHistory(username, `COLOR WIN +${winAmount}`, dbData.users[username].balance);
                 }
             } else {
-                if(dbData.users[username]) logHistory(username, `LOST -${amount} on ${color}`, dbData.users[username].balance);
+                if(dbData.users[username]) logHistory(username, `COLOR LOSS -${amount} on ${color}`, dbData.users[username].balance);
             }
         }
         if(totalWin > 0) {
             saveDatabase();
-            io.to(data.socketId).emit('win_notification', { total: totalWin, details: winDetails });
-            io.to(data.socketId).emit('update_balance', dbData.users[username].balance);
+            if(activeSockets[data.socketId]) {
+                io.to(data.socketId).emit('win_notification', { total: totalWin, details: winDetails });
+                io.to(data.socketId).emit('update_balance', dbData.users[username].balance);
+            }
             winnersList.push({ username, amount: totalWin });
         }
     }
@@ -130,43 +232,28 @@ function logHistory(username, message, balance) {
     if (dbData.users[username].history.length > 50) dbData.users[username].history.pop();
 }
 
-// --- AUTH ROUTES ---
-const checkRateLimit = (ip) => {
-    if (!loginAttempts[ip]) loginAttempts[ip] = { count: 0, time: Date.now() };
-    if (Date.now() - loginAttempts[ip].time > 60000) { loginAttempts[ip] = { count: 0, time: Date.now() }; }
-    loginAttempts[ip].count++;
-    return loginAttempts[ip].count <= 5;
-};
-
-app.post('/api/admin/login', (req, res) => {
-    const ip = req.ip;
-    if (!checkRateLimit(ip)) return res.status(429).json({ error: "Too many attempts. Wait 1 min." });
-
-    const { username, password } = req.body;
-    const adminUser = dbData.admins[username];
-
-    if (!adminUser) return res.status(401).json({ error: "Invalid credentials" });
-    if (!bcrypt.compareSync(password, adminUser.password)) return res.status(401).json({ error: "Invalid credentials" });
-
-    const token = uuidv4();
-    adminSessions[token] = { username: username, role: adminUser.role };
-    res.json({ token: token, username: username, role: adminUser.role });
-});
-
-app.post('/api/admin/logout', (req, res) => {
-    const { token } = req.body;
-    if (token) delete adminSessions[token];
-    res.json({ success: true });
-});
-
+// --- AUTH & ROUTES ---
 app.use(express.static(__dirname));
 app.get('/', (req, res) => res.sendFile(__dirname + '/index.html'));
+app.get('/roulette', (req, res) => res.sendFile(__dirname + '/roulette.html'));
 app.get('/admin', (req, res) => res.sendFile(__dirname + '/admin.html'));
+
+app.post('/api/admin/login', (req, res) => {
+    const { username, password } = req.body;
+    const adminUser = dbData.admins[username];
+    if (adminUser && bcrypt.compareSync(password, adminUser.password)) {
+        const token = uuidv4();
+        adminSessions[token] = { username, role: adminUser.role };
+        res.json({ token, username, role: adminUser.role });
+    } else {
+        res.status(401).json({ error: "Invalid credentials" });
+    }
+});
 
 // --- SOCKET LOGIC ---
 io.on('connection', (socket) => {
     
-    // AUTH: LOGIN
+    // LOGIN
     socket.on('auth_handshake', (authData) => {
         if (authData.type === 'admin') {
             const session = adminSessions[authData.token];
@@ -174,85 +261,42 @@ io.on('connection', (socket) => {
                 activeSockets[socket.id] = { username: session.username, role: session.role };
                 socket.join('staff_room');
                 socket.emit('auth_success', { role: session.role, username: session.username });
-                broadcastPresence();
-            } else {
-                socket.emit('auth_fail', "Invalid Session");
             }
         } else if (authData.type === 'player') {
             const { username, password } = authData;
-            if (!username) return;
-            
-            // Login Check
-            if (!dbData.users[username]) {
-                socket.emit('login_error', "User not found. Please Register.");
-                return;
-            } else if (dbData.users[username].password !== password) {
-                socket.emit('login_error', "Wrong Password");
-                return;
+            if (!dbData.users[username] || dbData.users[username].password !== password) {
+                socket.emit('login_error', "Invalid Login"); return;
             }
-            
-            // Success
             activeSockets[socket.id] = { username: username, role: 'PLAYER' };
             socket.emit('login_success', { username, balance: dbData.users[username].balance });
             
-            // Sync Game Data
-            let currentSeek = musicState.timestamp;
-            if (musicState.playing) {
-                currentSeek += (Date.now() - musicState.lastUpdate) / 1000;
-            }
-            socket.emit('music_sync', { playing: musicState.playing, seek: currentSeek, url: musicState.trackUrl, title: musicState.title, artist: musicState.artist });
-            socket.emit('update_global_bets', globalColorBets);
-            broadcastPresence();
+            // Sync Roulette
+            socket.emit('roulette_state', { state: rouletteState, history: rouletteHistory });
+            socket.emit('roulette_bets_update', rouletteBets);
         }
     });
 
-    // AUTH: REGISTER (New!)
     socket.on('register', (data) => {
-        const { username, password } = data;
-        if (!username || !password) return;
-        
-        if (dbData.users[username] || dbData.admins[username]) {
-            socket.emit('login_error', "Username Taken!"); // Reuse login error to show toast
-            return;
-        }
-
-        dbData.users[username] = { password, balance: 0, history: [] };
+        if(dbData.users[data.username]) { socket.emit('login_error', "Username Taken"); return; }
+        dbData.users[data.username] = { password: data.password, balance: 0, history: [] };
         saveDatabase();
-
-        // Auto-login after register
-        activeSockets[socket.id] = { username: username, role: 'PLAYER' };
-        socket.emit('login_success', { username, balance: 0 });
-        
-        // Sync
-        let currentSeek = musicState.timestamp;
-        if (musicState.playing) currentSeek += (Date.now() - musicState.lastUpdate) / 1000;
-        socket.emit('music_sync', { playing: musicState.playing, seek: currentSeek, url: musicState.trackUrl, title: musicState.title, artist: musicState.artist });
-        socket.emit('update_global_bets', globalColorBets);
-        broadcastPresence();
+        activeSockets[socket.id] = { username: data.username, role: 'PLAYER' };
+        socket.emit('login_success', { username: data.username, balance: 0 });
     });
 
-    socket.on('disconnect', () => {
-        delete activeSockets[socket.id];
-        broadcastPresence();
+    socket.on('disconnect', () => { delete activeSockets[socket.id]; });
+
+    // --- CHAT ---
+    socket.on('chat_msg', (msg) => {
+        const user = activeSockets[socket.id];
+        if (!user) return;
+        io.emit('chat_broadcast', { user: user.username, msg: msg, role: user.role, type: 'public' });
     });
 
-    function broadcastPresence() {
-        const sortedList = Object.values(activeSockets).sort((a, b) => {
-            const roleWeight = { 'ADMIN': 3, 'MOD': 2, 'PLAYER': 1 };
-            return roleWeight[b.role] - roleWeight[a.role];
-        });
-        io.emit('active_players_update', sortedList);
-        
-        const adminData = { users: dbData.users, active: activeSockets, support: supportHistory };
-        io.to('staff_room').emit('admin_data_resp', adminData);
-    }
-
-    // --- GAME ACTIONS ---
+    // --- COLOR GAME ACTIONS ---
     socket.on('place_bet', (data) => {
         const user = activeSockets[socket.id];
-        if (!user || user.role !== 'PLAYER') return;
-        if (gameState !== 'BETTING') return;
-        
+        if (!user || gameState !== 'BETTING') return;
         const cost = parseInt(data.amount);
         if (dbData.users[user.username].balance >= cost) {
             dbData.users[user.username].balance -= cost;
@@ -261,188 +305,71 @@ io.on('connection', (socket) => {
             roundBets.push({ socketId: socket.id, username: user.username, color: data.color, amount: cost });
             globalColorBets[data.color] += cost;
             io.emit('update_global_bets', globalColorBets);
-        } else {
-            socket.emit('bet_error', "INSUFFICIENT CREDITS");
         }
     });
 
-    socket.on('undo_bet', () => {
+    // --- ROULETTE ACTIONS ---
+    socket.on('roulette_place_bet', (data) => {
         const user = activeSockets[socket.id];
-        if (!user || gameState !== 'BETTING') return;
+        if (!user || rouletteState !== 'BETTING') return;
         
-        let betIndex = -1;
-        for (let i = roundBets.length - 1; i >= 0; i--) { 
-            if (roundBets[i].username === user.username) { betIndex = i; break; } 
-        }
-        
-        if (betIndex !== -1) {
-            let bet = roundBets[betIndex];
-            dbData.users[user.username].balance += bet.amount;
-            globalColorBets[bet.color] -= bet.amount;
-            if(globalColorBets[bet.color] < 0) globalColorBets[bet.color] = 0;
+        // Allowed amounts check
+        const allowed = [50, 100, 500, 1000, 100000];
+        const amount = parseInt(data.amount);
+        if(!allowed.includes(amount)) return;
+
+        if (dbData.users[user.username].balance >= amount) {
+            dbData.users[user.username].balance -= amount;
+            saveDatabase();
+
+            const betObj = {
+                uid: Date.now() + Math.random(),
+                socketId: socket.id,
+                username: user.username,
+                betId: data.betId,
+                amount: amount
+            };
+
+            rouletteBets.push(betObj);
             
-            roundBets.splice(betIndex, 1);
-            saveDatabase();
             socket.emit('update_balance', dbData.users[user.username].balance);
-            socket.emit('bet_undone', { color: bet.color, amount: bet.amount });
-            io.emit('update_global_bets', globalColorBets);
+            io.emit('roulette_bets_update', rouletteBets);
+        } else {
+            socket.emit('notification', { msg: "Insufficient TC", duration: 2000 });
         }
     });
 
-    socket.on('clear_bets', () => {
+    socket.on('roulette_remove_bet', (uid) => {
+        if (rouletteState !== 'BETTING') return;
         const user = activeSockets[socket.id];
-        if (!user || gameState !== 'BETTING') return;
-        
-        let totalRefund = 0;
-        roundBets = roundBets.filter(bet => {
+        if (!user) return;
+
+        const idx = rouletteBets.findIndex(b => b.uid === uid);
+        if (idx !== -1) {
+            const bet = rouletteBets[idx];
+            // Only owner can remove
             if (bet.username === user.username) {
-                totalRefund += bet.amount;
-                globalColorBets[bet.color] -= bet.amount;
-                return false;
-            }
-            return true;
-        });
-        
-        if (totalRefund > 0) {
-            dbData.users[user.username].balance += totalRefund;
-            saveDatabase();
-            socket.emit('update_balance', dbData.users[user.username].balance);
-            socket.emit('bets_cleared');
-            io.emit('update_global_bets', globalColorBets);
-        }
-    });
-
-    // --- CHAT ---
-    socket.on('chat_msg', (msg) => {
-        const user = activeSockets[socket.id];
-        if (!user) return;
-        if (user.role === 'PLAYER') {
-            if (chatCooldowns[user.username] && Date.now() < chatCooldowns[user.username]) return;
-            chatCooldowns[user.username] = Date.now() + 3000;
-        }
-        io.emit('chat_broadcast', { user: user.username, msg: msg, role: user.role, type: 'public' });
-    });
-
-    socket.on('support_msg', (msg) => {
-        const user = activeSockets[socket.id];
-        if (!user) return;
-        const ticket = { user: user.username, msg, time: Date.now() };
-        supportHistory.push(ticket);
-        io.to('staff_room').emit('admin_support_receive', ticket);
-        socket.emit('chat_broadcast', { user: "You", msg, type: 'support_sent' });
-    });
-
-    // --- ADMIN ACTIONS ---
-    function isStaff() { return activeSockets[socket.id] && (activeSockets[socket.id].role === 'ADMIN' || activeSockets[socket.id].role === 'MOD'); }
-    function isAdmin() { return activeSockets[socket.id] && activeSockets[socket.id].role === 'ADMIN'; }
-
-    socket.on('admin_req_data', () => { if (isStaff()) broadcastPresence(); });
-
-    socket.on('admin_chat_public', (msg) => {
-        if (!isStaff()) return;
-        const user = activeSockets[socket.id];
-        io.emit('chat_broadcast', { user: user.username, msg: msg, role: user.role, type: 'public_staff' });
-    });
-
-    socket.on('admin_reply_support', (data) => {
-        if (!isStaff()) return;
-        for (let [sid, u] of Object.entries(activeSockets)) {
-            if (u.username === data.targetUser) {
-                io.to(sid).emit('chat_broadcast', { msg: data.msg, type: 'support_reply' });
+                dbData.users[user.username].balance += bet.amount;
+                saveDatabase();
+                
+                rouletteBets.splice(idx, 1);
+                
+                socket.emit('update_balance', dbData.users[user.username].balance);
+                io.emit('roulette_bets_update', rouletteBets);
             }
         }
-        supportHistory.push({ user: `To ${data.targetUser}`, msg: data.msg, time: Date.now() });
-        io.to('staff_room').emit('chat_broadcast', { user: `To ${data.targetUser}`, msg: data.msg, type: 'support_log_echo', target: data.targetUser });
     });
 
+    // --- ADMIN ---
     socket.on('admin_add_credits', (data) => {
-        if (!isAdmin()) return;
-        if (dbData.users[data.username]) {
-            dbData.users[data.username].balance += parseInt(data.amount);
-            logHistory(data.username, `ADMIN ADDED +${data.amount}`, dbData.users[data.username].balance);
-            saveDatabase();
-            for (let [sid, u] of Object.entries(activeSockets)) {
-                if (u.username === data.username) {
-                    io.to(sid).emit('update_balance', dbData.users[data.username].balance);
-                    io.to(sid).emit('notification', { msg: `ADMIN ADDED ${data.amount} CREDITS!`, duration: 3000 });
-                }
-            }
-            broadcastPresence();
-        }
-    });
-
-    socket.on('admin_deduct_credits', (data) => {
-        if (!isAdmin()) return;
-        if (dbData.users[data.username]) {
-            dbData.users[data.username].balance -= parseInt(data.amount);
-            if(dbData.users[data.username].balance < 0) dbData.users[data.username].balance = 0;
-            logHistory(data.username, `ADMIN DEDUCTED -${data.amount}`, dbData.users[data.username].balance);
-            saveDatabase();
-            for (let [sid, u] of Object.entries(activeSockets)) {
-                if (u.username === data.username) {
-                    io.to(sid).emit('update_balance', dbData.users[data.username].balance);
-                    io.to(sid).emit('notification', { msg: `WITHDRAWAL: -${data.amount} CREDITS`, duration: 3000 });
-                }
-            }
-            broadcastPresence();
-        }
-    });
-
-    socket.on('admin_add_all', (amount) => {
-        if (!isAdmin()) return;
-        const amt = parseInt(amount);
-        for(let [sid, u] of Object.entries(activeSockets)) {
-            if(u.role === 'PLAYER' && dbData.users[u.username]) {
-                dbData.users[u.username].balance += amt;
-                logHistory(u.username, `ADMIN GIFT +${amt}`, dbData.users[u.username].balance);
-                io.to(sid).emit('update_balance', dbData.users[u.username].balance);
-                io.to(sid).emit('notification', { msg: `GIFT! +${amt} CREDITS`, duration: 3000 });
+        const admin = activeSockets[socket.id];
+        if (admin && (admin.role === 'ADMIN' || admin.role === 'MOD')) {
+            if (dbData.users[data.username]) {
+                dbData.users[data.username].balance += parseInt(data.amount);
+                saveDatabase();
+                io.emit('chat_broadcast', { type: 'public_staff', role: 'SYSTEM', user: 'SYSTEM', msg: `Added ${data.amount} TC to ${data.username}` });
             }
         }
-        saveDatabase();
-        broadcastPresence();
-    });
-
-    socket.on('admin_create_staff', (data) => {
-        if (!isAdmin()) { socket.emit('admin_log', "Error: Permission Denied."); return; }
-        const { username, password, role } = data;
-        if (!username || !password || !role) return;
-        if (dbData.admins[username]) { socket.emit('admin_log', "Error: Username exists."); return; }
-
-        const hash = bcrypt.hashSync(password, 10);
-        dbData.admins[username] = { password: hash, role: role, created: Date.now() };
-        saveDatabase();
-        socket.emit('admin_log', `Success: Created ${role} account for ${username}`);
-    });
-
-    // --- MUSIC CONTROLS ---
-    socket.on('admin_update_metadata', (data) => {
-        if (!isStaff()) return;
-        if(data.title) musicState.title = data.title;
-        if(data.artist) musicState.artist = data.artist;
-        io.emit('metadata_update', musicState);
-    });
-
-    socket.on('admin_change_track', (newUrl) => {
-        if (!isStaff()) return;
-        musicState.trackUrl = newUrl;
-        musicState.timestamp = 0;
-        musicState.playing = true;
-        musicState.lastUpdate = Date.now();
-        io.emit('music_sync', { playing: true, seek: 0, url: newUrl, title: musicState.title, artist: musicState.artist });
-    });
-
-    socket.on('admin_music_action', (data) => {
-        if (!isStaff()) return;
-        musicState.playing = (data.action === 'play');
-        musicState.timestamp = data.seek;
-        musicState.lastUpdate = Date.now();
-        io.emit('music_sync', { playing: musicState.playing, seek: musicState.timestamp, url: musicState.trackUrl, title: musicState.title, artist: musicState.artist });
-    });
-
-    socket.on('admin_announce', (msg) => {
-        if (!isStaff()) return;
-        io.emit('notification', { msg: msg, duration: 5000 });
     });
 });
 
