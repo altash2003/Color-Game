@@ -19,17 +19,13 @@
         /* --- THEME VARIABLES --- */
         :root {
             --bg-color: #070d0b;
-            /* UNIFIED DARKER PANEL COLOR */
             --panel-bg: rgba(5, 10, 8, 0.90); 
-            
             --text-color: #eaf3ef;
             --gold: #c9a44c;
             --cyan: #00E5FF;
             --green: #00e676;
             --red: #d32f2f;
             --border-color: rgba(255,255,255,0.15);
-            
-            /* LAYOUT LOCKS */
             --gap: 16px;            
             --wheel-w: 450px; 
             --stats-w: 280px;
@@ -45,7 +41,8 @@
             background-size: cover;
             height: 100vh; width: 100vw; overflow: hidden; 
             display: flex; flex-direction: column;
-            backdrop-filter: blur(8px);
+            /* Optimized composite layer */
+            transform: translateZ(0);
         }
         
         ::-webkit-scrollbar { width: 6px; }
@@ -81,14 +78,12 @@
             height: auto; max-height: 95vh; width: fit-content; margin: auto; align-items: stretch;
         }
 
-        /* --- LEFT GROUP (Wheel/Stats + Table) --- */
         .left-group {
             display: flex; flex-direction: column; gap: var(--gap);
             width: calc(var(--wheel-w) + var(--stats-w) + var(--gap)); 
             min-width: calc(var(--wheel-w) + var(--stats-w) + var(--gap));
         }
 
-        /* UPPER ROW (Wheel + Stats) */
         .upper-row { display: flex; gap: var(--gap); height: var(--upper-h); flex-shrink: 0; }
 
         /* WHEEL PANEL */
@@ -97,16 +92,28 @@
             border-radius: 12px; position: relative;
             display: flex; justify-content: center; align-items: center;
             box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-            padding: var(--panel-pad);
-            box-sizing: border-box;
+            padding: var(--panel-pad); box-sizing: border-box;
         }
         .stage { width: 95%; height: 95%; display: flex; align-items: center; justify-content: center; }
-        canvas { max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 0 5px rgba(0,0,0,0.8)); }
         
+        /* OPTIMIZED CANVAS: No drop-shadow filter */
+        canvas { 
+            max-width: 100%; max-height: 100%; object-fit: contain; 
+            border-radius: 50%;
+            /* Fast Box Shadow instead of Slow Drop Shadow */
+            box-shadow: 0 0 15px rgba(0,0,0,0.8); 
+        }
+        
+        .wood-ring {
+            position: absolute; width: 380px; height: 380px; border-radius: 50%;
+            border: 14px solid #3e2723;
+            box-shadow: inset 0 0 15px #000, 0 0 15px #000, inset 2px 2px 8px rgba(255,255,255,0.15);
+            pointer-events: none; z-index: 5; background: transparent;
+        }
+
         .pointer { display: none; }
         .spin-trigger { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 80px; height: 80px; border-radius: 50%; z-index: 30; cursor: pointer; }
 
-        /* MIDDLE STATS COLUMN */
         .middle-col { width: var(--stats-w); display: flex; flex-direction: column; gap: var(--gap); height: 100%; flex-shrink: 0; }
 
         .payout-wrap {
@@ -131,7 +138,6 @@
         .hb-red { background: var(--red); } .hb-black { background: #111; } .hb-green { background: #165b33; } 
         .hb-empty { display: none; } 
 
-        /* TABLE */
         .tableWrap {
             background: var(--panel-bg); padding: var(--panel-pad); border-radius: 12px; border: 1px solid var(--border-color);
             width: 100%; display: flex; justify-content: center; align-items: flex-start;
@@ -152,7 +158,6 @@
         .cell.has-bet { box-shadow: inset 0 0 0 1px var(--gold), inset 0 0 10px rgba(201, 164, 76, 0.2); }
         .indicator-dot { position: absolute; top: 3px; right: 3px; width: 6px; height: 6px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 4px #c9a44c; pointer-events: none; }
 
-        /* --- RIGHT SIDEBAR --- */
         .stats-sidebar { width: var(--sidebar-w); display: flex; flex-direction: column; gap: var(--gap); flex-shrink: 0; }
         .list-box { 
             background: var(--panel-bg); border: 1px solid var(--border-color); 
@@ -268,6 +273,8 @@
                 <div class="left-group" id="leftGroup">
                     <div class="upper-row">
                         <div class="wheelPanel">
+                            <div class="wood-ring"></div>
+                            
                             <div class="stage">
                                 <div class="pointer"></div>
                                 <div class="spin-trigger" onclick="reqSpin()"></div>
@@ -423,10 +430,21 @@
             ctx.strokeStyle="#c9a44c"; ctx.lineWidth=4; ctx.stroke();
 
             // DRAW BALL (Persistent)
+            // OPTIMIZED: Use fake shadow instead of expensive filter
             let bx = CX + ball.r * Math.cos(ball.a);
             let by = CY + ball.r * Math.sin(ball.a);
-            ctx.beginPath(); ctx.arc(bx, by, 10, 0, Math.PI*2); ctx.fillStyle="#fff"; ctx.fill();
-            ctx.shadowColor="black"; ctx.shadowBlur=8;
+            
+            // Fake shadow (semi-transparent black circle offset)
+            ctx.beginPath(); 
+            ctx.arc(bx + 2, by + 2, 9, 0, Math.PI*2); 
+            ctx.fillStyle="rgba(0,0,0,0.5)"; 
+            ctx.fill();
+
+            // Ball body
+            ctx.beginPath(); 
+            ctx.arc(bx, by, 10, 0, Math.PI*2); 
+            ctx.fillStyle="#fff"; 
+            ctx.fill();
         }
 
         // --- GRID ---
