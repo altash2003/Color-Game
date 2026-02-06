@@ -119,7 +119,6 @@
         .res-box { display: flex; align-items: center; gap: 10px; }
         #resColor { width: 28px; height: 28px; border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.2); }
         #resNum { font-size: 32px; font-weight: 800; color: #fff; line-height: 1; }
-        
         .history-row { display: flex; gap: 8px; justify-content: center; height: 40px; align-items: center; }
         .hist-ball { 
             width: 36px; height: 36px; border-radius: 50%; font-size: 14px; font-weight: 800; 
@@ -138,7 +137,7 @@
             width: 100%; display: flex; justify-content: center; align-items: flex-start;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5); box-sizing: border-box;
         }
-        .grid { display: grid; grid-template-columns: repeat(14, 1fr); width: 100%; border-top: 1px solid var(--border-color); border-left: 1px solid var(--border-color); }
+        .grid { display: grid; grid-template-columns: repeat(14, 1fr); width: 100%; border-top: 1px solid var(--border-color); }
         
         .cell {
             display: flex; align-items: center; justify-content: center;
@@ -148,7 +147,8 @@
             overflow: visible; 
         }
         .cell:hover { background: rgba(255,255,255,.15) !important; }
-        
+        .seal-left { border-left: 1px solid var(--border-color) !important; }
+
         .cell.winner-glow {
             box-shadow: inset 0 0 0 2px #fff, 0 0 20px var(--gold);
             background: rgba(255, 215, 0, 0.2) !important;
@@ -160,8 +160,6 @@
         .c-out { font-size: 11px; color: #ccc; text-transform: uppercase; }
         
         .cell.has-bet { box-shadow: inset 0 0 0 1px var(--gold), inset 0 0 10px rgba(201, 164, 76, 0.2); }
-        
-        /* CHIP INDICATOR */
         .indicator-dot { position: absolute; top: 3px; right: 3px; width: 6px; height: 6px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 4px #c9a44c; pointer-events: none; z-index: 5; }
         
         /* WINNING CHIP GLOW */
@@ -465,9 +463,9 @@
         function buildGrid(){
             const g = document.getElementById('grid'); g.innerHTML='';
             
-            // SINGLE ZERO (EUROPEAN)
+            // SINGLE ZERO (EUROPEAN) WITH LEFT SEAL
             let z = document.createElement('div'); 
-            z.className = "cell c-zero";
+            z.className = "cell c-zero seal-left"; 
             z.style.gridRow="1/span 3"; z.style.display="flex"; z.style.alignItems="center"; z.style.justifyContent="center";
             z.innerText = "0";
             z.dataset.id = "0";
@@ -528,27 +526,38 @@
                 g.appendChild(end);
             });
 
-            // GENERATE HELPERS FOR OUTER BETS
+            // GENERATE HELPERS FOR OUTER BETS (CORRECTED RANGES)
             const range = (start, end) => Array.from({length: end - start + 1}, (_, i) => start + i);
             const getDozen = (d) => (d===1 ? range(1,12) : (d===2 ? range(13,24) : range(25,36)));
             
             // Dozens
-            [[1,"1st 12"],[2,"2nd 12"],[3,"3rd 12"]].forEach(d=>{
+            [[1,"1st 12"],[2,"2nd 12"],[3,"3rd 12"]].forEach((d, i)=>{
                 let el=document.createElement('div'); el.className="cell c-out"; el.innerText=d[1]; 
                 el.style.gridRow=4; el.style.gridColumn=`${(d[0]-1)*4 + 2}/span 4`; 
+                if (i===0) el.classList.add('seal-left'); 
                 el.dataset.id = "DOZ_" + d[0];
                 el.onclick=()=>preBet(getDozen(d[0]), d[1], "DOZ_" + d[0]); 
                 g.appendChild(el);
             });
             
-            // Low/High/Even/Odd/Colors
-            const allNums = range(1,36); 
-            [[2,"1-18"],[4,"EVEN"],[6,"RED"],[8,"BLACK"],[10,"ODD"],[12,"19-36"]].forEach(b=>{
-                let el=document.createElement('div'); el.className="cell c-out"; el.innerText=b[1]; 
-                if(b[1]=="RED") el.style.background="rgba(180,40,40,0.5)"; if(b[1]=="BLACK") el.style.background="rgba(20,20,20,0.5)";
-                el.style.gridRow=5; el.style.gridColumn=`${b[0]}/span 2`; 
-                el.dataset.id = b[1]; // UI ID
-                el.onclick=()=>preBet(allNums, b[1], b[1]); 
+            // Low/High/Even/Odd/Colors - CORRECT SUBSETS
+            const OUTSIDE_BETS = {
+                "1-18": range(1, 18),
+                "19-36": range(19, 36),
+                "EVEN": range(1, 36).filter(n => n % 2 === 0),
+                "ODD": range(1, 36).filter(n => n % 2 !== 0),
+                "RED": REDS,
+                "BLACK": range(1, 36).filter(n => !REDS.includes(n))
+            };
+
+            [["1-18"],["EVEN"],["RED"],["BLACK"],["ODD"],["19-36"]].forEach((b, i)=>{
+                let label = b[0];
+                let el=document.createElement('div'); el.className="cell c-out"; el.innerText=label; 
+                if(label=="RED") el.style.background="rgba(180,40,40,0.5)"; if(label=="BLACK") el.style.background="rgba(20,20,20,0.5)";
+                el.style.gridRow=5; el.style.gridColumn=`${i*2 + 2}/span 2`; 
+                if (i===0) el.classList.add('seal-left'); 
+                el.dataset.id = label; 
+                el.onclick=()=>preBet(OUTSIDE_BETS[label], label, label); 
                 g.appendChild(el);
             });
         }
@@ -571,7 +580,9 @@
                 balance-=amt; document.getElementById('dispBal').innerText=balance;
                 closeModal();
                 
+                // VISUAL CHIP PLACEMENT (FIXED BUG: Use appendChild instead of innerHTML)
                 if (tempBet.uiId) {
+                    // Outer Bet
                     const cell = document.querySelector(`.cell[data-id="${tempBet.uiId}"]`);
                     if(cell) {
                         cell.classList.add('has-bet');
@@ -582,6 +593,7 @@
                         }
                     }
                 } else {
+                    // Inside Bet
                     tempBet.ids.forEach(id => {
                         const cell = document.querySelector(`.cell[data-id="${id}"]`) || document.querySelector(`.cell`);
                         if(cell){ 
@@ -646,25 +658,19 @@
                 if(!start)start=t; const p=(t-start)/dur;
                 
                 if(p<1){
-                    // 1. Wheel Stops at 8.5s
                     let wheelP = Math.min(p / 0.85, 1);
                     const eWheel = 1 - Math.pow(1-wheelP, 4); 
                     angle = startA + (finalWheelA - startA)*eWheel;
 
-                    // 2. Ball Continues rolling
                     const eBall = 1 - Math.pow(1-p, 4); 
                     const currentRelAngle = startRelAngle + (endRelAngle - startRelAngle) * eBall;
                     
-                    // 3. Smooth Radius
-                    if (p < 0.4) {
-                        ball.r = 350; 
-                    } else if (p < 0.7) {
+                    if (p < 0.4) { ball.r = 350; } 
+                    else if (p < 0.7) {
                         let spiralP = (p-0.4)/0.3;
                         let easeSpiral = 1 - Math.pow(1-spiralP, 2);
                         ball.r = 350 - (58 * easeSpiral); 
-                    } else {
-                        ball.r = 292; 
-                    }
+                    } else { ball.r = 292; }
                     
                     ball.a = angle + currentRelAngle;
                     drawWheel();
@@ -690,7 +696,7 @@
             if(winningCell) winningCell.classList.add('winner-glow');
 
             // Calculate & Highlight Wins
-            calculatePayout(data.resultVal);
+            let localTotalWin = calculatePayout(data.resultVal);
 
             const h = document.getElementById('historyBar');
             let cls = (data.resultVal=="0")?'hb-green':(REDS.includes(parseInt(data.resultVal))?'hb-red':'hb-black');
@@ -700,38 +706,55 @@
             h.insertBefore(newBall, h.firstChild); 
             if(h.children.length > 5) h.removeChild(h.lastElementChild); 
 
-            if(data.totalWin>0) { balance+=data.totalWin; updateBalance(); showToast(`WON +${data.totalWin}`); }
-            bets=[]; renderBets(); document.querySelectorAll('.has-bet').forEach(c=>{c.classList.remove('has-bet'); c.querySelector('.indicator-dot')?.remove();});
+            if(localTotalWin > 0) { 
+                balance += localTotalWin; 
+                updateBalance(); 
+                showToast(`WON +${localTotalWin}`); 
+            }
+            
+            bets=[]; renderBets(); 
+            // We clear indicators slightly later or on next spin to show the win
+            setTimeout(() => {
+                document.querySelectorAll('.has-bet').forEach(c=>{c.classList.remove('has-bet'); c.querySelector('.indicator-dot')?.remove();});
+            }, 3000);
         }
 
-        // --- LOCAL PAYOUT VISUALIZER ---
+        // --- LOCAL PAYOUT VISUALIZER & CALCULATOR ---
         function calculatePayout(winningNum) {
             winningNum = parseInt(winningNum);
-            
-            // Check each active bet
+            let totalWin = 0;
+
             bets.forEach(bet => {
-                if(bet.ids.includes(winningNum)) {
-                    // It's a winner!
-                    // Highlight the specific chip that won
+                let betIds = bet.ids.map(id => parseInt(id));
+                if(betIds.includes(winningNum)) {
+                    // Determine Payout Multiplier
+                    let count = betIds.length;
+                    let multiplier = 0;
+                    if(count === 1) multiplier = 35;
+                    else if(count === 2) multiplier = 17;
+                    else if(count === 3) multiplier = 11;
+                    else if(count === 4) multiplier = 8;
+                    else if(count === 6) multiplier = 5;
+                    else if(count === 12) multiplier = 2;
+                    else if(count === 18) multiplier = 1;
+
+                    // Standard Payout: Stake * (Multiplier + 1)
+                    let winAmount = bet.quantity * (multiplier + 1);
+                    totalWin += winAmount;
+
+                    // Visual Flash
                     if(bet.uiId) {
-                        // Outer bet win
                         let cell = document.querySelector(`.cell[data-id="${bet.uiId}"]`);
-                        if(cell) {
-                            let dot = cell.querySelector('.indicator-dot');
-                            if(dot) dot.classList.add('winning-chip');
-                        }
+                        if(cell) cell.querySelector('.indicator-dot')?.classList.add('winning-chip');
                     } else {
-                        // Inside bet win - highlight all covered numbers
                         bet.ids.forEach(id => {
                             let cell = document.querySelector(`.cell[data-id="${id}"]`);
-                            if(cell) {
-                                let dot = cell.querySelector('.indicator-dot');
-                                if(dot) dot.classList.add('winning-chip');
-                            }
+                            if(cell) cell.querySelector('.indicator-dot')?.classList.add('winning-chip');
                         });
                     }
                 }
             });
+            return totalWin;
         }
 
         // --- CHAT & TOAST ---
