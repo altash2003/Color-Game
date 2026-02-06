@@ -119,6 +119,7 @@
         .res-box { display: flex; align-items: center; gap: 10px; }
         #resColor { width: 28px; height: 28px; border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.2); }
         #resNum { font-size: 32px; font-weight: 800; color: #fff; line-height: 1; }
+        
         .history-row { display: flex; gap: 8px; justify-content: center; height: 40px; align-items: center; }
         .hist-ball { 
             width: 36px; height: 36px; border-radius: 50%; font-size: 14px; font-weight: 800; 
@@ -159,32 +160,26 @@
         .c-out { font-size: 11px; color: #ccc; text-transform: uppercase; }
         
         .cell.has-bet { box-shadow: inset 0 0 0 1px var(--gold), inset 0 0 10px rgba(201, 164, 76, 0.2); }
+        
+        /* CHIP INDICATOR */
         .indicator-dot { position: absolute; top: 3px; right: 3px; width: 6px; height: 6px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 4px #c9a44c; pointer-events: none; z-index: 5; }
+        
+        /* WINNING CHIP GLOW */
+        .indicator-dot.winning-chip {
+            background: #fff;
+            box-shadow: 0 0 10px #fff, 0 0 20px var(--gold);
+            transform: scale(1.5);
+            transition: 0.3s;
+        }
 
         /* GHOST ZONES */
         .hit-zone { position: absolute; background: transparent; transition: 0.1s; cursor: pointer; }
         .hit-zone:hover { background: rgba(255, 215, 0, 0.6); box-shadow: 0 0 8px #ffd700; }
         
-        .hz-corner { 
-            width: 35%; height: 35%; 
-            bottom: 0; right: 0; transform: translate(50%, 50%); 
-            border-radius: 50%; z-index: 100; 
-        }
-        .hz-split-v { 
-            width: 60%; height: 30%; 
-            bottom: 0; left: 50%; transform: translate(-50%, 50%); 
-            z-index: 90; 
-        }
-        .hz-split-h { 
-            width: 30%; height: 60%; 
-            top: 50%; right: 0; transform: translate(50%, -50%); 
-            z-index: 90; 
-        }
-        .hz-street { 
-            width: 100%; height: 30%; 
-            top: 0; left: 50%; transform: translate(-50%, -50%); 
-            z-index: 80; 
-        }
+        .hz-corner { width: 35%; height: 35%; bottom: 0; right: 0; transform: translate(50%, 50%); border-radius: 50%; z-index: 100; }
+        .hz-split-v { width: 60%; height: 30%; bottom: 0; left: 50%; transform: translate(-50%, 50%); z-index: 90; }
+        .hz-split-h { width: 30%; height: 60%; top: 50%; right: 0; transform: translate(50%, -50%); z-index: 90; }
+        .hz-street { width: 100%; height: 30%; top: 0; left: 50%; transform: translate(-50%, -50%); z-index: 80; }
 
         /* --- RIGHT SIDEBAR --- */
         .stats-sidebar { width: var(--sidebar-w); display: flex; flex-direction: column; gap: var(--gap); flex-shrink: 0; }
@@ -576,9 +571,7 @@
                 balance-=amt; document.getElementById('dispBal').innerText=balance;
                 closeModal();
                 
-                // VISUAL CHIP PLACEMENT (FIXED BUG: Use appendChild instead of innerHTML)
                 if (tempBet.uiId) {
-                    // Outer Bet
                     const cell = document.querySelector(`.cell[data-id="${tempBet.uiId}"]`);
                     if(cell) {
                         cell.classList.add('has-bet');
@@ -589,7 +582,6 @@
                         }
                     }
                 } else {
-                    // Inside Bet
                     tempBet.ids.forEach(id => {
                         const cell = document.querySelector(`.cell[data-id="${id}"]`) || document.querySelector(`.cell`);
                         if(cell){ 
@@ -619,13 +611,15 @@
         function reqSpin(){ 
             if(spinning || bets.length==0) return; 
             socket.emit('roulette_req_spin', bets); 
-            // Clear winner glows
+            // Clear winners/glows
             document.querySelectorAll('.winner-glow').forEach(el => el.classList.remove('winner-glow'));
+            document.querySelectorAll('.winning-chip').forEach(el => el.classList.remove('winning-chip'));
         }
         
         socket.on('roulette_res_spin', data => {
             spinning=true; 
             document.querySelectorAll('.winner-glow').forEach(el => el.classList.remove('winner-glow'));
+            document.querySelectorAll('.winning-chip').forEach(el => el.classList.remove('winning-chip'));
             
             let start=null; const dur=10000; // 10s Physics
             
@@ -634,8 +628,12 @@
             const finalWheelA = angle + wheelRotations + randomOffset;
             const startA = angle;
 
+            // FIX: Ensure finding index from local array, not server index which might differ
+            let winIndex = WHEEL.indexOf(data.resultVal.toString());
+            if(winIndex === -1) winIndex = 0; // Fallback
+
             const slice = (Math.PI*2)/WHEEL.length;
-            const pocketCenterOffset = (data.winningIndex * slice) + (slice/2);
+            const pocketCenterOffset = (winIndex * slice) + (slice/2);
             
             ball.active = true;
             ball.r = 350; 
@@ -657,15 +655,15 @@
                     const eBall = 1 - Math.pow(1-p, 4); 
                     const currentRelAngle = startRelAngle + (endRelAngle - startRelAngle) * eBall;
                     
-                    // 3. Smooth Radius (No Drop)
+                    // 3. Smooth Radius
                     if (p < 0.4) {
-                        ball.r = 350; // Rim
+                        ball.r = 350; 
                     } else if (p < 0.7) {
                         let spiralP = (p-0.4)/0.3;
                         let easeSpiral = 1 - Math.pow(1-spiralP, 2);
-                        ball.r = 350 - (58 * easeSpiral); // 350 -> 292
+                        ball.r = 350 - (58 * easeSpiral); 
                     } else {
-                        ball.r = 292; // Rolling on numbers
+                        ball.r = 292; 
                     }
                     
                     ball.a = angle + currentRelAngle;
@@ -691,6 +689,9 @@
             let winningCell = document.querySelector(`.cell[data-id="${data.resultVal}"]`);
             if(winningCell) winningCell.classList.add('winner-glow');
 
+            // Calculate & Highlight Wins
+            calculatePayout(data.resultVal);
+
             const h = document.getElementById('historyBar');
             let cls = (data.resultVal=="0")?'hb-green':(REDS.includes(parseInt(data.resultVal))?'hb-red':'hb-black');
             let newBall = document.createElement('div');
@@ -701,6 +702,36 @@
 
             if(data.totalWin>0) { balance+=data.totalWin; updateBalance(); showToast(`WON +${data.totalWin}`); }
             bets=[]; renderBets(); document.querySelectorAll('.has-bet').forEach(c=>{c.classList.remove('has-bet'); c.querySelector('.indicator-dot')?.remove();});
+        }
+
+        // --- LOCAL PAYOUT VISUALIZER ---
+        function calculatePayout(winningNum) {
+            winningNum = parseInt(winningNum);
+            
+            // Check each active bet
+            bets.forEach(bet => {
+                if(bet.ids.includes(winningNum)) {
+                    // It's a winner!
+                    // Highlight the specific chip that won
+                    if(bet.uiId) {
+                        // Outer bet win
+                        let cell = document.querySelector(`.cell[data-id="${bet.uiId}"]`);
+                        if(cell) {
+                            let dot = cell.querySelector('.indicator-dot');
+                            if(dot) dot.classList.add('winning-chip');
+                        }
+                    } else {
+                        // Inside bet win - highlight all covered numbers
+                        bet.ids.forEach(id => {
+                            let cell = document.querySelector(`.cell[data-id="${id}"]`);
+                            if(cell) {
+                                let dot = cell.querySelector('.indicator-dot');
+                                if(dot) dot.classList.add('winning-chip');
+                            }
+                        });
+                    }
+                }
+            });
         }
 
         // --- CHAT & TOAST ---
