@@ -144,7 +144,7 @@
             border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);
             cursor: pointer; position: relative; font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.9);
             transition: 0.1s; user-select: none; text-align: center;
-            overflow: visible; /* CRITICAL: Allows ghost zones to hang outside the cell */
+            overflow: visible; 
         }
         .cell:hover { background: rgba(255,255,255,.15) !important; }
         
@@ -159,28 +159,16 @@
         .c-out { font-size: 11px; color: #ccc; text-transform: uppercase; }
         
         .cell.has-bet { box-shadow: inset 0 0 0 1px var(--gold), inset 0 0 10px rgba(201, 164, 76, 0.2); }
-        
-        /* CHIP INDICATOR */
-        .indicator-dot { 
-            position: absolute; top: 3px; right: 3px; 
-            width: 6px; height: 6px; background: var(--gold); 
-            border-radius: 50%; box-shadow: 0 0 4px #c9a44c; 
-            pointer-events: none; /* CRITICAL: Allows clicks to pass through chip to underlying hit zones */
-            z-index: 5; /* Lower than hit zones */
-        }
+        .indicator-dot { position: absolute; top: 3px; right: 3px; width: 6px; height: 6px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 4px #c9a44c; pointer-events: none; z-index: 5; }
 
-        /* GHOST ZONES (Invisible Hitboxes) */
-        /* Z-Index logic: Corner > Split > Street > Cell Content */
-        .hit-zone {
-            position: absolute; background: transparent; transition: 0.1s; cursor: pointer;
-        }
+        /* GHOST ZONES */
+        .hit-zone { position: absolute; background: transparent; transition: 0.1s; cursor: pointer; }
         .hit-zone:hover { background: rgba(255, 215, 0, 0.6); box-shadow: 0 0 8px #ffd700; }
         
         .hz-corner { 
             width: 35%; height: 35%; 
             bottom: 0; right: 0; transform: translate(50%, 50%); 
-            border-radius: 50%; 
-            z-index: 100; /* Highest priority */
+            border-radius: 50%; z-index: 100; 
         }
         .hz-split-v { 
             width: 60%; height: 30%; 
@@ -438,8 +426,8 @@
             }
         }
 
-        // --- WHEEL ---
-        const WHEEL = ["0","28","9","26","30","11","7","20","32","17","5","22","34","15","3","24","36","13","1","00","27","10","25","29","12","8","19","31","18","6","21","33","16","4","23","35","14","2"];
+        // --- WHEEL (EUROPEAN SINGLE ZERO) ---
+        const WHEEL = ["0","32","15","19","4","21","2","25","17","34","6","27","13","36","11","30","8","23","10","5","24","16","33","1","20","14","31","9","22","18","29","7","28","12","35","3","26"];
         const REDS = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
         const ctx = document.getElementById('wheelCanvas').getContext('2d');
         let angle = 0;
@@ -459,7 +447,7 @@
             WHEEL.forEach((n,i)=>{
                 let a = i*((Math.PI*2)/WHEEL.length);
                 ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,320,a,a+((Math.PI*2)/WHEEL.length));
-                ctx.fillStyle = (n=="0"||n=="00")?'#165b33':(REDS.includes(parseInt(n))?'#c03a35':'#111');
+                ctx.fillStyle = (n=="0")?'#165b33':(REDS.includes(parseInt(n))?'#c03a35':'#111');
                 ctx.fill(); ctx.stroke();
                 ctx.save(); ctx.rotate(a+((Math.PI*2)/WHEEL.length)/2); ctx.translate(280,0); ctx.rotate(Math.PI/2);
                 ctx.fillStyle="#fff"; ctx.font="bold 24px Arial"; ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.fillText(n,0,0); ctx.restore();
@@ -482,16 +470,13 @@
         function buildGrid(){
             const g = document.getElementById('grid'); g.innerHTML='';
             
-            // 0/00
+            // SINGLE ZERO
             let z = document.createElement('div'); 
-            z.className = "cell c-zero"; // Ensure class is present for selection
-            z.style.gridRow="1/span 3"; z.style.display="flex"; z.style.flexDirection="column";
-            // Important: We assign a data-id to the wrapper or children. 
-            // Simplified: The wrapper handles the clicks for logic, but children have the data-ids
-            z.innerHTML = `
-                <div class="cell" data-id="00" onclick="preBet([0], '00')" style="flex:1; border:none; border-bottom:1px solid rgba(255,255,255,0.2)">00</div>
-                <div class="cell" data-id="0" onclick="preBet([0], '0')" style="flex:1; border:none;">0</div>
-            `;
+            z.className = "cell c-zero";
+            z.style.gridRow="1/span 3"; z.style.display="flex"; z.style.alignItems="center"; z.style.justifyContent="center";
+            z.innerText = "0";
+            z.dataset.id = "0";
+            z.onclick = () => preBet([0], '0');
             g.appendChild(z);
 
             const rows = [[3,6,9,12,15,18,21,24,27,30,33,36],[2,5,8,11,14,17,20,23,26,29,32,35],[1,4,7,10,13,16,19,22,25,28,31,34]];
@@ -562,8 +547,6 @@
             });
             
             // Low/High/Even/Odd/Colors
-            // Note: Simplification for demo logic, passing array 1-36 just to satisfy arg requirements
-            // Ideally backend knows "RED" means red numbers.
             const allNums = range(1,36); 
             [[2,"1-18"],[4,"EVEN"],[6,"RED"],[8,"BLACK"],[10,"ODD"],[12,"19-36"]].forEach(b=>{
                 let el=document.createElement('div'); el.className="cell c-out"; el.innerText=b[1]; 
@@ -578,11 +561,9 @@
         // --- BETTING ---
         let tempBet=null;
         
-        // Updated preBet to accept optional uiId for Outer Bets
         function preBet(numbers, lbl, uiId = null) { 
             if(spinning) return; 
             let betNums = Array.isArray(numbers) ? numbers : [numbers];
-            // If uiId is provided (Outer Bet), use it. Otherwise use numbers (Inside Bet).
             tempBet = { ids: betNums, lbl: lbl, uiId: uiId }; 
             document.getElementById('betModal').style.display='flex'; document.getElementById('betAmt').focus(); 
         }
@@ -704,14 +685,14 @@
         
         function finish(data){
             document.getElementById('resNum').innerText=data.resultVal;
-            document.getElementById('resColor').style.background = (data.resultVal=="0"||data.resultVal=="00")?'#165b33':(REDS.includes(parseInt(data.resultVal))?'#c03a35':'#111');
+            document.getElementById('resColor').style.background = (data.resultVal=="0")?'#165b33':(REDS.includes(parseInt(data.resultVal))?'#c03a35':'#111');
             
             // Highlight Table Winner
             let winningCell = document.querySelector(`.cell[data-id="${data.resultVal}"]`);
             if(winningCell) winningCell.classList.add('winner-glow');
 
             const h = document.getElementById('historyBar');
-            let cls = (data.resultVal=="0"||data.resultVal=="00")?'hb-green':(REDS.includes(parseInt(data.resultVal))?'hb-red':'hb-black');
+            let cls = (data.resultVal=="0")?'hb-green':(REDS.includes(parseInt(data.resultVal))?'hb-red':'hb-black');
             let newBall = document.createElement('div');
             newBall.className = `hist-ball ${cls}`;
             newBall.innerText = data.resultVal;
