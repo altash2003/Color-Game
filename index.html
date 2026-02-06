@@ -41,7 +41,6 @@
             background-size: cover;
             height: 100vh; width: 100vw; overflow: hidden; 
             display: flex; flex-direction: column;
-            /* Optimized composite layer */
             transform: translateZ(0);
         }
         
@@ -96,24 +95,16 @@
         }
         .stage { width: 95%; height: 95%; display: flex; align-items: center; justify-content: center; }
         
-        /* OPTIMIZED CANVAS: No drop-shadow filter */
+        /* CANVAS - No borders, no shadows, pure graphic */
         canvas { 
             max-width: 100%; max-height: 100%; object-fit: contain; 
             border-radius: 50%;
-            /* Fast Box Shadow instead of Slow Drop Shadow */
-            box-shadow: 0 0 15px rgba(0,0,0,0.8); 
         }
         
-        .wood-ring {
-            position: absolute; width: 380px; height: 380px; border-radius: 50%;
-            border: 14px solid #3e2723;
-            box-shadow: inset 0 0 15px #000, 0 0 15px #000, inset 2px 2px 8px rgba(255,255,255,0.15);
-            pointer-events: none; z-index: 5; background: transparent;
-        }
-
         .pointer { display: none; }
         .spin-trigger { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 80px; height: 80px; border-radius: 50%; z-index: 30; cursor: pointer; }
 
+        /* MIDDLE STATS COLUMN */
         .middle-col { width: var(--stats-w); display: flex; flex-direction: column; gap: var(--gap); height: 100%; flex-shrink: 0; }
 
         .payout-wrap {
@@ -138,6 +129,7 @@
         .hb-red { background: var(--red); } .hb-black { background: #111; } .hb-green { background: #165b33; } 
         .hb-empty { display: none; } 
 
+        /* TABLE */
         .tableWrap {
             background: var(--panel-bg); padding: var(--panel-pad); border-radius: 12px; border: 1px solid var(--border-color);
             width: 100%; display: flex; justify-content: center; align-items: flex-start;
@@ -158,6 +150,7 @@
         .cell.has-bet { box-shadow: inset 0 0 0 1px var(--gold), inset 0 0 10px rgba(201, 164, 76, 0.2); }
         .indicator-dot { position: absolute; top: 3px; right: 3px; width: 6px; height: 6px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 4px #c9a44c; pointer-events: none; }
 
+        /* --- RIGHT SIDEBAR --- */
         .stats-sidebar { width: var(--sidebar-w); display: flex; flex-direction: column; gap: var(--gap); flex-shrink: 0; }
         .list-box { 
             background: var(--panel-bg); border: 1px solid var(--border-color); 
@@ -273,8 +266,6 @@
                 <div class="left-group" id="leftGroup">
                     <div class="upper-row">
                         <div class="wheelPanel">
-                            <div class="wood-ring"></div>
-                            
                             <div class="stage">
                                 <div class="pointer"></div>
                                 <div class="spin-trigger" onclick="reqSpin()"></div>
@@ -430,7 +421,6 @@
             ctx.strokeStyle="#c9a44c"; ctx.lineWidth=4; ctx.stroke();
 
             // DRAW BALL (Persistent)
-            // OPTIMIZED: Use fake shadow instead of expensive filter
             let bx = CX + ball.r * Math.cos(ball.a);
             let by = CY + ball.r * Math.sin(ball.a);
             
