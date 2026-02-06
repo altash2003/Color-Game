@@ -41,9 +41,10 @@
             background-size: cover;
             height: 100vh; width: 100vw; overflow: hidden; 
             display: flex; flex-direction: column;
-            transform: translateZ(0);
+            transform: translateZ(0); /* GPU acceleration */
         }
         
+        /* SCROLLBARS */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
@@ -94,7 +95,11 @@
             padding: var(--panel-pad); box-sizing: border-box;
         }
         .stage { width: 95%; height: 95%; display: flex; align-items: center; justify-content: center; }
-        canvas { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 50%; }
+        
+        canvas { 
+            max-width: 100%; max-height: 100%; object-fit: contain; 
+            border-radius: 50%;
+        }
         
         .pointer { display: none; }
         .spin-trigger { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 80px; height: 80px; border-radius: 50%; z-index: 30; cursor: pointer; }
@@ -120,6 +125,7 @@
         #resColor { width: 28px; height: 28px; border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.2); }
         #resNum { font-size: 32px; font-weight: 800; color: #fff; line-height: 1; }
         
+        /* REALISTIC HISTORY BALLS */
         .history-row { display: flex; gap: 8px; justify-content: center; height: 40px; align-items: center; }
         .hist-ball { 
             width: 36px; height: 36px; border-radius: 50%; font-size: 14px; font-weight: 800; 
@@ -138,72 +144,85 @@
             width: 100%; display: flex; justify-content: center; align-items: flex-start;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5); box-sizing: border-box;
         }
-        .grid { display: grid; grid-template-columns: repeat(14, 1fr); width: 100%; border-top: 1px solid var(--border-color); }
+        
+        /* THE GRID BORDER FIX: Collapsed Logic */
+        /* Container has Top and Left borders */
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(14, 1fr); 
+            width: 100%; 
+            border-top: 1px solid var(--border-color);
+            border-left: 1px solid var(--border-color);
+        }
+        
+        /* Cells have Right and Bottom borders */
         .cell {
             display: flex; align-items: center; justify-content: center;
-            border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color); 
+            border-bottom: 1px solid var(--border-color);
             cursor: pointer; position: relative; font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.9);
             transition: 0.1s; user-select: none; text-align: center;
+            box-sizing: border-box;
         }
         .cell:hover { background: rgba(255,255,255,.15) !important; }
         
+        /* Winner Highlight */
         .cell.winner-glow {
             box-shadow: inset 0 0 0 2px #fff, 0 0 20px var(--gold);
             background: rgba(255, 215, 0, 0.2) !important;
             color: #fff; z-index: 10;
         }
 
-        .c-zero { border-left: 1px solid var(--border-color); border-right: 1px solid var(--border-color) !important; }
+        /* 0/00 Specifics */
+        /* We remove special borders here because the grid+cell logic covers the perimeter */
+        .c-zero { 
+            background: rgba(20, 100, 50, 0.6); 
+        }
+        
         .seal-left { border-left: 1px solid var(--border-color) !important; }
-        .c-red { background: rgba(180, 40, 40, 0.5); } .c-black { background: rgba(20, 20, 20, 0.5); } .c-zero { background: rgba(20, 100, 50, 0.6); }
+        .c-red { background: rgba(180, 40, 40, 0.5); } .c-black { background: rgba(20, 20, 20, 0.5); }
         .c-out { font-size: 11px; color: #ccc; text-transform: uppercase; }
         
-        /* CHIPS AND INDICATORS */
-        /* pointer-events: none ensures we can click "through" chips to place Split/Corner bets under them */
+        /* BET INDICATORS */
         .cell.has-bet { box-shadow: inset 0 0 0 1px var(--gold), inset 0 0 10px rgba(201, 164, 76, 0.2); }
-        .indicator-dot { 
-            position: absolute; top: 3px; right: 3px; 
-            width: 6px; height: 6px; background: var(--gold); 
-            border-radius: 50%; box-shadow: 0 0 4px #c9a44c; 
-            pointer-events: none; /* KEY FIX: Chips don't block Hit Zones */
-        }
+        .indicator-dot { position: absolute; top: 3px; right: 3px; width: 6px; height: 6px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 4px #c9a44c; pointer-events: none; }
 
-        /* --- FIXED GHOST ZONES (Z-Index Layering) --- */
+        /* --- FIXED GHOST ZONES (Perfectly Centered) --- */
         .hit-zone {
-            position: absolute; background: transparent; transition: 0.1s; cursor: pointer;
+            position: absolute; z-index: 20; background: transparent; transition: 0.1s; cursor: pointer;
         }
         .hit-zone:hover { background: rgba(255, 215, 0, 0.6); box-shadow: 0 0 8px #ffd700; }
         
-        /* Corner = Highest Priority (Smallest Target) */
+        /* Vertical Split: Centered on bottom border */
+        .hz-split-v { 
+            width: 60%; height: 30%; 
+            bottom: 0; left: 50%; 
+            transform: translate(-50%, 50%);
+            z-index: 22;
+        }
+        /* Horizontal Split: Centered on right border */
+        .hz-split-h { 
+            width: 30%; height: 60%; 
+            top: 50%; right: 0; 
+            transform: translate(50%, -50%);
+            z-index: 22;
+        }
+        /* Corner: Centered on bottom-right intersection */
         .hz-corner { 
-            z-index: 25;
             width: 35%; height: 35%; 
             bottom: 0; right: 0; 
             transform: translate(50%, 50%);
             border-radius: 50%; 
+            z-index: 25;
         }
-
-        /* Split = Medium Priority */
-        .hz-split-v { 
-            z-index: 22;
-            width: 60%; height: 30%; 
-            bottom: 0; left: 50%; 
-            transform: translate(-50%, 50%);
-        }
-        .hz-split-h { 
-            z-index: 22;
-            width: 30%; height: 60%; 
-            top: 50%; right: 0; 
-            transform: translate(50%, -50%);
-        }
-
-        /* Street = Lower Priority */
+        /* Street: Centered on top border */
         .hz-street { 
-            z-index: 21;
             width: 100%; height: 30%; 
             top: 0; left: 50%;
             transform: translate(-50%, -50%);
+            z-index: 21;
         }
+
 
         /* --- RIGHT SIDEBAR --- */
         .stats-sidebar { width: var(--sidebar-w); display: flex; flex-direction: column; gap: var(--gap); flex-shrink: 0; }
@@ -220,6 +239,7 @@
         .chat-row { text-align: left; background: rgba(255,255,255,0.02); padding: 4px 8px; border-radius: 4px; font-size: 11px; margin-bottom: 4px; word-wrap: break-word; color: #ccc; }
         .chat-input-row { display: flex; gap: 5px; margin-top: 10px; }
         
+        /* Chat Input: Left Aligned */
         .chat-inp { 
             flex: 1; background: rgba(0,0,0,0.3); border: 1px solid #444; 
             color: white; border-radius: 4px; padding: 6px; 
@@ -497,9 +517,14 @@
             
             // 0/00
             let z = document.createElement('div'); 
+            z.className = "cell c-zero"; // Ensure class is present for selection
             z.style.gridRow="1/span 3"; z.style.display="flex"; z.style.flexDirection="column";
-            z.innerHTML = `<div class="cell c-zero" onclick="preBet([0], '00')" style="flex:1">00</div>
-                           <div class="cell c-zero" onclick="preBet([0], '0')" style="flex:1; border-top:1px solid rgba(255,255,255,0.2)">0</div>`;
+            // Important: We assign a data-id to the wrapper or children. 
+            // Simplified: The wrapper handles the clicks for logic, but children have the data-ids
+            z.innerHTML = `
+                <div class="cell" data-id="00" onclick="preBet([0], '00')" style="flex:1; border:none; border-bottom:1px solid rgba(255,255,255,0.2)">00</div>
+                <div class="cell" data-id="0" onclick="preBet([0], '0')" style="flex:1; border:none;">0</div>
+            `;
             g.appendChild(z);
 
             const rows = [[3,6,9,12,15,18,21,24,27,30,33,36],[2,5,8,11,14,17,20,23,26,29,32,35],[1,4,7,10,13,16,19,22,25,28,31,34]];
