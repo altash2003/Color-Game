@@ -148,21 +148,16 @@
         }
         .cell:hover { background: rgba(255,255,255,.15) !important; }
         
+        /* LEFT SEAL FOR ALIGNMENT */
         .seal-left { border-left: 1px solid var(--border-color) !important; }
 
-        /* ZERO BORDER FIX */
-        /* Removes the right border so the next cell's left border handles the line */
-        .c-zero { 
-            background: rgba(20, 100, 50, 0.6); 
-            border-right: none !important; 
-        }
-
+        /* WINNER HIGHLIGHT - JUST WHITE LINE */
         .cell.winner-glow {
-            box-shadow: inset 0 0 0 2px #fff, 0 0 20px var(--gold);
-            background: rgba(255, 215, 0, 0.2) !important;
-            color: #fff; z-index: 10;
+            box-shadow: inset 0 0 0 3px #fff !important; /* Thick White Line */
+            z-index: 15; /* Ensure above neighbors */
         }
 
+        .c-zero { background: rgba(20, 100, 50, 0.6); }
         .c-red { background: rgba(180, 40, 40, 0.5); } .c-black { background: rgba(20, 20, 20, 0.5); } 
         .c-out { font-size: 11px; color: #ccc; text-transform: uppercase; }
         
@@ -177,12 +172,16 @@
         }
 
         /* VISIBLE BET BUTTONS (GHOST ZONES) */
-        .hit-zone { position: absolute; background: transparent; transition: 0.2s; cursor: pointer; }
+        .hit-zone { 
+            position: absolute; background: transparent; transition: 0.2s; cursor: pointer; 
+            /* Centering the pseudo element */
+            display: flex; align-items: center; justify-content: center;
+        }
         
-        /* Make hit zones visible as small "targets" */
+        /* The Visual Indicator (Dot/Bar) */
         .hit-zone::after {
-            content: ''; position: absolute;
-            background: rgba(255, 255, 255, 0.15); /* Faint white target */
+            content: ''; 
+            background: rgba(255, 255, 255, 0.2); /* Visible Faint White */
             border-radius: 50%;
             pointer-events: none;
             transition: 0.2s;
@@ -193,37 +192,37 @@
             transform: scale(1.3);
         }
 
-        /* Specific sizing for buttons */
-        /* Corner: Large Center Dot */
+        /* Corner: 30% size, Centered on intersection */
         .hz-corner { 
-            width: 35%; height: 35%; bottom: 0; right: 0; 
-            transform: translate(50%, 50%); z-index: 100; 
+            width: 40%; height: 40%; 
+            bottom: -20%; right: -20%; /* Puts center on the corner */
+            z-index: 100; 
         }
-        .hz-corner::after { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 10px; height: 10px; }
+        .hz-corner::after { width: 10px; height: 10px; }
 
-        /* Split V: Small Dot on Bottom Edge */
+        /* Split V: Centered on bottom line */
         .hz-split-v { 
-            width: 60%; height: 30%; bottom: 0; left: 50%; 
-            transform: translate(-50%, 50%); z-index: 90; 
+            width: 60%; height: 30%; 
+            bottom: -15%; left: 20%; 
+            z-index: 90; 
         }
-        .hz-split-v::after { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 6px; height: 6px; }
+        .hz-split-v::after { width: 6px; height: 6px; }
 
-        /* Split H: Small Dot on Right Edge */
+        /* Split H: Centered on right line */
         .hz-split-h { 
-            width: 30%; height: 60%; top: 50%; right: 0; 
-            transform: translate(50%, -50%); z-index: 90; 
+            width: 30%; height: 60%; 
+            top: 20%; right: -15%; 
+            z-index: 90; 
         }
-        .hz-split-h::after { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 6px; height: 6px; }
+        .hz-split-h::after { width: 6px; height: 6px; }
 
-        /* Street: Bar on Top Edge */
+        /* Street: Centered on top line */
         .hz-street { 
-            width: 100%; height: 25%; top: 0; left: 50%; 
-            transform: translate(-50%, -50%); z-index: 80; 
+            width: 100%; height: 30%; 
+            top: -15%; left: 0; 
+            z-index: 80; 
         }
-        .hz-street::after { 
-            width: 60%; height: 4px; border-radius: 2px;
-            top: 50%; left: 20%; 
-        }
+        .hz-street::after { width: 50%; height: 4px; border-radius: 2px; }
 
         /* --- RIGHT SIDEBAR --- */
         .stats-sidebar { width: var(--sidebar-w); display: flex; flex-direction: column; gap: var(--gap); flex-shrink: 0; }
@@ -236,7 +235,15 @@
         #chatBox { flex: 1; min-height: 0; overflow: hidden; }
         .list-head { color: var(--gold); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
         .list-content { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; padding-right: 4px; }
-        .list-row { display: flex; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 5px 8px; border-radius: 4px; font-size: 11px; color: #ddd; align-items: center; }
+        
+        /* Updated List Row for Better Visibility */
+        .list-row { 
+            display: flex; justify-content: space-between; 
+            background: rgba(255,255,255,0.05); padding: 6px 8px; 
+            border-radius: 4px; font-size: 11px; color: #ddd; align-items: center; 
+            border-left: 2px solid var(--gold); /* Accent */
+        }
+        
         .chat-row { text-align: left; background: rgba(255,255,255,0.02); padding: 4px 8px; border-radius: 4px; font-size: 11px; margin-bottom: 4px; word-wrap: break-word; color: #ccc; }
         .chat-input-row { display: flex; gap: 5px; margin-top: 10px; }
         .chat-inp { flex: 1; background: rgba(0,0,0,0.3); border: 1px solid #444; color: white; border-radius: 4px; padding: 6px; font-family: inherit; font-size: 12px; text-align: left; padding-left: 10px; }
@@ -450,6 +457,7 @@
         let balance = 0;
         let bets = [];
         let spinning = false;
+        let currentUser = "Guest";
         
         // --- AUTH ---
         function switchAuth(type) {
@@ -458,13 +466,17 @@
             document.getElementById('formLogin').style.display = type==='login' ? 'block' : 'none';
             document.getElementById('formRegister').style.display = type==='register' ? 'block' : 'none';
         }
-        function appLogin(){ socket.emit('auth_handshake', { type:'player', username: document.getElementById('loginUser').value, password: document.getElementById('loginPass').value }); }
+        function appLogin(){ 
+            let u = document.getElementById('loginUser').value;
+            socket.emit('auth_handshake', { type:'player', username: u, password: document.getElementById('loginPass').value }); 
+        }
         function appRegister(){ socket.emit('register', { username: document.getElementById('regUser').value, password: document.getElementById('regPass').value }); }
         function quickPlay(){ socket.emit('register', { username: `Guest_${Math.floor(Math.random()*9999)}`, password: 'guest' }); }
         
         socket.on('login_success', d => {
             document.getElementById('authOverlay').style.display='none';
-            document.getElementById('dispUser').innerText=d.username;
+            currentUser = d.username;
+            document.getElementById('dispUser').innerText=currentUser;
             balance = d.balance; document.getElementById('dispBal').innerText=balance;
             initGame();
         });
@@ -494,7 +506,7 @@
             }
         }
 
-        // --- WHEEL ---
+        // --- WHEEL (EUROPEAN SINGLE ZERO) ---
         const WHEEL = ["0","32","15","19","4","21","2","25","17","34","6","27","13","36","11","30","8","23","10","5","24","16","33","1","20","14","31","9","22","18","29","7","28","12","35","3","26"];
         const REDS = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
         const ctx = document.getElementById('wheelCanvas').getContext('2d');
@@ -505,7 +517,6 @@
             const W = 800, H = 800, CX = 400, CY = 400;
             ctx.clearRect(0,0,W,H);
             
-            // Draw Wheel Background (Darker)
             let g = ctx.createRadialGradient(CX, CY, 330, CX, CY, 380);
             g.addColorStop(0, '#1a0f05'); g.addColorStop(1, '#000');
             ctx.beginPath(); ctx.arc(CX,CY,380,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
@@ -524,13 +535,10 @@
             ctx.beginPath(); ctx.arc(CX,CY,90,0,Math.PI*2); ctx.fillStyle="#222"; ctx.fill(); 
             ctx.strokeStyle="#c9a44c"; ctx.lineWidth=4; ctx.stroke();
 
-            // DRAW BALL (Persistent)
             let bx = CX + ball.r * Math.cos(ball.a);
             let by = CY + ball.r * Math.sin(ball.a);
             
-            // Fake shadow
             ctx.beginPath(); ctx.arc(bx + 2, by + 2, 9, 0, Math.PI*2); ctx.fillStyle="rgba(0,0,0,0.5)"; ctx.fill();
-            // Ball body
             ctx.beginPath(); ctx.arc(bx, by, 10, 0, Math.PI*2); ctx.fillStyle="#fff"; ctx.fill();
         }
 
@@ -538,13 +546,12 @@
         function buildGrid(){
             const g = document.getElementById('grid'); g.innerHTML='';
             
-            // SINGLE ZERO (EUROPEAN) WITH LEFT SEAL
             let z = document.createElement('div'); 
             z.className = "cell c-zero seal-left"; 
             z.style.gridRow="1/span 3"; z.style.display="flex"; z.style.alignItems="center"; z.style.justifyContent="center";
             z.innerText = "0";
             z.dataset.id = "0";
-            z.onclick = () => preBet([0], '0');
+            z.onclick = () => preBet([0], 'Single (0)');
             g.appendChild(z);
 
             const rows = [[3,6,9,12,15,18,21,24,27,30,33,36],[2,5,8,11,14,17,20,23,26,29,32,35],[1,4,7,10,13,16,19,22,25,28,31,34]];
@@ -555,60 +562,51 @@
                     d.className = `cell ${REDS.includes(n)?'c-red':'c-black'}`; d.innerText = n; d.dataset.id = n;
                     d.style.gridRow = rIndex + 1; d.style.gridColumn = cIndex + 2; 
                     
-                    // IMPORTANT: ADD SEAL-LEFT TO THE FIRST COLUMN OF NUMBERS (3, 2, 1)
                     if (cIndex === 0) d.classList.add('seal-left');
 
-                    // Single number click
-                    d.onclick = (e) => { if(e.target === d) preBet([n], n.toString()); };
+                    d.onclick = (e) => { if(e.target === d) preBet([n], `Single (${n})`); };
 
-                    // 1. Vertical Split (Below)
                     if(rIndex < 2) {
                         let neighbor = rows[rIndex+1][cIndex];
                         let zone = document.createElement('div');
                         zone.className = "hit-zone hz-split-v"; zone.title = `Split ${n}-${neighbor}`;
-                        zone.onclick = (e) => { e.stopPropagation(); preBet([n, neighbor], "Split"); };
+                        zone.onclick = (e) => { e.stopPropagation(); preBet([n, neighbor], `Split (${n}, ${neighbor})`); };
                         d.appendChild(zone);
                     }
-                    // 2. Horizontal Split (Right)
                     if(cIndex < 11) {
                         let neighbor = rowArr[cIndex+1];
                         let zone = document.createElement('div');
                         zone.className = "hit-zone hz-split-h"; zone.title = `Split ${n}-${neighbor}`;
-                        zone.onclick = (e) => { e.stopPropagation(); preBet([n, neighbor], "Split"); };
+                        zone.onclick = (e) => { e.stopPropagation(); preBet([n, neighbor], `Split (${n}, ${neighbor})`); };
                         d.appendChild(zone);
                     }
-                    // 3. Corner (Bottom-Right)
                     if(rIndex < 2 && cIndex < 11) {
                         let n1=n, n2=rows[rIndex+1][cIndex], n3=rowArr[cIndex+1], n4=rows[rIndex+1][cIndex+1];
                         let zone = document.createElement('div');
                         zone.className = "hit-zone hz-corner"; zone.title = `Corner`;
-                        zone.onclick = (e) => { e.stopPropagation(); preBet([n1, n2, n3, n4], "Corner"); };
+                        zone.onclick = (e) => { e.stopPropagation(); preBet([n1, n2, n3, n4], `Corner (${n1}, ${n2}, ${n3}, ${n4})`); };
                         d.appendChild(zone);
                     }
-                    // 4. Street (Top of Top Row)
                     if(rIndex === 0) {
                         let colNums = [rows[0][cIndex], rows[1][cIndex], rows[2][cIndex]];
                         let zone = document.createElement('div');
                         zone.className = "hit-zone hz-street"; zone.title = `Street`;
-                        zone.onclick = (e) => { e.stopPropagation(); preBet(colNums, "Street"); };
+                        zone.onclick = (e) => { e.stopPropagation(); preBet(colNums, `Street (${colNums.join(',')})`); };
                         d.appendChild(zone);
                     }
                     g.appendChild(d);
                 });
                 
-                // 2:1 Buttons (Outer)
                 let end = document.createElement('div'); end.className='cell c-out'; end.innerText="2:1"; 
                 end.style.gridRow = rIndex + 1; end.style.gridColumn = 14; 
-                end.dataset.id = "ROW_" + rIndex; // UI ID
-                end.onclick = () => preBet(rowArr, "2:1", "ROW_" + rIndex); 
+                end.dataset.id = "ROW_" + rIndex; 
+                end.onclick = () => preBet(rowArr, "Row", "ROW_" + rIndex); 
                 g.appendChild(end);
             });
 
-            // GENERATE HELPERS FOR OUTER BETS
             const range = (start, end) => Array.from({length: end - start + 1}, (_, i) => start + i);
             const getDozen = (d) => (d===1 ? range(1,12) : (d===2 ? range(13,24) : range(25,36)));
             
-            // Dozens
             [[1,"1st 12"],[2,"2nd 12"],[3,"3rd 12"]].forEach((d, i)=>{
                 let el=document.createElement('div'); el.className="cell c-out"; el.innerText=d[1]; 
                 el.style.gridRow=4; el.style.gridColumn=`${(d[0]-1)*4 + 2}/span 4`; 
@@ -618,7 +616,6 @@
                 g.appendChild(el);
             });
             
-            // Low/High/Even/Odd/Colors - CORRECT SUBSETS
             const OUTSIDE_BETS = {
                 "1-18": range(1, 18),
                 "19-36": range(19, 36),
@@ -655,7 +652,6 @@
             let betNums = Array.isArray(numbers) ? numbers : [numbers];
             tempBet = { ids: betNums, lbl: lbl, uiId: uiId }; 
             
-            // Auto-Select Default Chip 100 if none selected
             if(!document.querySelector('.chip-btn.selected')) selectChip(100, document.querySelectorAll('.chip-btn')[1]);
             
             document.getElementById('betModal').style.display='flex'; 
@@ -667,11 +663,10 @@
             const totalAmt = selectedChipVal * qty;
 
             if(totalAmt > 0 && totalAmt <= balance){
-                bets.push({ ...tempBet, quantity: totalAmt });
+                bets.push({ ...tempBet, quantity: totalAmt, user: currentUser });
                 balance -= totalAmt; document.getElementById('dispBal').innerText=balance;
                 closeModal();
                 
-                // VISUAL CHIP PLACEMENT
                 if (tempBet.uiId) {
                     const cell = document.querySelector(`.cell[data-id="${tempBet.uiId}"]`);
                     if(cell) {
@@ -700,7 +695,11 @@
         function renderBets(){
             const l = document.getElementById('betsList'); l.innerHTML="";
             if(bets.length===0) l.innerHTML='<div style="text-align:center; color:#666; font-size:11px; margin-top:10px;">No Bets</div>';
-            bets.forEach((b,i)=>{ l.innerHTML+=`<div class="list-row"><span>${b.lbl}</span> <span>${b.quantity}</span> <div class="lr-icon" onclick="removeBet(${i})"></div></div>`; });
+            bets.forEach((b,i)=>{ 
+                // Format: User : Bet : Amount
+                let txt = `${b.user} : ${b.lbl} : ${b.quantity}`;
+                l.innerHTML+=`<div class="list-row" style="justify-content:flex-start; gap:10px;"><span>${txt}</span> <div style="flex:1"></div> <div class="lr-icon" onclick="removeBet(${i})"></div></div>`; 
+            });
         }
         function removeBet(i) { if(spinning)return; balance+=bets[i].quantity; bets.splice(i,1); updateBalance(); renderBets(); }
         function clearBets(){ if(spinning)return; balance+=bets.reduce((a,b)=>a+b.quantity,0); bets=[]; renderBets(); updateBalance(); document.querySelectorAll('.has-bet').forEach(c=>{c.classList.remove('has-bet'); c.querySelector('.indicator-dot')?.remove();}); }
@@ -710,7 +709,6 @@
         function reqSpin(){ 
             if(spinning || bets.length==0) return; 
             socket.emit('roulette_req_spin', bets); 
-            // Clear winners/glows
             document.querySelectorAll('.winner-glow').forEach(el => el.classList.remove('winner-glow'));
             document.querySelectorAll('.winning-chip').forEach(el => el.classList.remove('winning-chip'));
         }
@@ -720,16 +718,15 @@
             document.querySelectorAll('.winner-glow').forEach(el => el.classList.remove('winner-glow'));
             document.querySelectorAll('.winning-chip').forEach(el => el.classList.remove('winning-chip'));
             
-            let start=null; const dur=10000; // 10s Physics
+            let start=null; const dur=10000;
             
             const randomOffset = Math.random() * Math.PI * 2;
             const wheelRotations = Math.PI * 16; 
             const finalWheelA = angle + wheelRotations + randomOffset;
             const startA = angle;
 
-            // FIX: Ensure finding index from local array, not server index which might differ
             let winIndex = WHEEL.indexOf(data.resultVal.toString());
-            if(winIndex === -1) winIndex = 0; // Fallback
+            if(winIndex === -1) winIndex = 0; 
 
             const slice = (Math.PI*2)/WHEEL.length;
             const pocketCenterOffset = (winIndex * slice) + (slice/2);
@@ -778,13 +775,8 @@
             document.getElementById('resNum').innerText=data.resultVal;
             document.getElementById('resColor').style.background = (data.resultVal=="0")?'#165b33':(REDS.includes(parseInt(data.resultVal))?'#c03a35':'#111');
             
-            // Highlight Table Winner
-            let winningCell = document.querySelector(`.cell[data-id="${data.resultVal}"]`);
-            if(winningCell) winningCell.classList.add('winner-glow');
-
-            // Calculate & Highlight Wins
-            calculatePayout(data.resultVal);
-            highlightWins(data.resultVal); // ADDED COMPREHENSIVE HIGHLIGHTS
+            highlightWins(data.resultVal);
+            let localTotalWin = calculatePayout(data.resultVal);
 
             const h = document.getElementById('historyBar');
             let cls = (data.resultVal=="0")?'hb-green':(REDS.includes(parseInt(data.resultVal))?'hb-red':'hb-black');
@@ -794,44 +786,40 @@
             h.insertBefore(newBall, h.firstChild); 
             if(h.children.length > 5) h.removeChild(h.lastElementChild); 
 
+            if(localTotalWin > 0) { 
+                balance += localTotalWin; 
+                updateBalance(); 
+                showToast(`WON +${localTotalWin}`); 
+            }
+            
             bets=[]; renderBets(); 
-            // We clear indicators slightly later or on next spin to show the win
             setTimeout(() => {
                 document.querySelectorAll('.has-bet').forEach(c=>{c.classList.remove('has-bet'); c.querySelector('.indicator-dot')?.remove();});
             }, 3000);
         }
 
-        // --- NEW: COMPREHENSIVE HIGHLIGHTING ---
+        // --- COMPREHENSIVE HIGHLIGHTING ---
         function highlightWins(n) {
             let num = parseInt(n);
-            // 1. Highlight the number itself
             let numCell = document.querySelector(`.cell[data-id="${n}"]`);
             if(numCell) numCell.classList.add('winner-glow');
 
             if(num !== 0) {
-                // 2. Color (Red/Black)
                 let color = REDS.includes(num) ? "RED" : "BLACK";
                 document.querySelector(`.cell[data-id="${color}"]`)?.classList.add('winner-glow');
 
-                // 3. Even/Odd
                 let eo = (num % 2 === 0) ? "EVEN" : "ODD";
                 document.querySelector(`.cell[data-id="${eo}"]`)?.classList.add('winner-glow');
 
-                // 4. Low/High (1-18, 19-36)
                 let lh = (num <= 18) ? "1-18" : "19-36";
                 document.querySelector(`.cell[data-id="${lh}"]`)?.classList.add('winner-glow');
 
-                // 5. Dozens
                 let doz;
                 if(num <= 12) doz = "DOZ_1";
                 else if(num <= 24) doz = "DOZ_2";
                 else doz = "DOZ_3";
                 document.querySelector(`.cell[data-id="${doz}"]`)?.classList.add('winner-glow');
 
-                // 6. Rows (2:1)
-                // Row 0 = 3,6,9... (n % 3 === 0)
-                // Row 1 = 2,5,8... (n % 3 === 2)
-                // Row 2 = 1,4,7... (n % 3 === 1)
                 let mod = num % 3;
                 let rowId = (mod === 0) ? "ROW_0" : (mod === 2 ? "ROW_1" : "ROW_2");
                 document.querySelector(`.cell[data-id="${rowId}"]`)?.classList.add('winner-glow');
@@ -858,7 +846,6 @@
                     let winAmount = bet.quantity * (multiplier + 1);
                     totalWin += winAmount;
 
-                    // Flash winning chips
                     if(bet.uiId) {
                         let cell = document.querySelector(`.cell[data-id="${bet.uiId}"]`);
                         if(cell) cell.querySelector('.indicator-dot')?.classList.add('winning-chip');
@@ -870,12 +857,6 @@
                     }
                 }
             });
-            
-            if(totalWin > 0) { 
-                balance += totalWin; 
-                updateBalance(); 
-                showToast(`WON +${totalWin}`); 
-            }
             return totalWin;
         }
 
