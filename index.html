@@ -137,7 +137,6 @@
             width: 100%; display: flex; justify-content: center; align-items: flex-start;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5); box-sizing: border-box;
         }
-        /* Grid container handles Top border. Left border removed to prevent excess line under Zero. */
         .grid { display: grid; grid-template-columns: repeat(14, 1fr); width: 100%; border-top: 1px solid var(--border-color); }
         
         .cell {
@@ -149,19 +148,21 @@
         }
         .cell:hover { background: rgba(255,255,255,.15) !important; }
         
-        /* CONTINUOUS LEFT BORDER FIX */
-        /* Applied to Zero, the first column of numbers (3,2,1), 1st 12, and 1-18 */
         .seal-left { border-left: 1px solid var(--border-color) !important; }
 
-        /* WINNER HIGHLIGHT - BRIGHTER AND ALL CATEGORIES */
-        .cell.winner-glow {
-            box-shadow: inset 0 0 0 2px #fff, 0 0 30px var(--gold) !important;
-            background: rgba(255, 215, 0, 0.4) !important;
-            color: #fff !important; z-index: 10;
-            text-shadow: 0 0 5px black;
+        /* ZERO BORDER FIX */
+        /* Removes the right border so the next cell's left border handles the line */
+        .c-zero { 
+            background: rgba(20, 100, 50, 0.6); 
+            border-right: none !important; 
         }
 
-        .c-zero { background: rgba(20, 100, 50, 0.6); }
+        .cell.winner-glow {
+            box-shadow: inset 0 0 0 2px #fff, 0 0 20px var(--gold);
+            background: rgba(255, 215, 0, 0.2) !important;
+            color: #fff; z-index: 10;
+        }
+
         .c-red { background: rgba(180, 40, 40, 0.5); } .c-black { background: rgba(20, 20, 20, 0.5); } 
         .c-out { font-size: 11px; color: #ccc; text-transform: uppercase; }
         
@@ -175,14 +176,54 @@
             transition: 0.3s;
         }
 
-        /* GHOST ZONES */
-        .hit-zone { position: absolute; background: transparent; transition: 0.1s; cursor: pointer; }
-        .hit-zone:hover { background: rgba(255, 215, 0, 0.6); box-shadow: 0 0 8px #ffd700; }
+        /* VISIBLE BET BUTTONS (GHOST ZONES) */
+        .hit-zone { position: absolute; background: transparent; transition: 0.2s; cursor: pointer; }
         
-        .hz-corner { width: 35%; height: 35%; bottom: 0; right: 0; transform: translate(50%, 50%); border-radius: 50%; z-index: 100; }
-        .hz-split-v { width: 60%; height: 30%; bottom: 0; left: 50%; transform: translate(-50%, 50%); z-index: 90; }
-        .hz-split-h { width: 30%; height: 60%; top: 50%; right: 0; transform: translate(50%, -50%); z-index: 90; }
-        .hz-street { width: 100%; height: 30%; top: 0; left: 50%; transform: translate(-50%, -50%); z-index: 80; }
+        /* Make hit zones visible as small "targets" */
+        .hit-zone::after {
+            content: ''; position: absolute;
+            background: rgba(255, 255, 255, 0.15); /* Faint white target */
+            border-radius: 50%;
+            pointer-events: none;
+            transition: 0.2s;
+        }
+        .hit-zone:hover::after {
+            background: var(--gold);
+            box-shadow: 0 0 8px var(--gold);
+            transform: scale(1.3);
+        }
+
+        /* Specific sizing for buttons */
+        /* Corner: Large Center Dot */
+        .hz-corner { 
+            width: 35%; height: 35%; bottom: 0; right: 0; 
+            transform: translate(50%, 50%); z-index: 100; 
+        }
+        .hz-corner::after { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 10px; height: 10px; }
+
+        /* Split V: Small Dot on Bottom Edge */
+        .hz-split-v { 
+            width: 60%; height: 30%; bottom: 0; left: 50%; 
+            transform: translate(-50%, 50%); z-index: 90; 
+        }
+        .hz-split-v::after { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 6px; height: 6px; }
+
+        /* Split H: Small Dot on Right Edge */
+        .hz-split-h { 
+            width: 30%; height: 60%; top: 50%; right: 0; 
+            transform: translate(50%, -50%); z-index: 90; 
+        }
+        .hz-split-h::after { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 6px; height: 6px; }
+
+        /* Street: Bar on Top Edge */
+        .hz-street { 
+            width: 100%; height: 25%; top: 0; left: 50%; 
+            transform: translate(-50%, -50%); z-index: 80; 
+        }
+        .hz-street::after { 
+            width: 60%; height: 4px; border-radius: 2px;
+            top: 50%; left: 20%; 
+        }
 
         /* --- RIGHT SIDEBAR --- */
         .stats-sidebar { width: var(--sidebar-w); display: flex; flex-direction: column; gap: var(--gap); flex-shrink: 0; }
@@ -205,7 +246,6 @@
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 6000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .modal-box { background: #1b2b25; border: 2px solid var(--gold); border-radius: 16px; width: 450px; padding: 30px; text-align: center; }
         
-        /* CHIP GRID IN MODAL */
         .chip-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px; }
         .chip-btn {
             background: #222; border: 2px solid #444; border-radius: 50%; width: 60px; height: 60px;
@@ -738,8 +778,13 @@
             document.getElementById('resNum').innerText=data.resultVal;
             document.getElementById('resColor').style.background = (data.resultVal=="0")?'#165b33':(REDS.includes(parseInt(data.resultVal))?'#c03a35':'#111');
             
-            highlightWins(data.resultVal);
-            let localTotalWin = calculatePayout(data.resultVal);
+            // Highlight Table Winner
+            let winningCell = document.querySelector(`.cell[data-id="${data.resultVal}"]`);
+            if(winningCell) winningCell.classList.add('winner-glow');
+
+            // Calculate & Highlight Wins
+            calculatePayout(data.resultVal);
+            highlightWins(data.resultVal); // ADDED COMPREHENSIVE HIGHLIGHTS
 
             const h = document.getElementById('historyBar');
             let cls = (data.resultVal=="0")?'hb-green':(REDS.includes(parseInt(data.resultVal))?'hb-red':'hb-black');
@@ -749,12 +794,6 @@
             h.insertBefore(newBall, h.firstChild); 
             if(h.children.length > 5) h.removeChild(h.lastElementChild); 
 
-            if(localTotalWin > 0) { 
-                balance += localTotalWin; 
-                updateBalance(); 
-                showToast(`WON +${localTotalWin}`); 
-            }
-            
             bets=[]; renderBets(); 
             // We clear indicators slightly later or on next spin to show the win
             setTimeout(() => {
@@ -831,6 +870,12 @@
                     }
                 }
             });
+            
+            if(totalWin > 0) { 
+                balance += totalWin; 
+                updateBalance(); 
+                showToast(`WON +${totalWin}`); 
+            }
             return totalWin;
         }
 
