@@ -29,14 +29,13 @@
             --red: #d32f2f;
             --border-color: rgba(255,255,255,0.15);
             
-            /* LAYOUT LOCKS & SPACING */
-            --gap: 16px; 
-            --panel-pad: 16px; /* EQUAL PADDING FOR ALL PANELS */
-            
+            /* LAYOUT LOCKS */
+            --gap: 16px;            
             --wheel-w: 450px; 
             --stats-w: 280px;
             --upper-h: 420px;
             --sidebar-w: 280px;
+            --panel-pad: 16px;
         }
 
         body { 
@@ -98,34 +97,12 @@
             border-radius: 12px; position: relative;
             display: flex; justify-content: center; align-items: center;
             box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-            padding: var(--panel-pad); /* EQUAL PADDING */
+            padding: var(--panel-pad);
             box-sizing: border-box;
         }
-        .stage { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+        .stage { width: 95%; height: 95%; display: flex; align-items: center; justify-content: center; }
         canvas { max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 0 5px rgba(0,0,0,0.8)); }
         
-        /* --- REALISTIC WOOD RING --- */
-        .wood-ring {
-            position: absolute; 
-            width: 380px; height: 380px; 
-            border-radius: 50%;
-            pointer-events: none; z-index: 5; 
-            background: transparent;
-            
-            /* Realistic Wood Gradient Effect via Borders & Shadows */
-            border: 15px solid #2d1b12; /* Deep base wood color */
-            box-shadow: 
-                /* Inner depth (where numbers meet wood) */
-                inset 0 0 15px 2px rgba(0,0,0,0.9), 
-                /* Top-left light reflection (Varnish) */
-                inset 2px 2px 10px rgba(255,255,255,0.1),
-                /* Outer rim darkness */
-                0 0 0 1px #1a0f0a,
-                /* Drop shadow */
-                0 5px 20px rgba(0,0,0,0.5);
-        }
-        /* Optional: Add a subtle wood grain if desired via repeating gradient on pseudo, but shadows usually look cleaner */
-
         .pointer { display: none; }
         .spin-trigger { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 80px; height: 80px; border-radius: 50%; z-index: 30; cursor: pointer; }
 
@@ -134,9 +111,7 @@
 
         .payout-wrap {
             background: var(--panel-bg); border: 1px solid var(--border-color);
-            border-radius: 12px; 
-            padding: var(--panel-pad); /* EQUAL PADDING */
-            flex: 1; display: flex; flex-direction: column; overflow: hidden;
+            border-radius: 12px; padding: var(--panel-pad); flex: 1; display: flex; flex-direction: column; overflow: hidden;
         }
         .pay-title { color: var(--gold); font-weight: 700; text-transform: uppercase; font-size: 11px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px; margin-bottom: 8px; }
         .payout-grid { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #aab; }
@@ -144,9 +119,7 @@
         .pay-val { color: #fff; font-weight: 700; }
 
         .result-panel {
-            background: var(--panel-bg); 
-            padding: var(--panel-pad); /* EQUAL PADDING */
-            border-radius: 12px; border: 1px solid var(--border-color);
+            background: var(--panel-bg); padding: var(--panel-pad); border-radius: 12px; border: 1px solid var(--border-color);
             height: 130px; flex-shrink: 0; display: flex; flex-direction: column; justify-content: center;
         }
         .res-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; }
@@ -160,9 +133,7 @@
 
         /* TABLE */
         .tableWrap {
-            background: var(--panel-bg); 
-            padding: var(--panel-pad); /* EQUAL PADDING */
-            border-radius: 12px; border: 1px solid var(--border-color);
+            background: var(--panel-bg); padding: var(--panel-pad); border-radius: 12px; border: 1px solid var(--border-color);
             width: 100%; display: flex; justify-content: center; align-items: flex-start;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5); box-sizing: border-box;
         }
@@ -185,9 +156,7 @@
         .stats-sidebar { width: var(--sidebar-w); display: flex; flex-direction: column; gap: var(--gap); flex-shrink: 0; }
         .list-box { 
             background: var(--panel-bg); border: 1px solid var(--border-color); 
-            border-radius: 12px; 
-            padding: var(--panel-pad); /* EQUAL PADDING */
-            display: flex; flex-direction: column; 
+            border-radius: 12px; padding: var(--panel-pad); display: flex; flex-direction: column; 
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
         #currentBetsBox { flex: 1; min-height: 0; overflow: hidden; }
@@ -299,8 +268,6 @@
                 <div class="left-group" id="leftGroup">
                     <div class="upper-row">
                         <div class="wheelPanel">
-                            <div class="wood-ring"></div>
-                            
                             <div class="stage">
                                 <div class="pointer"></div>
                                 <div class="spin-trigger" onclick="reqSpin()"></div>
@@ -559,9 +526,9 @@
                         let easeSpiral = 1 - Math.pow(1-spiralP, 2);
                         ball.r = 350 - (58 * easeSpiral); 
                     } else {
-                        // PHASE 3: ROLLING ON NUMBERS TO STOP (7-10s)
+                        // PHASE 3: ROLLING ON NUMBERS (7-10s)
                         // Ball stays at 292 (rolling over numbers)
-                        // It just slows down here and stops at the center
+                        // until very end where it just stops there (conceptually "in" the pocket)
                         ball.r = 292;
                     }
                     
