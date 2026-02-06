@@ -41,9 +41,10 @@
             background-size: cover;
             height: 100vh; width: 100vw; overflow: hidden; 
             display: flex; flex-direction: column;
-            transform: translateZ(0);
+            transform: translateZ(0); /* GPU acceleration */
         }
         
+        /* SCROLLBARS */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
@@ -94,9 +95,14 @@
             padding: var(--panel-pad); box-sizing: border-box;
         }
         .stage { width: 95%; height: 95%; display: flex; align-items: center; justify-content: center; }
-        canvas { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 50%; }
         
-        .pointer { display: none; }
+        canvas { 
+            max-width: 100%; max-height: 100%; object-fit: contain; 
+            border-radius: 50%;
+            /* No complex filters for performance */
+        }
+        
+        .pointer { display: none; } /* Hidden */
         .spin-trigger { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 80px; height: 80px; border-radius: 50%; z-index: 30; cursor: pointer; }
 
         /* MIDDLE STATS COLUMN */
@@ -119,12 +125,14 @@
         .res-box { display: flex; align-items: center; gap: 10px; }
         #resColor { width: 28px; height: 28px; border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.2); }
         #resNum { font-size: 32px; font-weight: 800; color: #fff; line-height: 1; }
-        .history-row { display: flex; gap: 8px; justify-content: center; height: 40px; align-items: center; }
         
+        /* REALISTIC HISTORY BALLS */
+        .history-row { display: flex; gap: 8px; justify-content: center; height: 40px; align-items: center; }
         .hist-ball { 
             width: 36px; height: 36px; border-radius: 50%; font-size: 14px; font-weight: 800; 
             display: flex; align-items: center; justify-content: center; border: none;
-            box-shadow: inset -2px -2px 6px rgba(0,0,0,0.5), 2px 2px 5px rgba(0,0,0,0.3); text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            box-shadow: inset -2px -2px 6px rgba(0,0,0,0.5), 2px 2px 5px rgba(0,0,0,0.3); 
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
         }
         .hb-red { background: radial-gradient(circle at 30% 30%, #ff5f5f, #d32f2f 60%, #9a0000); } 
         .hb-black { background: radial-gradient(circle at 30% 30%, #666, #111 60%, #000); } 
@@ -146,7 +154,7 @@
         }
         .cell:hover { background: rgba(255,255,255,.15) !important; }
         
-        /* Winning Cell Highlight */
+        /* Winner Highlight */
         .cell.winner-glow {
             box-shadow: inset 0 0 0 2px #fff, 0 0 20px var(--gold);
             background: rgba(255, 215, 0, 0.2) !important;
@@ -159,6 +167,18 @@
         .c-out { font-size: 11px; color: #ccc; text-transform: uppercase; }
         .cell.has-bet { box-shadow: inset 0 0 0 1px var(--gold), inset 0 0 10px rgba(201, 164, 76, 0.2); }
         .indicator-dot { position: absolute; top: 3px; right: 3px; width: 6px; height: 6px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 4px #c9a44c; pointer-events: none; }
+
+        /* GHOST ZONES (Invisible Hitboxes for Split/Corner) */
+        .hit-zone {
+            position: absolute; z-index: 20; background: transparent; transition: 0.1s; cursor: pointer;
+        }
+        .hit-zone:hover { background: rgba(255, 215, 0, 0.6); box-shadow: 0 0 8px #ffd700; }
+        
+        .hz-split-v { width: 60%; height: 20%; left: 20%; bottom: -10%; }
+        .hz-split-h { width: 20%; height: 60%; top: 20%; right: -10%; }
+        .hz-corner { width: 25%; height: 25%; right: -12.5%; bottom: -12.5%; border-radius: 50%; }
+        .hz-street { width: 100%; height: 20%; top: -20%; left: 0; border-top: 2px solid transparent; }
+        .hz-street:hover { border-top-color: var(--gold); }
 
         /* --- RIGHT SIDEBAR --- */
         .stats-sidebar { width: var(--sidebar-w); display: flex; flex-direction: column; gap: var(--gap); flex-shrink: 0; }
@@ -174,8 +194,14 @@
         .list-row { display: flex; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 5px 8px; border-radius: 4px; font-size: 11px; color: #ddd; align-items: center; }
         .chat-row { text-align: left; background: rgba(255,255,255,0.02); padding: 4px 8px; border-radius: 4px; font-size: 11px; margin-bottom: 4px; word-wrap: break-word; color: #ccc; }
         .chat-input-row { display: flex; gap: 5px; margin-top: 10px; }
+        
         /* Chat Input: Left Aligned */
-        .chat-inp { flex: 1; background: rgba(0,0,0,0.3); border: 1px solid #444; color: white; border-radius: 4px; padding: 6px; font-family: inherit; font-size: 12px; text-align: left; }
+        .chat-inp { 
+            flex: 1; background: rgba(0,0,0,0.3); border: 1px solid #444; 
+            color: white; border-radius: 4px; padding: 6px; 
+            font-family: inherit; font-size: 12px; 
+            text-align: left; padding-left: 10px;
+        }
         .lr-icon { width: 6px; height: 6px; background: #666; border-radius: 50%; cursor: pointer; } 
         .lr-icon:hover { background: #ff4444; transform: scale(1.4); }
 
@@ -327,7 +353,7 @@
                         <div class="list-head">CHAT</div>
                         <div class="list-content" id="chatList"></div>
                         <div class="chat-input-row">
-                            <input class="chat-inp" id="chatInput" placeholder="Type..." style="margin:0; padding:6px; font-size:12px;">
+                            <input class="chat-inp" id="chatInput" placeholder="Type..." style="margin:0;">
                             <button class="switch-btn" style="padding:4px 8px; border-color:#444;" onclick="sendChat()">></button>
                         </div>
                     </div>
@@ -435,35 +461,79 @@
             let bx = CX + ball.r * Math.cos(ball.a);
             let by = CY + ball.r * Math.sin(ball.a);
             
-            // Fake shadow (semi-transparent black circle offset)
-            ctx.beginPath(); 
-            ctx.arc(bx + 2, by + 2, 9, 0, Math.PI*2); 
-            ctx.fillStyle="rgba(0,0,0,0.5)"; 
-            ctx.fill();
-
+            // Fake shadow
+            ctx.beginPath(); ctx.arc(bx + 2, by + 2, 9, 0, Math.PI*2); ctx.fillStyle="rgba(0,0,0,0.5)"; ctx.fill();
             // Ball body
-            ctx.beginPath(); 
-            ctx.arc(bx, by, 10, 0, Math.PI*2); 
-            ctx.fillStyle="#fff"; 
-            ctx.fill();
+            ctx.beginPath(); ctx.arc(bx, by, 10, 0, Math.PI*2); ctx.fillStyle="#fff"; ctx.fill();
         }
 
-        // --- GRID ---
+        // --- GRID WITH GHOST ZONES ---
         function buildGrid(){
             const g = document.getElementById('grid'); g.innerHTML='';
-            let z = document.createElement('div'); z.style.gridRow="1/span 3"; z.style.display="flex"; z.style.flexDirection="column";
-            z.innerHTML = `<div class="cell c-zero" onclick="preBet('00','00')" style="flex:1">00</div><div class="cell c-zero" onclick="preBet('0','0')" style="flex:1; border-top:1px solid rgba(255,255,255,0.2)">0</div>`;
+            
+            // 0/00
+            let z = document.createElement('div'); 
+            z.style.gridRow="1/span 3"; z.style.display="flex"; z.style.flexDirection="column";
+            z.innerHTML = `<div class="cell c-zero" onclick="preBet([0], '00')" style="flex:1">00</div>
+                           <div class="cell c-zero" onclick="preBet([0], '0')" style="flex:1; border-top:1px solid rgba(255,255,255,0.2)">0</div>`;
             g.appendChild(z);
+
             const rows = [[3,6,9,12,15,18,21,24,27,30,33,36],[2,5,8,11,14,17,20,23,26,29,32,35],[1,4,7,10,13,16,19,22,25,28,31,34]];
-            rows.forEach((r,ri)=>{
-                r.forEach((n,ci)=>{
-                    let d = document.createElement('div'); d.className = `cell ${REDS.includes(n)?'c-red':'c-black'}`; d.innerText=n; d.dataset.id=n;
-                    d.style.gridRow=ri+1; d.style.gridColumn=ci+2; d.onclick=()=>preBet(n.toString(),n); g.appendChild(d);
+            
+            rows.forEach((rowArr, rIndex)=>{
+                rowArr.forEach((n, cIndex)=>{
+                    let d = document.createElement('div'); 
+                    d.className = `cell ${REDS.includes(n)?'c-red':'c-black'}`; d.innerText = n; d.dataset.id = n;
+                    d.style.gridRow = rIndex + 1; d.style.gridColumn = cIndex + 2; 
+                    
+                    // Single number click
+                    d.onclick = (e) => { if(e.target === d) preBet([n], n.toString()); };
+
+                    // 1. Vertical Split (Below)
+                    if(rIndex < 2) {
+                        let neighbor = rows[rIndex+1][cIndex];
+                        let zone = document.createElement('div');
+                        zone.className = "hit-zone hz-split-v"; zone.title = `Split ${n}-${neighbor}`;
+                        zone.onclick = (e) => { e.stopPropagation(); preBet([n, neighbor], "Split"); };
+                        d.appendChild(zone);
+                    }
+                    // 2. Horizontal Split (Right)
+                    if(cIndex < 11) {
+                        let neighbor = rowArr[cIndex+1];
+                        let zone = document.createElement('div');
+                        zone.className = "hit-zone hz-split-h"; zone.title = `Split ${n}-${neighbor}`;
+                        zone.onclick = (e) => { e.stopPropagation(); preBet([n, neighbor], "Split"); };
+                        d.appendChild(zone);
+                    }
+                    // 3. Corner (Bottom-Right)
+                    if(rIndex < 2 && cIndex < 11) {
+                        let n1=n, n2=rows[rIndex+1][cIndex], n3=rowArr[cIndex+1], n4=rows[rIndex+1][cIndex+1];
+                        let zone = document.createElement('div');
+                        zone.className = "hit-zone hz-corner"; zone.title = `Corner`;
+                        zone.onclick = (e) => { e.stopPropagation(); preBet([n1, n2, n3, n4], "Corner"); };
+                        d.appendChild(zone);
+                    }
+                    // 4. Street (Top of Top Row)
+                    if(rIndex === 0) {
+                        let colNums = [rows[0][cIndex], rows[1][cIndex], rows[2][cIndex]];
+                        let zone = document.createElement('div');
+                        zone.className = "hit-zone hz-street"; zone.title = `Street`;
+                        zone.onclick = (e) => { e.stopPropagation(); preBet(colNums, "Street"); };
+                        d.appendChild(zone);
+                    }
+                    g.appendChild(d);
                 });
-                let end = document.createElement('div'); end.className='cell c-out'; end.innerText="2:1"; end.style.gridRow=ri+1; end.style.gridColumn=14; end.onclick=()=>preBet('ROW'+ri, "Row"); g.appendChild(end);
+                // 2:1 Buttons
+                let end = document.createElement('div'); end.className='cell c-out'; end.innerText="2:1"; 
+                end.style.gridRow = rIndex + 1; end.style.gridColumn = 14; 
+                end.onclick = () => preBet(rowArr, "2:1"); 
+                g.appendChild(end);
             });
+
+            // Dozens/Colors
             [[2,"1st 12"],[6,"2nd 12"],[10,"3rd 12"]].forEach(d=>{
-                let el=document.createElement('div'); el.className="cell c-out"; el.innerText=d[1]; el.style.gridRow=4; el.style.gridColumn=`${d[0]}/span 4`; el.onclick=()=>preBet('DOZ'+d[0], d[1]); g.appendChild(el);
+                let el=document.createElement('div'); el.className="cell c-out"; el.innerText=d[1]; 
+                el.style.gridRow=4; el.style.gridColumn=`${d[0]}/span 4`; el.onclick=()=>preBet('DOZ'+d[0], d[1]); g.appendChild(el);
             });
             [[2,"1-18"],[4,"EVEN"],[6,"RED"],[8,"BLACK"],[10,"ODD"],[12,"19-36"]].forEach(b=>{
                 let el=document.createElement('div'); el.className="cell c-out"; el.innerText=b[1]; 
@@ -474,19 +544,28 @@
 
         // --- BETTING ---
         let tempBet=null;
-        function preBet(id, lbl) { if(spinning)return; tempBet={id,lbl}; document.getElementById('betModal').style.display='flex'; document.getElementById('betAmt').focus(); }
+        function preBet(numbers, lbl) { 
+            if(spinning) return; 
+            let betNums = Array.isArray(numbers) ? numbers : [numbers];
+            tempBet = { ids: betNums, lbl: lbl }; 
+            document.getElementById('betModal').style.display='flex'; document.getElementById('betAmt').focus(); 
+        }
         function closeModal(){ document.getElementById('betModal').style.display='none'; }
+        
         function confirmBet(){
             const amt = parseInt(document.getElementById('betAmt').value);
             if(amt>0 && amt<=balance){
                 bets.push({ ...tempBet, quantity: amt });
                 balance-=amt; document.getElementById('dispBal').innerText=balance;
                 closeModal();
-                const cell = document.querySelector(`.cell[data-id="${tempBet.id}"]`) || document.querySelector(`.cell`);
+                // Visual Indicator (First num)
+                let targetId = tempBet.ids[0];
+                const cell = document.querySelector(`.cell[data-id="${targetId}"]`) || document.querySelector(`.cell`);
                 if(cell){ cell.classList.add('has-bet'); if(!cell.querySelector('.indicator-dot')) cell.innerHTML+=`<div class="indicator-dot"></div>`; }
-                renderBets(); fitLayout();
+                renderBets();
             } else alert("Invalid Funds");
         }
+
         function renderBets(){
             const l = document.getElementById('betsList'); l.innerHTML="";
             if(bets.length===0) l.innerHTML='<div style="text-align:center; color:#666; font-size:11px; margin-top:10px;">No Bets</div>';
@@ -497,33 +576,30 @@
         function updateBalance(){ document.getElementById('dispBal').innerText=balance; }
 
         // --- SPIN ---
-        function reqSpin(){ if(spinning || bets.length==0) return; socket.emit('roulette_req_spin', bets); 
-            // Clear previous winner glow
+        function reqSpin(){ 
+            if(spinning || bets.length==0) return; 
+            socket.emit('roulette_req_spin', bets); 
+            // Clear winner glows
             document.querySelectorAll('.winner-glow').forEach(el => el.classList.remove('winner-glow'));
         }
         
         socket.on('roulette_res_spin', data => {
             spinning=true; 
-            
-            // Clear winners just in case
             document.querySelectorAll('.winner-glow').forEach(el => el.classList.remove('winner-glow'));
-
+            
             let start=null; const dur=10000; // 10s Physics
             
-            // WHEEL TARGET
             const randomOffset = Math.random() * Math.PI * 2;
             const wheelRotations = Math.PI * 16; 
             const finalWheelA = angle + wheelRotations + randomOffset;
             const startA = angle;
 
-            // BALL TARGET
             const slice = (Math.PI*2)/WHEEL.length;
             const pocketCenterOffset = (data.winningIndex * slice) + (slice/2);
             
             ball.active = true;
             ball.r = 350; 
             
-            // Relative Motion
             const totalBallLaps = 20;
             const startRelAngle = pocketCenterOffset + (Math.PI * 2 * totalBallLaps);
             const endRelAngle = pocketCenterOffset;
@@ -532,41 +608,33 @@
                 if(!start)start=t; const p=(t-start)/dur;
                 
                 if(p<1){
-                    // 1. Wheel Deceleration (Stops at 8.5s)
+                    // 1. Wheel Stops at 8.5s
                     let wheelP = Math.min(p / 0.85, 1);
                     const eWheel = 1 - Math.pow(1-wheelP, 4); 
                     angle = startA + (finalWheelA - startA)*eWheel;
 
-                    // 2. Ball Relative Motion (Continues till end)
+                    // 2. Ball Continues rolling
                     const eBall = 1 - Math.pow(1-p, 4); 
                     const currentRelAngle = startRelAngle + (endRelAngle - startRelAngle) * eBall;
                     
-                    // 3. SMOOTH RADIUS LOGIC (No Drop)
+                    // 3. Smooth Radius (No Drop)
                     if (p < 0.4) {
-                        // PHASE 1: RIM (0-4s)
-                        ball.r = 350;
+                        ball.r = 350; // Rim
                     } else if (p < 0.7) {
-                        // PHASE 2: SPIRAL TO NUMBERS (4-7s)
-                        // 350 -> 292 (Number Ring)
                         let spiralP = (p-0.4)/0.3;
                         let easeSpiral = 1 - Math.pow(1-spiralP, 2);
-                        ball.r = 350 - (58 * easeSpiral); 
+                        ball.r = 350 - (58 * easeSpiral); // 350 -> 292
                     } else {
-                        // PHASE 3: ROLLING ON NUMBERS (7-10s)
-                        // Ball stays at 292 (rolling over numbers)
-                        // until very end where it just stops there (conceptually "in" the pocket)
-                        ball.r = 292;
+                        ball.r = 292; // Rolling on numbers
                     }
                     
                     ball.a = angle + currentRelAngle;
-
                     drawWheel();
                     requestAnimationFrame(anim);
                 } else {
-                    // Final State
                     angle = finalWheelA;
                     ball.a = finalWheelA + pocketCenterOffset;
-                    ball.r = 292; // Stopped on numbers
+                    ball.r = 292; 
                     drawWheel();
                     spinning = false; 
                     finish(data);
