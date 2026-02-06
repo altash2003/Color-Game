@@ -137,6 +137,7 @@
             width: 100%; display: flex; justify-content: center; align-items: flex-start;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5); box-sizing: border-box;
         }
+        /* REMOVED GRID LEFT BORDER TO REMOVE EXCESS LINE */
         .grid { display: grid; grid-template-columns: repeat(14, 1fr); width: 100%; border-top: 1px solid var(--border-color); }
         
         .cell {
@@ -147,6 +148,8 @@
             overflow: visible; 
         }
         .cell:hover { background: rgba(255,255,255,.15) !important; }
+        
+        /* THIS SEALS THE LEFT EDGE WHERE NEEDED */
         .seal-left { border-left: 1px solid var(--border-color) !important; }
 
         .cell.winner-glow {
@@ -162,7 +165,6 @@
         .cell.has-bet { box-shadow: inset 0 0 0 1px var(--gold), inset 0 0 10px rgba(201, 164, 76, 0.2); }
         .indicator-dot { position: absolute; top: 3px; right: 3px; width: 6px; height: 6px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 4px #c9a44c; pointer-events: none; z-index: 5; }
         
-        /* WINNING CHIP GLOW */
         .indicator-dot.winning-chip {
             background: #fff;
             box-shadow: 0 0 10px #fff, 0 0 20px var(--gold);
@@ -526,7 +528,7 @@
                 g.appendChild(end);
             });
 
-            // GENERATE HELPERS FOR OUTER BETS (CORRECTED RANGES)
+            // GENERATE HELPERS FOR OUTER BETS
             const range = (start, end) => Array.from({length: end - start + 1}, (_, i) => start + i);
             const getDozen = (d) => (d===1 ? range(1,12) : (d===2 ? range(13,24) : range(25,36)));
             
