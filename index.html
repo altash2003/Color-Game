@@ -95,7 +95,6 @@
         }
         .stage { width: 95%; height: 95%; display: flex; align-items: center; justify-content: center; }
         
-        /* CANVAS - No borders, no shadows, pure graphic */
         canvas { 
             max-width: 100%; max-height: 100%; object-fit: contain; 
             border-radius: 50%;
@@ -116,6 +115,7 @@
         .pay-item { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.02); padding: 4px 0; }
         .pay-val { color: #fff; font-weight: 700; }
 
+        /* WINNER PANEL STYLES */
         .result-panel {
             background: var(--panel-bg); padding: var(--panel-pad); border-radius: 12px; border: 1px solid var(--border-color);
             height: 130px; flex-shrink: 0; display: flex; flex-direction: column; justify-content: center;
@@ -124,9 +124,22 @@
         .res-box { display: flex; align-items: center; gap: 10px; }
         #resColor { width: 28px; height: 28px; border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.2); }
         #resNum { font-size: 32px; font-weight: 800; color: #fff; line-height: 1; }
+        
         .history-row { display: flex; gap: 8px; justify-content: center; height: 40px; align-items: center; }
-        .hist-ball { width: 32px; height: 32px; border-radius: 50%; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.2); }
-        .hb-red { background: var(--red); } .hb-black { background: #111; } .hb-green { background: #165b33; } 
+        
+        /* REALISTIC HISTORY BALLS */
+        .hist-ball { 
+            width: 36px; height: 36px; /* Bigger size */
+            border-radius: 50%; font-size: 14px; font-weight: 800; 
+            display: flex; align-items: center; justify-content: center; 
+            border: none; /* Removed flat border */
+            box-shadow: inset -2px -2px 6px rgba(0,0,0,0.5), 2px 2px 5px rgba(0,0,0,0.3); /* 3D Depth */
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        /* Realistic Gradients */
+        .hb-red { background: radial-gradient(circle at 30% 30%, #ff5f5f, #d32f2f 60%, #9a0000); } 
+        .hb-black { background: radial-gradient(circle at 30% 30%, #666, #111 60%, #000); } 
+        .hb-green { background: radial-gradient(circle at 30% 30%, #2e8b57, #165b33 60%, #0a2e1a); } 
         .hb-empty { display: none; } 
 
         /* TABLE */
