@@ -138,11 +138,13 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5); box-sizing: border-box;
         }
         .grid { display: grid; grid-template-columns: repeat(14, 1fr); width: 100%; border-top: 1px solid var(--border-color); border-left: 1px solid var(--border-color); }
+        
         .cell {
             display: flex; align-items: center; justify-content: center;
             border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);
             cursor: pointer; position: relative; font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.9);
             transition: 0.1s; user-select: none; text-align: center;
+            overflow: visible; /* CRITICAL: Allows ghost zones to hang outside the cell */
         }
         .cell:hover { background: rgba(255,255,255,.15) !important; }
         
@@ -157,16 +159,44 @@
         .c-out { font-size: 11px; color: #ccc; text-transform: uppercase; }
         
         .cell.has-bet { box-shadow: inset 0 0 0 1px var(--gold), inset 0 0 10px rgba(201, 164, 76, 0.2); }
-        .indicator-dot { position: absolute; top: 3px; right: 3px; width: 6px; height: 6px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 4px #c9a44c; pointer-events: none; }
+        
+        /* CHIP INDICATOR */
+        .indicator-dot { 
+            position: absolute; top: 3px; right: 3px; 
+            width: 6px; height: 6px; background: var(--gold); 
+            border-radius: 50%; box-shadow: 0 0 4px #c9a44c; 
+            pointer-events: none; /* CRITICAL: Allows clicks to pass through chip to underlying hit zones */
+            z-index: 5; /* Lower than hit zones */
+        }
 
-        /* GHOST ZONES */
-        .hit-zone { position: absolute; z-index: 20; background: transparent; transition: 0.1s; cursor: pointer; }
+        /* GHOST ZONES (Invisible Hitboxes) */
+        /* Z-Index logic: Corner > Split > Street > Cell Content */
+        .hit-zone {
+            position: absolute; background: transparent; transition: 0.1s; cursor: pointer;
+        }
         .hit-zone:hover { background: rgba(255, 215, 0, 0.6); box-shadow: 0 0 8px #ffd700; }
         
-        .hz-split-v { width: 60%; height: 30%; bottom: 0; left: 50%; transform: translate(-50%, 50%); z-index: 22; }
-        .hz-split-h { width: 30%; height: 60%; top: 50%; right: 0; transform: translate(50%, -50%); z-index: 22; }
-        .hz-corner { width: 35%; height: 35%; bottom: 0; right: 0; transform: translate(50%, 50%); border-radius: 50%; z-index: 25; }
-        .hz-street { width: 100%; height: 30%; top: 0; left: 50%; transform: translate(-50%, -50%); z-index: 21; }
+        .hz-corner { 
+            width: 35%; height: 35%; 
+            bottom: 0; right: 0; transform: translate(50%, 50%); 
+            border-radius: 50%; 
+            z-index: 100; /* Highest priority */
+        }
+        .hz-split-v { 
+            width: 60%; height: 30%; 
+            bottom: 0; left: 50%; transform: translate(-50%, 50%); 
+            z-index: 90; 
+        }
+        .hz-split-h { 
+            width: 30%; height: 60%; 
+            top: 50%; right: 0; transform: translate(50%, -50%); 
+            z-index: 90; 
+        }
+        .hz-street { 
+            width: 100%; height: 30%; 
+            top: 0; left: 50%; transform: translate(-50%, -50%); 
+            z-index: 80; 
+        }
 
         /* --- RIGHT SIDEBAR --- */
         .stats-sidebar { width: var(--sidebar-w); display: flex; flex-direction: column; gap: var(--gap); flex-shrink: 0; }
@@ -454,8 +484,10 @@
             
             // 0/00
             let z = document.createElement('div'); 
-            z.className = "cell c-zero";
+            z.className = "cell c-zero"; // Ensure class is present for selection
             z.style.gridRow="1/span 3"; z.style.display="flex"; z.style.flexDirection="column";
+            // Important: We assign a data-id to the wrapper or children. 
+            // Simplified: The wrapper handles the clicks for logic, but children have the data-ids
             z.innerHTML = `
                 <div class="cell" data-id="00" onclick="preBet([0], '00')" style="flex:1; border:none; border-bottom:1px solid rgba(255,255,255,0.2)">00</div>
                 <div class="cell" data-id="0" onclick="preBet([0], '0')" style="flex:1; border:none;">0</div>
@@ -563,21 +595,29 @@
                 balance-=amt; document.getElementById('dispBal').innerText=balance;
                 closeModal();
                 
-                // VISUAL CHIP PLACEMENT
+                // VISUAL CHIP PLACEMENT (FIXED BUG: Use appendChild instead of innerHTML)
                 if (tempBet.uiId) {
-                    // Outer Bet: Place chip on the specific outer cell (e.g. "RED")
+                    // Outer Bet
                     const cell = document.querySelector(`.cell[data-id="${tempBet.uiId}"]`);
                     if(cell) {
                         cell.classList.add('has-bet');
-                        if(!cell.querySelector('.indicator-dot')) cell.innerHTML+=`<div class="indicator-dot"></div>`;
+                        if(!cell.querySelector('.indicator-dot')) {
+                            let dot = document.createElement('div');
+                            dot.className = 'indicator-dot';
+                            cell.appendChild(dot);
+                        }
                     }
                 } else {
-                    // Inside Bet: Place chips on ALL involved numbers (Split/Corner/Street)
+                    // Inside Bet
                     tempBet.ids.forEach(id => {
                         const cell = document.querySelector(`.cell[data-id="${id}"]`) || document.querySelector(`.cell`);
                         if(cell){ 
                             cell.classList.add('has-bet'); 
-                            if(!cell.querySelector('.indicator-dot')) cell.innerHTML+=`<div class="indicator-dot"></div>`; 
+                            if(!cell.querySelector('.indicator-dot')) {
+                                let dot = document.createElement('div');
+                                dot.className = 'indicator-dot';
+                                cell.appendChild(dot);
+                            }
                         }
                     });
                 }
