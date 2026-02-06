@@ -165,20 +165,43 @@
         .seal-left { border-left: 1px solid var(--border-color) !important; }
         .c-red { background: rgba(180, 40, 40, 0.5); } .c-black { background: rgba(20, 20, 20, 0.5); } .c-zero { background: rgba(20, 100, 50, 0.6); }
         .c-out { font-size: 11px; color: #ccc; text-transform: uppercase; }
+        
+        /* BET INDICATORS */
         .cell.has-bet { box-shadow: inset 0 0 0 1px var(--gold), inset 0 0 10px rgba(201, 164, 76, 0.2); }
         .indicator-dot { position: absolute; top: 3px; right: 3px; width: 6px; height: 6px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 4px #c9a44c; pointer-events: none; }
 
-        /* GHOST ZONES (Invisible Hitboxes for Split/Corner) */
+        /* --- FIXED GHOST ZONES (Perfectly Centered) --- */
         .hit-zone {
             position: absolute; z-index: 20; background: transparent; transition: 0.1s; cursor: pointer;
         }
         .hit-zone:hover { background: rgba(255, 215, 0, 0.6); box-shadow: 0 0 8px #ffd700; }
         
-        .hz-split-v { width: 60%; height: 20%; left: 20%; bottom: -10%; }
-        .hz-split-h { width: 20%; height: 60%; top: 20%; right: -10%; }
-        .hz-corner { width: 25%; height: 25%; right: -12.5%; bottom: -12.5%; border-radius: 50%; }
-        .hz-street { width: 100%; height: 20%; top: -20%; left: 0; border-top: 2px solid transparent; }
-        .hz-street:hover { border-top-color: var(--gold); }
+        /* Vertical Split: Centered on bottom border */
+        .hz-split-v { 
+            width: 60%; height: 30%; 
+            bottom: 0; left: 50%; 
+            transform: translate(-50%, 50%);
+        }
+        /* Horizontal Split: Centered on right border */
+        .hz-split-h { 
+            width: 30%; height: 60%; 
+            top: 50%; right: 0; 
+            transform: translate(50%, -50%);
+        }
+        /* Corner: Centered on bottom-right intersection */
+        .hz-corner { 
+            width: 35%; height: 35%; 
+            bottom: 0; right: 0; 
+            transform: translate(50%, 50%);
+            border-radius: 50%; 
+        }
+        /* Street: Centered on top border */
+        .hz-street { 
+            width: 100%; height: 30%; 
+            top: 0; left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
 
         /* --- RIGHT SIDEBAR --- */
         .stats-sidebar { width: var(--sidebar-w); display: flex; flex-direction: column; gap: var(--gap); flex-shrink: 0; }
@@ -558,10 +581,15 @@
                 bets.push({ ...tempBet, quantity: amt });
                 balance-=amt; document.getElementById('dispBal').innerText=balance;
                 closeModal();
-                // Visual Indicator (First num)
-                let targetId = tempBet.ids[0];
-                const cell = document.querySelector(`.cell[data-id="${targetId}"]`) || document.querySelector(`.cell`);
-                if(cell){ cell.classList.add('has-bet'); if(!cell.querySelector('.indicator-dot')) cell.innerHTML+=`<div class="indicator-dot"></div>`; }
+                
+                // Highlight ALL involved numbers
+                tempBet.ids.forEach(id => {
+                    const cell = document.querySelector(`.cell[data-id="${id}"]`) || document.querySelector(`.cell`);
+                    if(cell){ 
+                        cell.classList.add('has-bet'); 
+                        if(!cell.querySelector('.indicator-dot')) cell.innerHTML+=`<div class="indicator-dot"></div>`; 
+                    }
+                });
                 renderBets();
             } else alert("Invalid Funds");
         }
