@@ -137,7 +137,7 @@
             width: 100%; display: flex; justify-content: center; align-items: flex-start;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5); box-sizing: border-box;
         }
-        /* REMOVED GRID LEFT BORDER TO REMOVE EXCESS LINE */
+        /* Grid container handles Top border. Left border removed to prevent excess line under Zero. */
         .grid { display: grid; grid-template-columns: repeat(14, 1fr); width: 100%; border-top: 1px solid var(--border-color); }
         
         .cell {
@@ -149,13 +149,16 @@
         }
         .cell:hover { background: rgba(255,255,255,.15) !important; }
         
-        /* THIS SEALS THE LEFT EDGE WHERE NEEDED */
+        /* CONTINUOUS LEFT BORDER FIX */
+        /* Applied to Zero, the first column of numbers (3,2,1), 1st 12, and 1-18 */
         .seal-left { border-left: 1px solid var(--border-color) !important; }
 
+        /* WINNER HIGHLIGHT - BRIGHTER AND ALL CATEGORIES */
         .cell.winner-glow {
-            box-shadow: inset 0 0 0 2px #fff, 0 0 20px var(--gold);
-            background: rgba(255, 215, 0, 0.2) !important;
-            color: #fff; z-index: 10;
+            box-shadow: inset 0 0 0 2px #fff, 0 0 30px var(--gold) !important;
+            background: rgba(255, 215, 0, 0.4) !important;
+            color: #fff !important; z-index: 10;
+            text-shadow: 0 0 5px black;
         }
 
         .c-zero { background: rgba(20, 100, 50, 0.6); }
@@ -200,7 +203,22 @@
         .lr-icon:hover { background: #ff4444; transform: scale(1.4); }
 
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 6000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .modal-box { background: #1b2b25; border: 2px solid var(--gold); border-radius: 16px; width: 350px; padding: 30px; text-align: center; }
+        .modal-box { background: #1b2b25; border: 2px solid var(--gold); border-radius: 16px; width: 450px; padding: 30px; text-align: center; }
+        
+        /* CHIP GRID IN MODAL */
+        .chip-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px; }
+        .chip-btn {
+            background: #222; border: 2px solid #444; border-radius: 50%; width: 60px; height: 60px;
+            color: #fff; font-weight: 800; font-size: 12px; cursor: pointer; transition: 0.2s;
+            display: flex; align-items: center; justify-content: center; margin: auto;
+            box-shadow: 0 4px 0 #111;
+        }
+        .chip-btn:hover { transform: translateY(-2px); filter: brightness(1.2); }
+        .chip-btn.selected { border-color: var(--gold); background: #3e2723; color: var(--gold); box-shadow: 0 0 15px rgba(201, 164, 76, 0.4); }
+        
+        .qty-row { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; color: #ccc; }
+        .qty-inp { width: 60px; padding: 8px; background: #222; border: 1px solid #444; color: white; text-align: center; border-radius: 4px; font-weight: 700; }
+
         .auth-inp { width: 100%; padding: 12px; margin-bottom: 10px; background: #222; border: 1px solid #444; color: white; border-radius: 6px; text-align: center; font-size: 16px; box-sizing: border-box; }
         .auth-btn { width: 100%; padding: 12px; background: var(--gold); border: none; font-weight: 800; cursor: pointer; border-radius: 6px; margin-top: 10px; color: #000; text-transform: uppercase; }
         .modal-actions { display: flex; gap: 10px; margin-top: 15px; }
@@ -360,8 +378,23 @@
 
     <div id="betModal" class="modal-overlay">
         <div class="modal-box">
-            <h3 style="color:var(--gold); margin-top:0;">PLACE BET</h3>
-            <input type="number" id="betAmt" class="auth-inp" placeholder="Amount" value="100">
+            <h3 style="color:var(--gold); margin-top:0;">SELECT CHIPS</h3>
+            
+            <div class="chip-grid">
+                <button class="chip-btn" onclick="selectChip(50, this)">50</button>
+                <button class="chip-btn" onclick="selectChip(100, this)">100</button>
+                <button class="chip-btn" onclick="selectChip(500, this)">500</button>
+                <button class="chip-btn" onclick="selectChip(1000, this)">1k</button>
+                <button class="chip-btn" onclick="selectChip(5000, this)">5k</button>
+                <button class="chip-btn" onclick="selectChip(10000, this)">10k</button>
+                <button class="chip-btn" onclick="selectChip(100000, this)">100k</button>
+            </div>
+
+            <div class="qty-row">
+                <span>MULTIPLIER:</span>
+                <input type="number" id="betQty" class="qty-inp" value="1" min="1">
+            </div>
+
             <div class="modal-actions">
                 <button class="modal-btn btn-cancel" onclick="closeModal()">CANCEL</button>
                 <button class="modal-btn btn-confirm" onclick="confirmBet()">BET</button>
@@ -421,7 +454,7 @@
             }
         }
 
-        // --- WHEEL (EUROPEAN SINGLE ZERO) ---
+        // --- WHEEL ---
         const WHEEL = ["0","32","15","19","4","21","2","25","17","34","6","27","13","36","11","30","8","23","10","5","24","16","33","1","20","14","31","9","22","18","29","7","28","12","35","3","26"];
         const REDS = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
         const ctx = document.getElementById('wheelCanvas').getContext('2d');
@@ -482,6 +515,9 @@
                     d.className = `cell ${REDS.includes(n)?'c-red':'c-black'}`; d.innerText = n; d.dataset.id = n;
                     d.style.gridRow = rIndex + 1; d.style.gridColumn = cIndex + 2; 
                     
+                    // IMPORTANT: ADD SEAL-LEFT TO THE FIRST COLUMN OF NUMBERS (3, 2, 1)
+                    if (cIndex === 0) d.classList.add('seal-left');
+
                     // Single number click
                     d.onclick = (e) => { if(e.target === d) preBet([n], n.toString()); };
 
@@ -566,43 +602,52 @@
 
         // --- BETTING ---
         let tempBet=null;
+        let selectedChipVal = 100;
+
+        function selectChip(val, btn) {
+            selectedChipVal = val;
+            document.querySelectorAll('.chip-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+        }
         
         function preBet(numbers, lbl, uiId = null) { 
             if(spinning) return; 
             let betNums = Array.isArray(numbers) ? numbers : [numbers];
             tempBet = { ids: betNums, lbl: lbl, uiId: uiId }; 
-            document.getElementById('betModal').style.display='flex'; document.getElementById('betAmt').focus(); 
+            
+            // Auto-Select Default Chip 100 if none selected
+            if(!document.querySelector('.chip-btn.selected')) selectChip(100, document.querySelectorAll('.chip-btn')[1]);
+            
+            document.getElementById('betModal').style.display='flex'; 
         }
         function closeModal(){ document.getElementById('betModal').style.display='none'; }
         
         function confirmBet(){
-            const amt = parseInt(document.getElementById('betAmt').value);
-            if(amt>0 && amt<=balance){
-                bets.push({ ...tempBet, quantity: amt });
-                balance-=amt; document.getElementById('dispBal').innerText=balance;
+            const qty = parseInt(document.getElementById('betQty').value);
+            const totalAmt = selectedChipVal * qty;
+
+            if(totalAmt > 0 && totalAmt <= balance){
+                bets.push({ ...tempBet, quantity: totalAmt });
+                balance -= totalAmt; document.getElementById('dispBal').innerText=balance;
                 closeModal();
                 
-                // VISUAL CHIP PLACEMENT (FIXED BUG: Use appendChild instead of innerHTML)
+                // VISUAL CHIP PLACEMENT
                 if (tempBet.uiId) {
-                    // Outer Bet
                     const cell = document.querySelector(`.cell[data-id="${tempBet.uiId}"]`);
                     if(cell) {
                         cell.classList.add('has-bet');
                         if(!cell.querySelector('.indicator-dot')) {
-                            let dot = document.createElement('div');
-                            dot.className = 'indicator-dot';
+                            let dot = document.createElement('div'); dot.className = 'indicator-dot';
                             cell.appendChild(dot);
                         }
                     }
                 } else {
-                    // Inside Bet
                     tempBet.ids.forEach(id => {
                         const cell = document.querySelector(`.cell[data-id="${id}"]`) || document.querySelector(`.cell`);
                         if(cell){ 
                             cell.classList.add('has-bet'); 
                             if(!cell.querySelector('.indicator-dot')) {
-                                let dot = document.createElement('div');
-                                dot.className = 'indicator-dot';
+                                let dot = document.createElement('div'); dot.className = 'indicator-dot';
                                 cell.appendChild(dot);
                             }
                         }
@@ -693,11 +738,7 @@
             document.getElementById('resNum').innerText=data.resultVal;
             document.getElementById('resColor').style.background = (data.resultVal=="0")?'#165b33':(REDS.includes(parseInt(data.resultVal))?'#c03a35':'#111');
             
-            // Highlight Table Winner
-            let winningCell = document.querySelector(`.cell[data-id="${data.resultVal}"]`);
-            if(winningCell) winningCell.classList.add('winner-glow');
-
-            // Calculate & Highlight Wins
+            highlightWins(data.resultVal);
             let localTotalWin = calculatePayout(data.resultVal);
 
             const h = document.getElementById('historyBar');
@@ -721,7 +762,43 @@
             }, 3000);
         }
 
-        // --- LOCAL PAYOUT VISUALIZER & CALCULATOR ---
+        // --- NEW: COMPREHENSIVE HIGHLIGHTING ---
+        function highlightWins(n) {
+            let num = parseInt(n);
+            // 1. Highlight the number itself
+            let numCell = document.querySelector(`.cell[data-id="${n}"]`);
+            if(numCell) numCell.classList.add('winner-glow');
+
+            if(num !== 0) {
+                // 2. Color (Red/Black)
+                let color = REDS.includes(num) ? "RED" : "BLACK";
+                document.querySelector(`.cell[data-id="${color}"]`)?.classList.add('winner-glow');
+
+                // 3. Even/Odd
+                let eo = (num % 2 === 0) ? "EVEN" : "ODD";
+                document.querySelector(`.cell[data-id="${eo}"]`)?.classList.add('winner-glow');
+
+                // 4. Low/High (1-18, 19-36)
+                let lh = (num <= 18) ? "1-18" : "19-36";
+                document.querySelector(`.cell[data-id="${lh}"]`)?.classList.add('winner-glow');
+
+                // 5. Dozens
+                let doz;
+                if(num <= 12) doz = "DOZ_1";
+                else if(num <= 24) doz = "DOZ_2";
+                else doz = "DOZ_3";
+                document.querySelector(`.cell[data-id="${doz}"]`)?.classList.add('winner-glow');
+
+                // 6. Rows (2:1)
+                // Row 0 = 3,6,9... (n % 3 === 0)
+                // Row 1 = 2,5,8... (n % 3 === 2)
+                // Row 2 = 1,4,7... (n % 3 === 1)
+                let mod = num % 3;
+                let rowId = (mod === 0) ? "ROW_0" : (mod === 2 ? "ROW_1" : "ROW_2");
+                document.querySelector(`.cell[data-id="${rowId}"]`)?.classList.add('winner-glow');
+            }
+        }
+
         function calculatePayout(winningNum) {
             winningNum = parseInt(winningNum);
             let totalWin = 0;
@@ -729,7 +806,6 @@
             bets.forEach(bet => {
                 let betIds = bet.ids.map(id => parseInt(id));
                 if(betIds.includes(winningNum)) {
-                    // Determine Payout Multiplier
                     let count = betIds.length;
                     let multiplier = 0;
                     if(count === 1) multiplier = 35;
@@ -740,11 +816,10 @@
                     else if(count === 12) multiplier = 2;
                     else if(count === 18) multiplier = 1;
 
-                    // Standard Payout: Stake * (Multiplier + 1)
                     let winAmount = bet.quantity * (multiplier + 1);
                     totalWin += winAmount;
 
-                    // Visual Flash
+                    // Flash winning chips
                     if(bet.uiId) {
                         let cell = document.querySelector(`.cell[data-id="${bet.uiId}"]`);
                         if(cell) cell.querySelector('.indicator-dot')?.classList.add('winning-chip');
