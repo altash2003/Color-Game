@@ -148,16 +148,19 @@
         }
         .cell:hover { background: rgba(255,255,255,.15) !important; }
         
-        /* LEFT SEAL FOR ALIGNMENT */
-        .seal-left { border-left: 1px solid var(--border-color) !important; }
+        /* THE ALIGNMENT FIX: 
+           Zero has NO right border.
+           The "Col 1" (3,2,1, 1st 12, 1-18) has a LEFT border. 
+           This creates the shared wall exactly on the line. */
+        .c-zero { background: rgba(20, 100, 50, 0.6); border-right: none !important; }
+        .col-first { border-left: 1px solid var(--border-color) !important; }
 
-        /* WINNER HIGHLIGHT - JUST WHITE LINE */
+        /* CLEAN WINNER HIGHLIGHT (No Overglow) */
         .cell.winner-glow {
-            box-shadow: inset 0 0 0 3px #fff !important; /* Thick White Line */
-            z-index: 15; /* Ensure above neighbors */
+            box-shadow: inset 0 0 0 3px #fff !important; 
+            z-index: 15;
         }
 
-        .c-zero { background: rgba(20, 100, 50, 0.6); }
         .c-red { background: rgba(180, 40, 40, 0.5); } .c-black { background: rgba(20, 20, 20, 0.5); } 
         .c-out { font-size: 11px; color: #ccc; text-transform: uppercase; }
         
@@ -171,58 +174,54 @@
             transition: 0.3s;
         }
 
-        /* VISIBLE BET BUTTONS (GHOST ZONES) */
+        /* --- VISIBLE & CENTERED BET BUTTONS --- */
         .hit-zone { 
             position: absolute; background: transparent; transition: 0.2s; cursor: pointer; 
-            /* Centering the pseudo element */
             display: flex; align-items: center; justify-content: center;
         }
         
-        /* The Visual Indicator (Dot/Bar) */
+        /* The visible dot/bar */
         .hit-zone::after {
-            content: ''; 
-            background: rgba(255, 255, 255, 0.2); /* Visible Faint White */
-            border-radius: 50%;
-            pointer-events: none;
-            transition: 0.2s;
+            content: ''; background: rgba(255, 255, 255, 0.2); 
+            border-radius: 50%; pointer-events: none; transition: 0.2s;
         }
         .hit-zone:hover::after {
-            background: var(--gold);
-            box-shadow: 0 0 8px var(--gold);
-            transform: scale(1.3);
+            background: var(--gold); box-shadow: 0 0 8px var(--gold); transform: scale(1.3);
         }
 
-        /* Corner: 30% size, Centered on intersection */
+        /* CENTERED PLACEMENTS using Top/Left 100% and Translate -50% */
+        /* Corner (Intersection) */
         .hz-corner { 
-            width: 40%; height: 40%; 
-            bottom: -20%; right: -20%; /* Puts center on the corner */
+            width: 24px; height: 24px; 
+            top: 100%; left: 100%; transform: translate(-50%, -50%); 
             z-index: 100; 
         }
-        .hz-corner::after { width: 10px; height: 10px; }
+        .hz-corner::after { width: 8px; height: 8px; }
 
-        /* Split V: Centered on bottom line */
+        /* Split Vertical (Bottom Line) */
         .hz-split-v { 
-            width: 60%; height: 30%; 
-            bottom: -15%; left: 20%; 
+            width: 100%; height: 20px; 
+            top: 100%; left: 50%; transform: translate(-50%, -50%); 
             z-index: 90; 
         }
         .hz-split-v::after { width: 6px; height: 6px; }
 
-        /* Split H: Centered on right line */
+        /* Split Horizontal (Right Line) */
         .hz-split-h { 
-            width: 30%; height: 60%; 
-            top: 20%; right: -15%; 
+            width: 20px; height: 100%; 
+            top: 50%; left: 100%; transform: translate(-50%, -50%); 
             z-index: 90; 
         }
         .hz-split-h::after { width: 6px; height: 6px; }
 
-        /* Street: Centered on top line */
+        /* Street (Top Line) */
         .hz-street { 
-            width: 100%; height: 30%; 
-            top: -15%; left: 0; 
+            width: 100%; height: 20px; 
+            top: 0; left: 50%; transform: translate(-50%, -50%); 
             z-index: 80; 
         }
-        .hz-street::after { width: 50%; height: 4px; border-radius: 2px; }
+        .hz-street::after { width: 60%; height: 4px; border-radius: 2px; }
+
 
         /* --- RIGHT SIDEBAR --- */
         .stats-sidebar { width: var(--sidebar-w); display: flex; flex-direction: column; gap: var(--gap); flex-shrink: 0; }
@@ -236,12 +235,11 @@
         .list-head { color: var(--gold); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
         .list-content { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; padding-right: 4px; }
         
-        /* Updated List Row for Better Visibility */
         .list-row { 
             display: flex; justify-content: space-between; 
             background: rgba(255,255,255,0.05); padding: 6px 8px; 
             border-radius: 4px; font-size: 11px; color: #ddd; align-items: center; 
-            border-left: 2px solid var(--gold); /* Accent */
+            border-left: 2px solid var(--gold); 
         }
         
         .chat-row { text-align: left; background: rgba(255,255,255,0.02); padding: 4px 8px; border-radius: 4px; font-size: 11px; margin-bottom: 4px; word-wrap: break-word; color: #ccc; }
@@ -506,7 +504,7 @@
             }
         }
 
-        // --- WHEEL (EUROPEAN SINGLE ZERO) ---
+        // --- WHEEL ---
         const WHEEL = ["0","32","15","19","4","21","2","25","17","34","6","27","13","36","11","30","8","23","10","5","24","16","33","1","20","14","31","9","22","18","29","7","28","12","35","3","26"];
         const REDS = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
         const ctx = document.getElementById('wheelCanvas').getContext('2d');
@@ -547,11 +545,11 @@
             const g = document.getElementById('grid'); g.innerHTML='';
             
             let z = document.createElement('div'); 
-            z.className = "cell c-zero seal-left"; 
+            z.className = "cell c-zero"; 
             z.style.gridRow="1/span 3"; z.style.display="flex"; z.style.alignItems="center"; z.style.justifyContent="center";
             z.innerText = "0";
             z.dataset.id = "0";
-            z.onclick = () => preBet([0], 'Single (0)');
+            z.onclick = () => preBet([0]);
             g.appendChild(z);
 
             const rows = [[3,6,9,12,15,18,21,24,27,30,33,36],[2,5,8,11,14,17,20,23,26,29,32,35],[1,4,7,10,13,16,19,22,25,28,31,34]];
@@ -562,36 +560,36 @@
                     d.className = `cell ${REDS.includes(n)?'c-red':'c-black'}`; d.innerText = n; d.dataset.id = n;
                     d.style.gridRow = rIndex + 1; d.style.gridColumn = cIndex + 2; 
                     
-                    if (cIndex === 0) d.classList.add('seal-left');
+                    if (cIndex === 0) d.classList.add('col-first'); // Left border for alignment
 
-                    d.onclick = (e) => { if(e.target === d) preBet([n], `Single (${n})`); };
+                    d.onclick = (e) => { if(e.target === d) preBet([n]); };
 
                     if(rIndex < 2) {
                         let neighbor = rows[rIndex+1][cIndex];
                         let zone = document.createElement('div');
-                        zone.className = "hit-zone hz-split-v"; zone.title = `Split ${n}-${neighbor}`;
-                        zone.onclick = (e) => { e.stopPropagation(); preBet([n, neighbor], `Split (${n}, ${neighbor})`); };
+                        zone.className = "hit-zone hz-split-v"; 
+                        zone.onclick = (e) => { e.stopPropagation(); preBet([n, neighbor]); };
                         d.appendChild(zone);
                     }
                     if(cIndex < 11) {
                         let neighbor = rowArr[cIndex+1];
                         let zone = document.createElement('div');
-                        zone.className = "hit-zone hz-split-h"; zone.title = `Split ${n}-${neighbor}`;
-                        zone.onclick = (e) => { e.stopPropagation(); preBet([n, neighbor], `Split (${n}, ${neighbor})`); };
+                        zone.className = "hit-zone hz-split-h"; 
+                        zone.onclick = (e) => { e.stopPropagation(); preBet([n, neighbor]); };
                         d.appendChild(zone);
                     }
                     if(rIndex < 2 && cIndex < 11) {
                         let n1=n, n2=rows[rIndex+1][cIndex], n3=rowArr[cIndex+1], n4=rows[rIndex+1][cIndex+1];
                         let zone = document.createElement('div');
-                        zone.className = "hit-zone hz-corner"; zone.title = `Corner`;
-                        zone.onclick = (e) => { e.stopPropagation(); preBet([n1, n2, n3, n4], `Corner (${n1}, ${n2}, ${n3}, ${n4})`); };
+                        zone.className = "hit-zone hz-corner"; 
+                        zone.onclick = (e) => { e.stopPropagation(); preBet([n1, n2, n3, n4]); };
                         d.appendChild(zone);
                     }
                     if(rIndex === 0) {
                         let colNums = [rows[0][cIndex], rows[1][cIndex], rows[2][cIndex]];
                         let zone = document.createElement('div');
-                        zone.className = "hit-zone hz-street"; zone.title = `Street`;
-                        zone.onclick = (e) => { e.stopPropagation(); preBet(colNums, `Street (${colNums.join(',')})`); };
+                        zone.className = "hit-zone hz-street"; 
+                        zone.onclick = (e) => { e.stopPropagation(); preBet(colNums); };
                         d.appendChild(zone);
                     }
                     g.appendChild(d);
@@ -600,7 +598,7 @@
                 let end = document.createElement('div'); end.className='cell c-out'; end.innerText="2:1"; 
                 end.style.gridRow = rIndex + 1; end.style.gridColumn = 14; 
                 end.dataset.id = "ROW_" + rIndex; 
-                end.onclick = () => preBet(rowArr, "Row", "ROW_" + rIndex); 
+                end.onclick = () => preBet(rowArr, "ROW_" + rIndex); 
                 g.appendChild(end);
             });
 
@@ -610,9 +608,9 @@
             [[1,"1st 12"],[2,"2nd 12"],[3,"3rd 12"]].forEach((d, i)=>{
                 let el=document.createElement('div'); el.className="cell c-out"; el.innerText=d[1]; 
                 el.style.gridRow=4; el.style.gridColumn=`${(d[0]-1)*4 + 2}/span 4`; 
-                if (i===0) el.classList.add('seal-left'); 
+                if (i===0) el.classList.add('col-first'); 
                 el.dataset.id = "DOZ_" + d[0];
-                el.onclick=()=>preBet(getDozen(d[0]), d[1], "DOZ_" + d[0]); 
+                el.onclick=()=>preBet(getDozen(d[0]), "DOZ_" + d[0]); 
                 g.appendChild(el);
             });
             
@@ -630,9 +628,9 @@
                 let el=document.createElement('div'); el.className="cell c-out"; el.innerText=label; 
                 if(label=="RED") el.style.background="rgba(180,40,40,0.5)"; if(label=="BLACK") el.style.background="rgba(20,20,20,0.5)";
                 el.style.gridRow=5; el.style.gridColumn=`${i*2 + 2}/span 2`; 
-                if (i===0) el.classList.add('seal-left'); 
+                if (i===0) el.classList.add('col-first'); 
                 el.dataset.id = label; 
-                el.onclick=()=>preBet(OUTSIDE_BETS[label], label, label); 
+                el.onclick=()=>preBet(OUTSIDE_BETS[label], label); 
                 g.appendChild(el);
             });
         }
@@ -647,10 +645,10 @@
             btn.classList.add('selected');
         }
         
-        function preBet(numbers, lbl, uiId = null) { 
+        function preBet(numbers, uiId = null) { 
             if(spinning) return; 
             let betNums = Array.isArray(numbers) ? numbers : [numbers];
-            tempBet = { ids: betNums, lbl: lbl, uiId: uiId }; 
+            tempBet = { ids: betNums, uiId: uiId }; 
             
             if(!document.querySelector('.chip-btn.selected')) selectChip(100, document.querySelectorAll('.chip-btn')[1]);
             
@@ -658,12 +656,29 @@
         }
         function closeModal(){ document.getElementById('betModal').style.display='none'; }
         
+        // HELPER TO GENERATE DESCRIPTIVE LABEL
+        function getBetLabel(ids, uiId) {
+            if(uiId) {
+                if(uiId.startsWith("ROW")) return "Row";
+                if(uiId.startsWith("DOZ")) return "Dozen";
+                return uiId; // Red, Black, etc.
+            }
+            if(ids.length === 1) return `Single (${ids[0]})`;
+            if(ids.length === 2) return `Split (${ids.join(', ')})`;
+            if(ids.length === 3) return `Street (${ids.join(', ')})`;
+            if(ids.length === 4) return `Corner (${ids.join(', ')})`;
+            if(ids.length === 6) return `Six Line (${ids[0]}..${ids[5]})`;
+            return "Bet";
+        }
+
         function confirmBet(){
             const qty = parseInt(document.getElementById('betQty').value);
             const totalAmt = selectedChipVal * qty;
 
             if(totalAmt > 0 && totalAmt <= balance){
-                bets.push({ ...tempBet, quantity: totalAmt, user: currentUser });
+                let label = getBetLabel(tempBet.ids, tempBet.uiId);
+                bets.push({ ...tempBet, quantity: totalAmt, user: currentUser, lbl: label });
+                
                 balance -= totalAmt; document.getElementById('dispBal').innerText=balance;
                 closeModal();
                 
@@ -798,7 +813,7 @@
             }, 3000);
         }
 
-        // --- COMPREHENSIVE HIGHLIGHTING ---
+        // --- HIGHLIGHTING ---
         function highlightWins(n) {
             let num = parseInt(n);
             let numCell = document.querySelector(`.cell[data-id="${n}"]`);
