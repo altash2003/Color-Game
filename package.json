@@ -1,7 +1,7 @@
 {
   "name": "casino-server",
-  "version": "1.0.0",
-  "description": "Casino with Color Game and Roulette",
+  "version": "2.0.0",
+  "description": "Casino with Voice Chat and Multiplayer Roulette",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
