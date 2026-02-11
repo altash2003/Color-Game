@@ -2,171 +2,171 @@ const express = require('express');
 const http = require('http');
 const { Server } = require("socket.io");
 const fs = require('fs');
-const bcrypt = require('bcryptjs');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
-    cors: { origin: "*" }
-});
+const io = new Server(server, { maxHttpBufferSize: 1e8 });
 
-app.use(express.json()); 
-app.use(express.static(__dirname));
-
-// --- DATABASE ---
 const DB_FILE = 'database.json';
-let dbData = { users: {}, admins: {} };
+let users = {};
+if (fs.existsSync(DB_FILE)) { try { users = JSON.parse(fs.readFileSync(DB_FILE)); } catch(e){ users = {}; } }
+function saveDatabase() { fs.writeFileSync(DB_FILE, JSON.stringify(users, null, 2)); }
 
-function loadDatabase() {
-    if (fs.existsSync(DB_FILE)) {
-        try {
-            const raw = fs.readFileSync(DB_FILE);
-            dbData = JSON.parse(raw);
-            if (!dbData.admins) dbData.admins = {}; 
-            if (!dbData.users) dbData.users = {}; 
-        } catch (e) { console.error("DB Load Error:", e); }
+let activeSockets = {}; 
+app.use(express.static(__dirname));
+app.get('/', (req, res) => { res.sendFile(__dirname + '/index.html'); });
+
+function broadcastRoomList(room) {
+    if(!room || room === 'lobby') return;
+    let list = [];
+    for(let id in activeSockets) {
+        if(activeSockets[id].room === room) {
+            list.push({ id: id, username: activeSockets[id].username, talking: activeSockets[id].isTalking||false });
+        }
     }
-}
-function saveDatabase() { fs.writeFileSync(DB_FILE, JSON.stringify(dbData, null, 2)); }
-loadDatabase();
-
-// Default Admin
-if (Object.keys(dbData.admins).length === 0) {
-    const hash = bcrypt.hashSync("admin123", 10); 
-    dbData.admins["admin"] = { password: hash, role: "ADMIN", created: Date.now() };
-    saveDatabase();
+    io.to(room).emit('room_users_update', list);
 }
 
-// --- STATE ---
-let activeSockets = {}; // { socketId: { username, role } }
+// --- GAME STATE ---
+let colorState = { status: 'BETTING', timeLeft: 20 };
+let rouletteState = { status: 'BETTING', timeLeft: 30, bets: [] };
 
-// --- ROULETTE LOGIC ---
-const R_REDS = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
-const R_WHEEL = ["0","28","9","26","30","11","7","20","32","17","5","22","34","15","3","24","36","13","1","00","27","10","25","29","12","8","19","31","18","6","21","33","16","4","23","35","14","2"];
-
-function isRouletteRed(n) { return R_REDS.includes(parseInt(n)); }
-
-function processRouletteSpin(username, bets) {
-    if (!dbData.users[username]) return { error: "User not found" };
-    
-    let totalBet = 0;
-    bets.forEach(b => totalBet += b.amount);
-
-    if (dbData.users[username].balance < totalBet) return { error: "Insufficient Funds" };
-    
-    // Deduct
-    dbData.users[username].balance -= totalBet;
-    
-    // Spin
-    const resultIndex = Math.floor(Math.random() * R_WHEEL.length);
-    const resultVal = R_WHEEL[resultIndex];
-    const nVal = parseInt(resultVal);
-    
-    let totalWin = 0;
-    
-    // Check wins
-    bets.forEach(bet => {
-        let won = false; 
-        let multiplier = 0;
+// Roulette Loop
+setInterval(() => {
+    if(rouletteState.status === 'BETTING') {
+        rouletteState.timeLeft--;
+        io.to('roulette').emit('roulette_timer', rouletteState.timeLeft);
         
-        // Exact Number
-        if (bet.numbers.length === 1 && bet.numbers[0].toString() === resultVal) {
-            won = true; multiplier = 35;
-        } 
-        // Color/Even/Odd logic (simplified for single number mapping in this version)
-        // If the bet covers the winning number
-        else if (bet.numbers.includes(nVal)) {
-            // Calculate Multiplier based on coverage probability
-            // 18 numbers (Red/Black/Even/Odd) = 1:1
-            // 12 numbers (Dozens) = 2:1
-            if (bet.numbers.length === 18) multiplier = 1;
-            else if (bet.numbers.length === 12) multiplier = 2;
-            else multiplier = Math.floor(35 / bet.numbers.length); // Rough approximation for splits
-            won = true; 
+        if(rouletteState.timeLeft <= 0) {
+            rouletteState.status = 'RESTING';
+            // 1. Timer hits 0 -> 0.5s Rest
+            setTimeout(() => {
+                rouletteState.status = 'LOCKED';
+                io.to('roulette').emit('roulette_state', 'LOCKED'); // 0.5s Lock
+                
+                setTimeout(() => {
+                    rouletteState.status = 'SPINNING';
+                    let n = Math.floor(Math.random() * 37);
+                    io.to('roulette').emit('roulette_spin_start', n);
+                    
+                    // Spin (4s) + Result Processing
+                    setTimeout(() => {
+                        io.to('roulette').emit('roulette_result_log', n);
+                        processRouletteWinners(n);
+                        
+                        // 0.5s Rest + Gathering(1s) + Coins(1.5s) + Reset(1s) = ~4s Post-Spin
+                        setTimeout(() => {
+                            rouletteState.status = 'BETTING'; rouletteState.timeLeft = 30; rouletteState.bets = [];
+                            io.to('roulette').emit('roulette_new_round');
+                        }, 5000); 
+                    }, 4500); 
+                }, 500); // 0.5s Lock duration
+            }, 500); // 0.5s Rest duration
         }
+    }
+}, 1000);
 
-        if (won) {
-            totalWin += bet.amount * (multiplier + 1);
+// Color Game Loop
+setInterval(() => {
+    if(colorState.status === 'BETTING') {
+        colorState.timeLeft--;
+        if(colorState.timeLeft <= 0) {
+            colorState.status = 'LOCKED';
+            io.to('colorgame').emit('game_rolling'); // Trigger roll animation immediately for visual flow
+            setTimeout(() => {
+                const C = ['RED', 'GREEN', 'BLUE', 'YELLOW', 'PINK', 'WHITE'];
+                let r = [C[Math.floor(Math.random()*6)], C[Math.floor(Math.random()*6)], C[Math.floor(Math.random()*6)]];
+                io.to('colorgame').emit('game_result', r);
+                setTimeout(() => {
+                    colorState.status = 'BETTING'; colorState.timeLeft = 20;
+                    io.to('colorgame').emit('game_reset');
+                    io.to('colorgame').emit('timer_update', 20);
+                }, 5000);
+            }, 3000);
+        } else io.to('colorgame').emit('timer_update', colorState.timeLeft);
+    }
+}, 1000);
+
+function processRouletteWinners(n) {
+    let totalWins = {}; 
+    rouletteState.bets.forEach(b => {
+        if(b.numbers.includes(n)) {
+            // Real Payouts
+            // Straight: 35:1 (Total 36) | Split: 17:1 (Total 18) | Street: 11:1 (Total 12)
+            // Corner: 8:1 (Total 9) | Six Line: 5:1 (Total 6) | Column/Dozen: 2:1 (Total 3) | Even/Odd: 1:1 (Total 2)
+            let mult = 36 / b.numbers.length; 
+            let win = b.amount * mult;
+            
+            if(!totalWins[b.socketId]) totalWins[b.socketId] = 0;
+            totalWins[b.socketId] += win;
+            
+            if(users[b.username]) users[b.username].balance += win;
         }
     });
-
-    dbData.users[username].balance += totalWin;
     saveDatabase();
-
-    return { 
-        result: resultVal, 
-        balance: dbData.users[username].balance, 
-        win: totalWin 
-    };
+    
+    // Send individual updates
+    for(let sid in totalWins) {
+        let u = activeSockets[sid];
+        if(u) {
+            io.to(sid).emit('update_balance', users[u.username].balance);
+            io.to(sid).emit('my_win_total', totalWins[sid]);
+        }
+    }
+    io.to('roulette').emit('roulette_win', { number: n });
 }
 
-// --- SOCKETS ---
 io.on('connection', (socket) => {
-    
-    socket.on('login', (data) => {
-        const { username, password } = data;
-        
-        // Auto-register for demo purposes if not exists
-        if (!dbData.users[username]) {
-            dbData.users[username] = { password: password, balance: 1000 };
-            saveDatabase();
-        }
+    socket.on('login', (d) => {
+        if(users[d.username] && users[d.username].password === d.password) {
+            joinRoom(socket, d.username, 'lobby');
+            socket.emit('login_success', { username: d.username, balance: users[d.username].balance });
+        } else socket.emit('login_error', "Invalid");
+    });
+    socket.on('register', (d) => {
+        if(!users[d.username]) { users[d.username] = { password: d.password, balance: 1000 }; saveDatabase(); joinRoom(socket, d.username, 'lobby'); socket.emit('login_success', { username: d.username, balance: 1000 }); } 
+        else socket.emit('login_error', "Taken");
+    });
+    socket.on('switch_room', (r) => { if(activeSockets[socket.id]) joinRoom(socket, activeSockets[socket.id].username, r); });
+    socket.on('voice_data', (b) => socket.to(activeSockets[socket.id]?.room).emit('voice_receive', {id:socket.id, audio:b}));
+    socket.on('voice_status', (t) => { if(activeSockets[socket.id]) { activeSockets[socket.id].isTalking = t; io.to(activeSockets[socket.id].room).emit('player_voice_update', {id:socket.id, talking:t}); } });
+    socket.on('chat_msg', (d) => io.to(d.room).emit('chat_broadcast', {type:'public', user:activeSockets[socket.id].username, msg:d.msg}));
 
-        if (dbData.users[username].password === password) {
-            activeSockets[socket.id] = { username, role: 'PLAYER' };
-            socket.emit('login_success', { 
-                username, 
-                balance: dbData.users[username].balance,
-                mySocketId: socket.id 
-            });
-            
-            // Broadcast to everyone that a new player joined
-            io.emit('player_list_update', Object.values(activeSockets));
-            
-            // Tell this user who is already here (for WebRTC connections)
-            const others = Object.keys(activeSockets).filter(id => id !== socket.id);
-            socket.emit('existing_users', others);
-        } else {
-            socket.emit('login_error', 'Invalid Credentials');
+    socket.on('place_bet_roulette', (d) => {
+        let u = activeSockets[socket.id];
+        if(u && users[u.username] && rouletteState.status === 'BETTING') {
+            if(users[u.username].balance >= d.amount) {
+                users[u.username].balance -= d.amount;
+                rouletteState.bets.push({ socketId: socket.id, username: u.username, numbers: d.numbers, amount: d.amount });
+                socket.emit('update_balance', users[u.username].balance);
+            }
         }
     });
 
-    socket.on('roulette_spin', (bets) => {
-        const user = activeSockets[socket.id];
-        if (!user) return;
-        
-        const outcome = processRouletteSpin(user.username, bets);
-        socket.emit('roulette_result', outcome);
-        
-        // Broadcast that someone is playing (adds life to the game)
-        socket.broadcast.emit('public_log', `${user.username} just spun the wheel!`);
-    });
-
-    // --- VOICE CHAT SIGNALING (WebRTC Relay) ---
-    // These events forward signaling data between clients to establish P2P connections
-    
-    socket.on('voice_signal', (payload) => {
-        io.to(payload.target).emit('voice_signal', {
-            signal: payload.signal,
-            callerID: socket.id
-        });
-    });
-
-    socket.on('talking_status', (isTalking) => {
-        const user = activeSockets[socket.id];
-        if(user) {
-            // Broadcast to everyone else that this specific user is talking
-            socket.broadcast.emit('player_talking', { id: socket.id, isTalking });
+    socket.on('roulette_clear', () => {
+        let u = activeSockets[socket.id];
+        if(!u || rouletteState.status !== 'BETTING') return;
+        let myBets = rouletteState.bets.filter(b => b.socketId === socket.id);
+        if(myBets.length > 0) {
+            let refund = myBets.reduce((a,b)=>a+b.amount, 0);
+            users[u.username].balance += refund;
+            rouletteState.bets = rouletteState.bets.filter(b => b.socketId !== socket.id);
+            socket.emit('update_balance', users[u.username].balance);
+            socket.emit('bets_cleared');
         }
     });
 
     socket.on('disconnect', () => {
-        const user = activeSockets[socket.id];
-        delete activeSockets[socket.id];
-        io.emit('player_list_update', Object.values(activeSockets));
-        io.emit('user_left', socket.id); // For WebRTC cleanup
+        if(activeSockets[socket.id]) { let r=activeSockets[socket.id].room; delete activeSockets[socket.id]; broadcastRoomList(r); }
     });
 });
 
+function joinRoom(socket, username, room) {
+    if(activeSockets[socket.id]) socket.leave(activeSockets[socket.id].room);
+    activeSockets[socket.id] = { username, room, isTalking: false };
+    socket.join(room);
+    broadcastRoomList(room);
+}
+
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Casino running on port ${PORT}`));
+server.listen(PORT, () => console.log(`Casino running on ${PORT}`));
