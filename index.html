@@ -13,48 +13,48 @@
         * { -ms-overflow-style: none; scrollbar-width: none; box-sizing: border-box; }
         *::-webkit-scrollbar { display: none; }
         
+        /* SECURITY: NO SELECT */
+        body { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
+
         .global-back { position: fixed; top: 15px; left: 15px; z-index: 9000; background: rgba(0,0,0,0.6); color: white; padding: 8px 15px; border: 1px solid #555; cursor: pointer; border-radius: 4px; font-weight: bold; display: none; }
+        
         #authOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 10000; display: flex; justify-content: center; align-items: center; }
         .auth-box { background: #111; padding: 40px; border: 1px solid #333; border-radius: 12px; text-align: center; width: 300px; }
         .auth-input { width: 100%; padding: 12px; margin: 10px 0; background: #222; border: 1px solid #444; color: white; text-align: center; font-weight:bold; }
         .auth-btn { width: 100%; padding: 12px; background: var(--gold); border: none; font-weight: bold; cursor: pointer; margin-top: 10px; border-radius:4px; }
 
-        /* PANELS - Fixed & Aligned */
+        /* --- PANELS FIXED LAYOUT --- */
         .side-panel { position: fixed; width: 300px; background: var(--panel-bg); border: 1px solid #444; display: none; flex-direction: column; z-index: 8000; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
         .side-panel.active { display: flex; }
-        
-        /* Left Column */
-        #playerPanel { top: 120px; left: 15px; height: 350px; border-left: 3px solid var(--cyan); }
-        #chatPanel { bottom: 80px; left: 15px; height: 300px; border-left: 3px solid var(--gold); }
-        
-        /* Right Column */
-        #betPanel { top: 120px; right: 15px; height: 350px; border-right: 3px solid var(--gold); }
-        #voicePanel { top: 480px; right: 15px; height: 120px; border-right: 3px solid var(--cyan); }
-        #musicPanel { bottom: 80px; right: 15px; height: 140px; border-right: 3px solid var(--cyan); }
-
         .panel-head { padding: 10px; font-weight: bold; font-size: 14px; background: rgba(255,255,255,0.05); border-bottom: 1px solid #333; color: #aaa; display: flex; justify-content: space-between; }
         .panel-tab { flex:1; text-align:center; cursor:pointer; color:#666; padding:5px; }
         .panel-tab.active { color:white; border-bottom:2px solid var(--gold); }
         .panel-list { overflow-y: auto; padding: 5px; flex: 1; }
-        .panel-item { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #222; font-size: 13px; align-items: center; }
-        .pl-mic { font-size: 10px; color: #555; margin-right: 8px; }
-        .panel-item.talking .pl-mic { color: var(--gold); animation: pulse 0.5s infinite; text-shadow:0 0 5px var(--gold); }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.4); } 100% { transform: scale(1); } }
+        .panel-item { display: flex; justify-content: space-between; padding: 6px; border-bottom: 1px solid #222; font-size: 13px; align-items: center; }
+        
+        /* Left Column (Table Top to Mid, Mid to Bottom) */
+        #playerPanel { top: 120px; left: 15px; height: 350px; border-left: 3px solid var(--cyan); }
+        #chatPanel { top: 480px; left: 15px; height: 350px; border-left: 3px solid var(--gold); }
+        
+        /* Right Column */
+        #betPanel { top: 120px; right: 15px; height: 350px; border-right: 3px solid var(--gold); }
+        #voicePanel { top: 480px; right: 15px; height: 120px; border-right: 3px solid var(--cyan); }
+        #musicPanel { top: 610px; right: 15px; height: 140px; border-right: 3px solid var(--cyan); }
 
-        /* CHAT UI */
+        /* CHAT */
         .chat-tabs { display: flex; border-bottom: 1px solid #333; background: #111; }
         .chat-content { flex: 1; overflow-y: scroll; padding: 10px; display: none; font-size: 13px; }
         .chat-content.active { display: block; }
         .chat-input-area { padding: 10px; border-top: 1px solid #333; display: none; background: #1a1a1a; gap: 5px; }
         .chat-input-area.active { display: flex; }
-        .chat-input { flex: 1; background: #222; border: 1px solid #444; color: white; padding: 8px; outline:none; border-radius: 4px; }
+        .chat-input { flex: 1; background: #222; border: 1px solid #444; color: white; padding: 8px; outline:none; }
 
-        /* MUSIC & VOICE */
+        /* MUSIC/VOICE */
+        .vp-row { display: flex; justify-content: space-around; padding: 10px; }
+        .vp-btn { background: #222; border: 1px solid #555; color: #888; padding: 5px 15px; border-radius: 15px; cursor: pointer; font-size: 10px; }
+        .vp-btn.active { border-color: var(--gold); color: var(--gold); }
         .mp-controls { display:flex; gap:5px; padding:10px; }
         .mp-btn { flex:1; background: #333; border: 1px solid #555; color: white; padding: 8px; cursor: pointer; }
-        .vp-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #333; }
-        .vp-btn { background: #222; border: 1px solid #555; color: #888; padding: 5px 15px; border-radius: 15px; cursor: pointer; font-size: 10px; }
-        .vp-btn.active { border-color: var(--gold); color: var(--gold); background: rgba(255,215,0,0.1); }
 
         /* CHIPS (EXACT CLONES) */
         .chips-bar { display: flex; gap: 10px; padding: 8px 20px; background: rgba(0,0,0,0.5); border-radius: 50px; border: 1px solid rgba(255,255,255,0.1); align-items:center; width: fit-content; margin: 0 auto; pointer-events: auto; }
@@ -62,8 +62,8 @@
         .chip.active { transform: scale(1.15) translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.8); }
         .chip::before { content: ''; position: absolute; inset: 0; border-radius: 50%; background: repeating-conic-gradient(var(--c1) 0deg 15deg, var(--c2) 15deg 30deg, var(--c1) 30deg 45deg, var(--c3) 45deg 60deg); }
         .chip::after { content: ''; position: absolute; inset: 4px; border-radius: 50%; background: var(--c1); border: 1px solid rgba(0,0,0,0.3); z-index: 2; }
-        /* Centered Text */
-        .chip-label { position: relative; z-index: 10; width: 22px; height: 22px; background: #fdfbf7; border-radius: 50%; border: 1px solid #d4d4d4; color: #333; font-size: 9px; font-weight: 900; display:flex; justify-content:center; align-items:center; }
+        /* CENTERED TEXT & UPPERCASE */
+        .chip-label { position: relative; z-index: 10; width: 22px; height: 22px; background: #fdfbf7; border-radius: 50%; border: 1px solid #d4d4d4; color: #333; font-size: 9px; font-weight: 900; text-transform:uppercase; display:flex; justify-content:center; align-items:center; }
         
         .chip-50 { --c1: #e0dfd5; --c2: #fff; --c3: #b0b0a8; }
         .chip-200 { --c1: #6b1818; --c2: #a32e2e; --c3: #3b0505; }
@@ -71,9 +71,9 @@
         .chip-10k { --c1: #142850; --c2: #2c4d87; --c3: #050e21; }
         .chip-100k { --c1: #262626; --c2: #444; --c3: #000; }
         
-        .chip.chip-board { width: 45px; height: 45px; pointer-events: none; z-index: 200; position: absolute; box-shadow: 0 4px 8px rgba(0,0,0,0.8); }
+        .chip.chip-board { width: 36px; height: 36px; pointer-events: none; z-index: 200; position: absolute; box-shadow: 0 4px 8px rgba(0,0,0,0.8); display:flex; justify-content:center; align-items:center; }
         .chip.chip-board::after { inset: 4px; } 
-        .chip.chip-board .chip-label { width: 22px; height: 22px; font-size: 9px; }
+        .chip.chip-board .chip-label { width: 18px; height: 18px; font-size: 8px; }
 
         /* LOBBY */
         #view-lobby { background: url('background.jpg') center/cover; flex-direction: column; justify-content: center; align-items: center; gap: 30px; }
@@ -84,16 +84,17 @@
         #view-roulette { background: url('background.jpg') center/cover; }
         .r-center { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; width: 100vw; transition: filter 0.3s; }
         .r-center.blur { filter: blur(8px); pointer-events: none; }
-        .r-scaler { transform: scale(1.65); transform-origin: center center; margin-top: 20px; transition: opacity 0.5s; } 
+        .r-scaler { transform: scale(1.65); transform-origin: center center; margin-top: 20px; } 
         .r-board { position: relative; background-color: #01431E; padding: 15px; border-radius: 16px; border: 10px solid #002b12; box-shadow: 0 0 0 5px var(--gold), 0 20px 50px black; width: fit-content; display: flex; flex-direction: column; align-items: center; }
         
-        /* HUD FIXED TOP CENTER */
+        /* HUD FIXED TOP CENTERED */
         .r-hud { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); display: flex; gap: 40px; z-index: 9000; }
         .r-hud-panel { background: rgba(0,0,0,0.85); padding: 5px 20px; border-radius: 20px; border: 1px solid #444; text-align: center; box-shadow: 0 5px 15px black; height:60px; display:flex; flex-direction:column; justify-content:center; }
-        .r-hud-panel.bal, .r-hud-panel.status { width: 220px; }
+        /* FIXED WIDTHS AS REQUESTED */
+        .r-hud-panel.bal, .r-hud-panel.status { width: 250px; } 
         .r-hud-panel.timer { width: 100px; border: 1px solid var(--gold); }
         .r-hud-lbl { font-size: 10px; color: #888; letter-spacing: 2px; }
-        .r-hud-val { font-size: 24px; font-weight: bold; color: white; font-family: 'Oswald'; }
+        .r-hud-val { font-size: 28px; font-weight: bold; color: white; font-family: 'Oswald'; }
 
         /* History */
         .r-history { width: 628px; height: 32px; background: rgba(0,0,0,0.4); border-radius: 4px; display: flex; align-items: center; padding: 0 2px; gap: 4px; margin-bottom: 8px; overflow: hidden; justify-content: center; border: none; }
@@ -109,13 +110,15 @@
         .zone-0 { grid-column: 1; grid-row: 1 / 4; background-color: #016D29; border-radius: 6px 0 0 6px; }
         
         .hotspot-overlay { position: absolute; inset: 0; z-index: 60; pointer-events: none; }
+        /* INVISIBLE CLICKABLE ZONES */
         .hotspot { position: absolute; cursor: pointer; pointer-events: auto; z-index: 60; background: transparent; }
         .hotspot:hover { background: rgba(255,255,255,0.1); }
 
-        /* Controls Area - CRITICAL Z-INDEX FIX */
+        /* Controls Area */
         .r-controls-area { width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 10px; gap: 10px; z-index: 200; position:relative; }
         .btn-row { display: flex; gap: 10px; }
-        .ctrl-btn { background: #111; border: 1px solid #444; color: #ccc; padding: 6px 15px; font-size: 11px; font-weight: bold; border-radius: 4px; cursor: pointer; transition: 0.2s; pointer-events: auto; }
+        /* High Z-Index for Buttons */
+        .ctrl-btn { background: #111; border: 1px solid #444; color: #ccc; padding: 6px 15px; font-size: 11px; font-weight: bold; border-radius: 4px; cursor: pointer; transition: 0.2s; pointer-events: auto; z-index: 201; position:relative; }
         .ctrl-btn:hover { background: #222; color: white; border-color: var(--gold); }
 
         /* BUTTONS (LOWER LEFT) */
@@ -123,7 +126,7 @@
         .icon-btn { width: 45px; height: 45px; border-radius: 50%; background: #222; border: 1px solid #555; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 18px; color: #ccc; transition: 0.2s; }
         .icon-btn:hover { color: white; border-color: var(--gold); }
         
-        /* Mute Button */
+        /* Mute Button (Static Icon Top Right) */
         #muteBtn { position: absolute; top: 15px; right: 20px; z-index: 9000; cursor: pointer; color: #888; font-size: 24px; transition:0.2s; }
         #muteBtn:hover { color:white; }
 
@@ -136,7 +139,8 @@
         #win-overlay-stage { position: fixed; inset: 0; z-index: 8000; display: none; align-items: center; justify-content: center; pointer-events: none; opacity:0; transition: opacity 0.5s; }
         #win-overlay-stage.active { display: flex; opacity: 1; }
         .winning-line { display: flex; gap: 15px; padding: 20px; background: rgba(0,0,0,0.8); border-radius: 20px; border: 2px solid #FFD700; transform: scale(1.5); align-items:center; flex-wrap: wrap; justify-content: center; max-width: 80%; }
-        .win-cell-clone { width: 60px; height: 40px; display: flex; justify-content: center; align-items: center; font-weight: bold; color: white; border: 2px solid gold; border-radius: 6px; position: relative; background: #222; box-shadow: 0 0 10px gold; font-family:'Oswald'; font-size: 14px; }
+        /* Style clones exactly like table cells but bigger */
+        .win-cell-clone { width: 60px; height: 40px; display: flex; justify-content: center; align-items: center; font-weight: bold; color: white; border: 2px solid gold; border-radius: 6px; position: relative; background: #222; box-shadow: 0 0 10px gold; font-family:'Oswald'; font-size: 14px; text-transform:uppercase; }
         .win-cell-clone.red { background: #d32f2f; } .win-cell-clone.black { background: #111; } .win-cell-clone.green { background: #016D29; }
         .win-amt-tag { position: absolute; top: -20px; background: #FFD700; color: black; font-size: 12px; font-weight: 900; padding: 2px 5px; border-radius: 4px; white-space: nowrap; box-shadow: 0 2px 5px black; z-index: 10; left:50%; transform:translateX(-50%); }
         .flying-coin { position: fixed; width: 40px; height: 40px; background: gold; border-radius: 50%; border: 3px solid orange; box-shadow: 0 0 15px yellow; z-index: 10000; display: flex; justify-content: center; align-items: center; font-weight: bold; color: black; font-size: 10px; transition: all 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
@@ -170,25 +174,25 @@
         </div>
         <div class="panel-list" id="pList"></div>
     </div>
+    
     <div id="chatPanel" class="side-panel">
         <div class="panel-head">
             <div class="panel-tab active" onclick="tabChat('public')">PUBLIC</div>
             <div class="panel-tab" onclick="tabChat('support')">SUPPORT</div>
         </div>
         <div class="chat-content active" id="content-public"></div><div class="chat-content" id="content-support"></div>
-        <div class="chat-input-area active" id="input-public"><input id="chatIn" class="chat-input" placeholder="Type..."><button onclick="sendChat('public')" style="background:var(--gold); border:none; padding:0 10px;">></button></div>
-        <div class="chat-input-area" id="input-support"><input id="supportIn" class="chat-input" placeholder="Msg Admin..."><button onclick="sendChat('support')" style="background:var(--cyan); border:none; padding:0 10px;">></button></div>
+        <div class="chat-input-area"><input id="chatIn" class="chat-input" placeholder="Type..."><button onclick="sendChat('public')" style="background:var(--gold); border:none; padding:0 10px;">></button></div>
     </div>
 
     <div id="betPanel" class="side-panel"><div class="panel-head"><div style="flex:1; text-align:center;">CURRENT BETS</div></div><div class="panel-list" id="bList"></div><div style="padding:10px; font-size:12px; text-align:right; color:var(--gold); border-top:1px solid #333;">TOTAL: <span id="bTotal">0</span></div></div>
-    
-    <div id="voicePanel" class="side-panel" style="height:120px;">
-        <div class="panel-head"><div style="flex:1; text-align:center;">VOICE</div></div>
+
+    <div id="voicePanel" class="side-panel">
+        <div class="panel-head"><div style="flex:1; text-align:center;">VOICE SETTINGS</div></div>
         <div class="vp-row"><button class="vp-btn" id="v-off" onclick="setVoice('off')">OFF</button><button class="vp-btn" id="v-ptt" onclick="setVoice('ptt')">PTT</button><button class="vp-btn" id="v-auto" onclick="setVoice('auto')">AUTO</button></div>
     </div>
-    
-    <div id="musicPanel" class="side-panel" style="height:140px;">
-        <div class="panel-head"><div style="flex:1; text-align:center;">DJ</div></div>
+
+    <div id="musicPanel" class="side-panel">
+        <div class="panel-head"><div style="flex:1; text-align:center;">CASINO DJ</div></div>
         <div class="mp-controls"><button class="mp-btn" onclick="toggleMusic()">PLAY/PAUSE</button><button class="mp-btn" onclick="stopMusic()">STOP</button></div>
         <div style="padding:0 10px;"><input type="range" class="vol-slider" min="0" max="100" value="20" onchange="setVolume(this.value)"></div>
     </div>
@@ -248,12 +252,14 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
+        // SECURITY
         document.addEventListener('contextmenu', e=>e.preventDefault());
         document.onkeydown = (e) => { if(e.keyCode==123 || (e.ctrlKey && e.shiftKey && e.keyCode==73)) return false; };
 
         const socket = io();
         let me="", bal=0, room="lobby", chip=50;
-        let isRolling=false, bets=[], lastBets=[], boardChips={}; 
+        let isRolling=false, bets=[], lastBets=[];
+        let boardChips = {}; 
         const SCALE = 1.65; const REDS=[1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
 
         function login(){ socket.emit('login', {username:document.getElementById('u').value, password:document.getElementById('p').value}); }
@@ -334,8 +340,15 @@
             document.getElementById('bTotal').innerText = total;
         }
 
-        function sendClear() { if(isRolling) return; socket.emit('roulette_clear'); }
-        socket.on('bets_cleared', ()=>{ for(let k in boardChips) boardChips[k].dom.remove(); boardChips={}; renderBetList(); });
+        function sendClear() { 
+            if(isRolling) return;
+            socket.emit('roulette_clear'); 
+        }
+        socket.on('bets_cleared', ()=>{
+            for(let k in boardChips) boardChips[k].dom.remove();
+            boardChips={}; 
+            renderBetList(); 
+        });
 
         function sendUndo() {
             if(isRolling) return;
@@ -382,12 +395,13 @@
             document.getElementById('wheel-overlay').classList.add('show'); spin(n); 
         });
         socket.on('roulette_new_round', ()=>{ 
-            isRolling=false; sendClear(); 
+            isRolling=false; 
+            for(let k in boardChips) boardChips[k].dom.remove(); boardChips={}; renderBetList();
             document.getElementById('hud-status').innerText="BETTING"; 
             document.getElementById('rContainer').classList.remove('blur'); 
             document.getElementById('win-overlay-stage').classList.remove('active'); 
         });
-        socket.on('roulette_timer', t=>{ document.getElementById('hud-timer').innerText=t; if(t<=0) document.getElementById('hud-status').innerText="LOCKED"; });
+        socket.on('roulette_timer', t=>{ document.getElementById('hud-timer').innerText=t; });
         socket.on('roulette_state', s=>{ document.getElementById('hud-status').innerText=s; if(s==='LOCKED'||s==='CLOSED') isRolling = true; });
 
         function initR() {
@@ -424,8 +438,8 @@
                 mkZone(x+5, OY-5, W-10, 10, [nT,nM,nB], "Street "+nB);
                 if(c<11) {
                     mkZone(x+W-5, OY+5, 10, H-10, [nT,nT+3], "Split "+nT+","+ (nT+3)); mkZone(x+W-5, OY+H+GAP+5, 10, H-10, [nM,nM+3], "Split "+nM+","+ (nM+3)); mkZone(x+W-5, OY+(H+GAP)*2+5, 10, H-10, [nB,nB+3], "Split "+nB+","+ (nB+3));
-                    mkZone(x+W-5, OY+H-5, 10, 10, [nT,nM,nT+3,nM+3], "Corner"); mkZone(x+W-5, OY+(H*2)+GAP-5, 10, 10, [nM,nB,nM+3,nB+3], "Corner");
-                    mkZone(x+W-5, OY-5, 10, 10, [nT,nM,nB,nT+3,nM+3,nB+3], "Six Line");
+                    mkZone(x+W-5, OY+H-5, 10, 10, [nT,nM,nT+3,nM+3], "Corner", [nT,nM,nT+3,nM+3]); mkZone(x+W-5, OY+(H*2)+GAP-5, 10, 10, [nM,nB,nM+3,nB+3], "Corner", [nM,nB,nM+3,nB+3]);
+                    mkZone(x+W-5, OY-5, 10, 10, [nT,nM,nB,nT+3,nM+3,nB+3], "Six Line", [nT,nM,nB,nT+3,nM+3,nB+3]);
                 }
             }
             mkZone(5, 5, 50, (H+GAP)*3, [0], "Straight 0");
@@ -444,12 +458,12 @@
             }, 100);
         }
 
-        function mkZone(x,y,w,h,n,desc){ 
+        function mkZone(x,y,w,h,n,desc, hlNums){ 
             let d=document.createElement('div'); d.className='hotspot'; 
             d.style.left=x+'px'; d.style.top=y+'px'; d.style.width=w+'px'; d.style.height=h+'px'; 
             d.onclick=(e)=>{ let r=d.getBoundingClientRect(); placeChip(n, desc, r.left+r.width/2, r.top+r.height/2); };
-            d.onmouseenter=()=>{ n.forEach(num=>{ let c=document.getElementById('cell-'+num); if(c)c.classList.add('lit'); }); };
-            d.onmouseleave=()=>{ n.forEach(num=>{ let c=document.getElementById('cell-'+num); if(c)c.classList.remove('lit'); }); };
+            d.onmouseenter=()=>{ hlNums.forEach(num=>{ let c=document.getElementById('cell-'+num); if(c)c.classList.add('lit'); }); };
+            d.onmouseleave=()=>{ hlNums.forEach(num=>{ let c=document.getElementById('cell-'+num); if(c)c.classList.remove('lit'); }); };
             document.getElementById('hotspotOverlay').appendChild(d); 
         }
 
